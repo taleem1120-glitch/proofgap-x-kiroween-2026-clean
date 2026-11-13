@@ -1,4 +1,5 @@
 import { DEFAULT_LIMITS } from './limits.js';
+import { validateSchema } from './schema.js';
 
 export class CaseValidationError extends Error {
   constructor(issues) {
@@ -13,6 +14,8 @@ const SHA_RE = /^[a-f0-9]{64}$/;
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const STANCES = new Set(['supports', 'contradicts']);
 // eslint-disable-next-line no-control-regex
+const BIDI_RE = /[\u202a-\u202e\u2066-\u2069]/;
+const LONE_SURROGATE_RE = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
 const CONTROL_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -30,13 +33,30 @@ export function parseCaseText(text, limits = DEFAULT_LIMITS) {
   return validateCase(data, limits);
 }
 
-/** Validate a parsed case; returns the (unchanged) case or throws. */
+/**
+ * Validate a parsed case; returns the (unchanged) case or throws.
+ * Order: (1) forbidden-key scan, (2) JSON Schema (structure, types, limits,
+ * safe ids, unsupported properties), (3) semantic checks (unique ids,
+ * reference integrity, derivation cycles/depth, caller-supplied limits).
+ * Issues are merged; the first issue reported for a path wins.
+ */
 export function validateCase(data, limits = DEFAULT_LIMITS) {
+  if (!isObj(data)) throw new CaseValidationError([{ path: '$', message: 'case must be an object' }]);
+  const merged = [];
+  const seen = new Set();
+  const push = (list) => { for (const i of list) { if (!seen.has(i.path) && merged.length < limits.maxIssues) { seen.add(i.path); merged.push(i); } } };
+  const keyIssues = [];
+  scanKeys(data, '$', (path, message) => keyIssues.push({ path, message }), 0);
+  push(keyIssues);
+  push(validateSchema(data, undefined, { maxIssues: limits.maxIssues }));
+  push(semanticIssues(data, limits));
+  if (merged.length) throw new CaseValidationError(merged);
+  return data;
+}
+
+function semanticIssues(data, limits) {
   const issues = [];
   const add = (path, message) => { if (issues.length < limits.maxIssues) issues.push({ path, message }); };
-
-  if (!isObj(data)) { throw new CaseValidationError([{ path: '$', message: 'case must be an object' }]); }
-  scanKeys(data, '$', add, 0);
 
   if (data.schemaVersion !== '1.0') add('$.schemaVersion', 'must be "1.0"');
   str(data.caseId, '$.caseId', add, limits, true, ID_RE);
@@ -107,14 +127,15 @@ export function validateCase(data, limits = DEFAULT_LIMITS) {
     });
   });
 
-  if (issues.length) throw new CaseValidationError(issues);
-  return data;
+  return issues;
 }
 
 function str(v, path, add, limits, required, re) {
   if (typeof v !== 'string' || (required && v.length === 0)) { add(path, 'must be a non-empty string'); return false; }
   if (v.length > limits.maxStringLength) { add(path, `exceeds ${limits.maxStringLength} characters`); return false; }
   if (CONTROL_RE.test(v)) { add(path, 'contains control characters'); return false; }
+  if (BIDI_RE.test(v)) { add(path, 'contains bidirectional control characters'); return false; }
+  if (LONE_SURROGATE_RE.test(v)) { add(path, 'contains unpaired surrogate code units'); return false; }
   if (re && !re.test(v)) { add(path, `does not match ${re}`); return false; }
   return true;
 }

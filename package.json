@@ -5,10 +5,19 @@
   "type": "module",
   "private": true,
   "license": "UNLICENSED",
-  "engines": { "node": ">=20" },
-  "bin": { "proofgap": "src/cli.js" },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "proofgap": "src/cli.js"
+  },
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
     "analyze": "node src/cli.js"
-  }
+  },
+  "files": [
+    "src",
+    "schemas",
+    "examples"
+  ]
 }

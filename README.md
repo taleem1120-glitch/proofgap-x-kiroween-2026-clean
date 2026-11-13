@@ -22,12 +22,18 @@ See `examples/sample-case.json` (synthetic). Top level: `schemaVersion: "1.0"`, 
 ## Security defaults
 Local only (no network code, no telemetry); 1 MB input cap; item/string/depth limits (`src/limits.js`); `__proto__`/`constructor`/`prototype` keys and control characters rejected; derivation cycles rejected; output escapes `< > & U+2028/9`; CLI never overwrites files. Don't commit real case data.
 
+## Validation
+Input is checked in three stages before analysis: forbidden-key scan, then the JSON Schema in `schemas/case.v1.schema.json` (strict: unsupported properties rejected), then semantic checks (unique ids, reference integrity, derivation cycles/depth). Errors are path-specific, e.g. `$.evidence[0].sourceId: unknown source "x"`. The in-repo schema validator (`src/schema.js`) supports only the keyword subset the schema uses and rejects any other keyword. Exit codes: 0 ok, 1 invalid input or I/O failure, 2 usage.
+
+## Tests
+`npm test` runs unit, schema, seeded property/fuzz and CLI tests (details and recorded results in `.kiro/specs/phase1/acceptance.md`).
+
 ## Known limitations
 - Independence relies on provenance the case author declares; undeclared common origins are invisible.
 - `sha256` values are not verified against actual files.
 - Scores are a simple heuristic (noisy-OR over independent origins, threshold of 2), uncalibrated.
 - Duplicate detection by description is exact after trim/lowercase only.
-- Not fuzzed; no formal threat model or external review.
+- Fuzzing is seeded and small (200 seeds per property), not coverage-guided. Ajv/fast-check could not be installed (registry 403), so a small in-repo validator and PRNG are used. No formal threat model or external review.
 
 ## Layout
 `src/` code, `test/` tests (`node:test`), `examples/` synthetic data, `.kiro/specs/phase1/` requirements, design, tasks, acceptance; `.kiro/KIRO_USAGE.md` factual Kiro usage log.

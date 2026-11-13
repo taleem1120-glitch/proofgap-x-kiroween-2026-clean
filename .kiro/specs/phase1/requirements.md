@@ -12,3 +12,9 @@ Scope: bounded vertical slice. Not forensic software; no certainty claims.
 - R8. THE SYSTEM SHALL enforce limits (bytes, item counts, string length, derivation depth, issue count), reject prototype-pollution keys and control characters, and reject derivation cycles.
 - R9. THE SYSTEM SHALL make no network calls and SHALL NOT transmit case data. The CLI SHALL NOT overwrite existing output files.
 - R10. Report output SHALL escape `< > & U+2028 U+2029`.
+
+## Phase 2 additions
+- R11. THE SYSTEM SHALL validate every case against a versioned JSON Schema (rejecting unsupported properties, unsafe ids, out-of-range values) before analysis.
+- R12. THE SYSTEM SHALL report validation errors with `$`-style paths and SHALL NOT emit stack traces from the CLI.
+- R13. THE CLI SHALL read at most the size limit, accept only regular files, and SHALL NOT overwrite any existing output path.
+- R14. Text fields SHALL reject control characters, bidirectional control characters and unpaired surrogates.
