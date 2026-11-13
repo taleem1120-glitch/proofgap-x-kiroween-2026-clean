@@ -1,0 +1,14 @@
+{
+  "name": "proofgap-x",
+  "version": "0.1.0",
+  "description": "Explainable evidence-confidence stress testing (Phase 1 prototype, not forensic software)",
+  "type": "module",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": { "node": ">=20" },
+  "bin": { "proofgap": "src/cli.js" },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "analyze": "node src/cli.js"
+  }
+}
