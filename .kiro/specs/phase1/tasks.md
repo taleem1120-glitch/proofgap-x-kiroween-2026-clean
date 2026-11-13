@@ -112,3 +112,8 @@ D1–D8 change scores/origin counts only in the affected situations (they can on
 4. Heuristic undeclared-dependence detection with measured precision/recall (currently unscored warnings only).
 5. Retry Ajv/fast-check when the registry is reachable and use them as differential oracles.
 6. Report signing; HTML/CSV encoders with their own tests.
+
+## Phase 3b — local validation while CI is BLOCKED_BY_BILLING
+- [x] `scripts/validate-local.js` / `npm run validate:local`: full suite + focused groups + benchmark reproducibility check; records environment, hashes and logs in `validation/<id>/`.
+- [x] `docs/CI_STATUS.md`: CI marked BLOCKED_BY_BILLING; workflow preserved unchanged; no billing change, no re-run.
+- Remaining: owner resolves billing and runs CI (Node 20/22); Node 20 NOT TESTED until then.

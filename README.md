@@ -22,6 +22,7 @@ Node.js ≥ 20, **zero runtime dependencies**.
 ```sh
 npm ci                                   # uses package-lock.json (empty dependency tree)
 npm test                                 # all tests
+npm run validate:local                   # full local validation, recorded under validation/<id>/
 npm run bench                            # synthetic benchmark (writes nothing unless --out is given)
 node src/cli.js case.json [--out report-file] [--evidence-dir dir] [--format json|text]
 ```
@@ -29,6 +30,8 @@ Exit codes: 0 ok, 1 invalid input/I-O failure, 2 usage. `--out` never overwrites
 
 ## Case format (schema 1.0, `schemas/case.v1.schema.json`)
 `schemaVersion: "1.0"`, `caseId`, `title`, `sources[]` (`id`, `name`, optional `derivedFrom[]`, `originGroup`), `claims[]` (`id`, `statement`), `evidence[]` (`id`, `sourceId`, `description`, optional `sha256`, optional `file` relative path used only with `--evidence-dir`, `links[]` of `{claimId, stance: supports|contradicts, strength 0..1}`). Unknown properties are rejected. IDs match `[A-Za-z0-9_.-]{1,64}`. See `examples/`.
+
+**CI status:** GitHub Actions is `BLOCKED_BY_BILLING` (jobs never started; not a code failure and not a pass). Only local results exist; see `docs/CI_STATUS.md`.
 
 ## Security defaults
 Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth limits; schema + semantic validation with `$`-paths; prototype-pollution keys, control/bidi characters and lone surrogates rejected; report output escaped; file verification restricted to an explicit directory (no symlinks, no traversal, regular files only, size/count/time limits). Threat model: `docs/THREAT_MODEL.md`.
