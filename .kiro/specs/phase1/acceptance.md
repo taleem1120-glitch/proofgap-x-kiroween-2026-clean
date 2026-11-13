@@ -100,7 +100,7 @@ Phase 1 and Phase 2 test files were not edited in Phase 3, and all 53 of their t
 | P3-A9 | Demo shows 4 items → 1 origin, plus MISMATCH/MISSING states | VERIFIED | demo.test.js, `npm run demo` |
 | P3-A10 | Benchmark: hidden truth, disjoint dev/held-out, detectors blind to truth, metrics hand-checked | VERIFIED | benchmark.test.js |
 | P3-A11 | `npm ci` works with the committed lockfile | VERIFIED locally (0 deps) | observed "found 0 vulnerabilities" |
-| P3-A12 | CI passes on Node 20 and 22 | SEE BELOW | filled in after the workflow runs |
+| P3-A12 | CI passes on Node 20 and 22 | **NOT RUN (infrastructure: GitHub billing)** | see CI evidence below; no CI pass is claimed |
 | P3-A13 | Works on Node 20 | NOT TESTED locally | CI only |
 | P3-A14 | Works on Windows/macOS | NOT TESTED | — |
 | P3-A15 | Detects undeclared copies | **FAILED (by design/limitation)** | benchmark: 100% FPR on undeclared slice for every detector |
@@ -110,4 +110,5 @@ Held-out, declared-provenance scenarios, 535 uncorroborated + 263 corroborated c
 Scaling (one run, 1000 sources / 5000 evidence / 500 claims): ~251 ms wall, +32.7 MB heap, 137 MB RSS, 5.2 MB report.
 
 ## CI evidence
-(see section appended after the first workflow run)
+Observed on commit `356953f` (GitHub API): run 43509421759 (push) and run 43509432406 (pull_request), workflow `CI`, both `completed` with conclusion `failure`. Both matrix jobs (Node 20, Node 22) show **zero steps executed and no runner assigned**; the job annotation states: "The job was not started because recent account payments have failed or your spending limit needs to be increased." Therefore **no test ran in CI**: the result is NOT RUN, neither pass nor a test failure. Action required from the repository owner: resolve GitHub Actions billing/spending limit, then re-run the workflow and record the result here. Node 20 compatibility therefore remains **NOT TESTED**.
+A follow-up commit pins `runs-on: ubuntu-24.04` (the log announces `ubuntu-latest` migrating to Ubuntu 26 on 2026-10-19) so future runs are reproducible; that run's outcome was not observed when this section was written.
