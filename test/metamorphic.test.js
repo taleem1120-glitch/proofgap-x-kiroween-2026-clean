@@ -6,6 +6,7 @@ import { genCase, clone, shuffleCase, relabel, view, stripHash } from './gen.js'
 import { rng } from './prng.js';
 
 const SEEDS = Array.from({ length: 150 }, (_, i) => 5000 + i);
+// Phase 5: the properties below were additionally stress-run once on seeds 20000-22999 (not committed as a test; see acceptance.md).
 const run = (c) => analyzeCase(validateCase(clone(c)));
 const at = (seed, fn) => { try { fn(); } catch (e) { e.message = `seed ${seed}: ${e.message}`; throw e; } };
 
@@ -47,24 +48,49 @@ test('M4: duplicating an evidence item (new id; same hash, or same source+descri
   });
 });
 
-test('M5: adding a derived copy of an existing source, with maximal strength, cannot raise any score; it adds an origin only if its group had no support before', () => {
+// Independent root oracle (does not use src/): declared roots of a source.
+const rootsOracle = (sources) => {
+  const by = new Map(sources.map((x) => [x.id, x])), memo = new Map();
+  const go = (id) => { if (memo.has(id)) return memo.get(id); const x = by.get(id); const out = new Set(); if (x.originGroup) out.add(`g:${x.originGroup}`); const ps = x.derivedFrom ?? []; if (!ps.length && !x.originGroup) out.add(`s:${id}`); for (const p of ps) for (const r of go(p)) out.add(r); memo.set(id, out); return out; };
+  return go;
+};
+
+// Changed in Phase 5: the Phase 3 version asserted union-find semantics ("a copy adds an origin iff its group had no
+// support"), which defect D10 showed to be wrong. These are the precise invariants of the 0.3.0 definition.
+test('M5: a derived copy (strength 1.0) never lowers origins, adds at most one, and adds none / raises no score when an existing supporter\'s roots are covered by it', () => {
   for (const seed of SEEDS) at(seed, () => {
     const c = genCase(seed), r = rng(seed + 13), d = clone(c);
     const parent = r.pick(c.sources);
     d.sources.push({ id: 'copy-x', name: 'copy', derivedFrom: [parent.id] });
     for (const cl of c.claims) d.evidence.push({ id: `copy-e-${cl.id}`, sourceId: 'copy-x', description: `copy for ${cl.id}`, links: [{ claimId: cl.id, stance: 'supports', strength: 1 }] });
     const before = run(c), after = run(d);
+    const roots = rootsOracle(d.sources), copyRoots = roots('copy-x');
     for (let i = 0; i < before.claims.length; i++) {
       const b = before.claims[i], a = after.claims[i];
-      const L = a.independentSupportOrigins.find((o) => o.sourceIds.includes('copy-x')).origin;
-      const had = b.independentSupportOrigins.find((o) => o.origin === L);
-      if (had) {
-        assert.equal(a.independentSupportOrigins.length, b.independentSupportOrigins.length, `${b.claimId}: copy created an origin`);
-        assert.ok(a.supportScore <= b.supportScore + 1e-9, `${b.claimId}: copy raised score ${b.supportScore} -> ${a.supportScore}`);
-      } else {
-        assert.equal(a.independentSupportOrigins.length, b.independentSupportOrigins.length + 1);
+      const nb = b.independentSupportOrigins.length, na = a.independentSupportOrigins.length;
+      assert.ok(na >= nb, `${b.claimId}: adding a copy LOWERED origins ${nb} -> ${na}`);
+      assert.ok(na <= nb + 1, `${b.claimId}: one copy added more than one origin`);
+      const supporters = c.evidence.filter((e) => e.links.some((l) => l.claimId === b.claimId && l.stance === 'supports'));
+      if (supporters.some((e) => [...roots(e.sourceId)].every((x) => copyRoots.has(x)))) {
+        // The oracle ignores shared-artifact entanglement. Where it applies, a covered copy may expose a new declared channel
+        // (see D12); the engine must then NOT report a clean "supported" decision.
+        if (na !== nb || a.supportScore > b.supportScore + 1e-9) {
+          assert.ok(a.status !== 'supported_by_independent_origins' || a.decision === 'abstain_possible_undeclared_dependence',
+            `${b.claimId}: copy of an existing supporter raised corroboration to a clean SUPPORTED (${nb}->${na}, ${b.supportScore}->${a.supportScore})`);
+          assert.ok(after.warnings.some((w) => w.code === 'SHARED_ARTIFACT_ACROSS_LINEAGES'), `${b.claimId}: increase without artifact entanglement`);
+        }
       }
     }
+  });
+});
+
+test('M10: monotonicity — adding ANY supporting item (random source, random strength) never lowers a claim\'s independent support origins', () => {
+  for (const seed of SEEDS) at(seed, () => {
+    const c = genCase(seed), r = rng(seed + 29), d = clone(c);
+    const cl = r.pick(c.claims);
+    d.evidence.push({ id: 'mono-1', sourceId: r.pick(c.sources).id, description: `mono ${seed}`, links: [{ claimId: cl.id, stance: 'supports', strength: (1 + r.int(10)) / 10 }] });
+    const b = run(c).claims.find((x) => x.claimId === cl.id), a = run(d).claims.find((x) => x.claimId === cl.id);
+    assert.ok(a.independentSupportOrigins.length >= b.independentSupportOrigins.length);
   });
 });
 

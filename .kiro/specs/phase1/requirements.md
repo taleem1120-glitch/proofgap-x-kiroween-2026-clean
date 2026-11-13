@@ -26,3 +26,10 @@ Scope: bounded vertical slice. Not forensic software; no certainty claims.
 - R18. For each claim THE SYSTEM SHALL emit LOGICAL findings and ranked HEURISTIC recommendations, each stating what it would and would not show, referencing only identifiers that exist in the case.
 - R19. WHEN `--evidence-dir` is given, THE SYSTEM SHALL verify declared SHA-256 values only against regular, non-symlink files inside that directory under file-count/size/total/time limits, reporting exactly one of VERIFIED, MISMATCH, MISSING, UNSAFE_PATH, NOT_CHECKED per evidence item; otherwise all declared hashes SHALL be shown as unverified.
 - R20. Reports SHALL be available as machine-readable JSON and human-readable text, deterministic for identical input.
+
+## Phase 5 additions
+- R21. Independence SHALL be evaluated per claim over the sources that bear on it; adding evidence SHALL NOT lower a claim's independent-origin count; derived evidence SHALL NOT raise it or its score.
+- R22. Every relationship in the graph SHALL carry exactly one basis: verified, declared, suspected or unknown.
+- R23. THE SYSTEM SHALL report a hard classification (`status`) and a separate `decision` that abstains when a heuristic cue links two support origins.
+- R24. For each claim THE SYSTEM SHALL produce a counterfactual plan whose outcomes are computed by the same classification rule, marked hypothetical, citing only existing identifiers.
+- R25. The HTML viewer SHALL work offline, perform no network requests, and render untrusted text only as text.

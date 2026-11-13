@@ -15,7 +15,7 @@
  *    sources union those sources' roots too, so credit never depends on id ordering (D3).
  */
 
-export function resolveRoots(sources) {
+export function resolveRoots(sources, extraRoots = new Map()) {
   const byId = new Map(sources.map((s) => [s.id, s]));
   const memo = new Map();
   const visiting = new Set();
@@ -28,6 +28,7 @@ export function resolveRoots(sources) {
     const parents = s.derivedFrom ?? [];
     if (s.originGroup) out.add(`group:${s.originGroup}`);
     if (parents.length === 0 && !s.originGroup) out.add(`source:${id}`);
+    for (const r of extraRoots.get(id) ?? []) out.add(r); // shared-artifact roots (D11), inherited by derivatives
     for (const p of parents) for (const r of roots(p)) out.add(r);
     visiting.delete(id);
     const arr = [...out].sort();
@@ -52,27 +53,35 @@ class UnionFind {
 }
 
 /**
- * @param sources validated sources
- * @param artifactSourceSets array of arrays of sourceIds that cite the SAME artifact
- * @returns {rootsBySource, groupOfSource, groups} where group label = sorted component roots joined by '+'
+ * Group the given sources into independence groups.
+ * Locality: ONLY the listed sourceIds (those cited for the claim being analysed) take part, so a source that does not
+ * bear on the claim can never merge origins that do (fixes D9). Sources sharing any root, and sources that cite the
+ * same artifact, are merged. Label = sorted component roots (restricted to the listed sources) joined by '+'.
+ * @returns Map sourceId -> group label
  */
-export function buildIndependence(sources, artifactSourceSets = []) {
-  const rootsBySource = resolveRoots(sources);
+export function groupSources(rootsBySource, sourceIds, artifactSourceSets = []) {
   const uf = new UnionFind();
-  for (const rs of rootsBySource.values()) for (const r of rs) uf.union(rs[0], r);
+  for (const id of sourceIds) { const rs = rootsBySource.get(id); for (const r of rs) uf.union(rs[0], r); }
   for (const set of artifactSourceSets) {
     const flat = set.flatMap((id) => rootsBySource.get(id));
     for (const r of flat) uf.union(flat[0], r);
   }
   const comps = new Map();
-  for (const rs of rootsBySource.values()) for (const r of rs) {
+  for (const id of sourceIds) for (const r of rootsBySource.get(id)) {
     const rep = uf.find(r);
     if (!comps.has(rep)) comps.set(rep, new Set());
     comps.get(rep).add(r);
   }
-  const labelOfRep = new Map([...comps].map(([rep, set]) => [rep, [...set].sort().join('+')]));
-  const groupOfSource = new Map();
-  for (const [id, rs] of rootsBySource) groupOfSource.set(id, labelOfRep.get(uf.find(rs[0])));
+  const label = new Map([...comps].map(([rep, set]) => [rep, [...set].sort().join('+')]));
+  const out = new Map();
+  for (const id of sourceIds) out.set(id, label.get(uf.find(rootsBySource.get(id)[0])));
+  return out;
+}
+
+/** Whole-case grouping (all sources participate). Kept for callers that need a global view. */
+export function buildIndependence(sources, artifactSourceSets = []) {
+  const rootsBySource = resolveRoots(sources);
+  const groupOfSource = groupSources(rootsBySource, sources.map((s) => s.id), artifactSourceSets);
   return { rootsBySource, groupOfSource, groups: [...new Set(groupOfSource.values())].sort() };
 }
 
@@ -107,4 +116,72 @@ export function explainCluster({ label, sourceIds, evidenceIds, mergedArtifacts,
   if (label.includes('+')) reasons.push(`Origin roots ${label.split('+').map((r) => `"${r}"`).join(', ')} are linked by a declared derivation or shared artifact and are merged into one independence group.`);
   reasons.push(`${evidenceIds.length} evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified.`);
   return reasons;
+}
+
+/**
+ * Independent-origin packing (analysis 0.3.0, fixes D10).
+ *
+ * Definition: the number of independent origins behind a set of items is the MAXIMUM number of items
+ * whose declared root sets are pairwise disjoint. Properties (tested):
+ *  - adding an item never lowers the count (no "corroboration denial" by adding a bridge/copy);
+ *  - an item whose roots are a superset of another's (a copy/merge) never raises it;
+ *  - items sharing any root can never both be counted.
+ * Exact for overlap components of up to EXACT_LIMIT minimal root sets; larger components use a deterministic
+ * greedy (smallest set first) and are flagged `approximate: true` (greedy may UNDER-count, never over-count).
+ * @param items [{ key, roots: string[] }]
+ * @returns { origins: [{ label, rootsKey }], assign: Map key -> label, approximate }
+ */
+export const EXACT_LIMIT = 22;
+/**
+ * @param items [{ key, roots: string[] }]
+ * @param weightOf (label) => strength in [0,1] of that exact root set (used only to choose among equally large packings,
+ *        so that the choice never depends on identifiers; ties after weight fall back to labels, which then cannot
+ *        change counts or scores)
+ */
+export function packOrigins(items, weightOf = () => 0) {
+  const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+  const byLabel = new Map();
+  const labelOf = (it) => [...new Set(it.roots)].sort().join('+');
+  for (const it of items) { const label = labelOf(it); if (!byLabel.has(label)) byLabel.set(label, new Set(label.split('+'))); }
+  const labels = [...byLabel.keys()].sort((a, b) => byLabel.get(a).size - byLabel.get(b).size || cmp(a, b));
+  const isSubset = (m, l) => [...byLabel.get(m)].every((r) => byLabel.get(l).has(r));
+  // keep only minimal root sets (a strict superset can always be swapped for its subset without losing disjointness)
+  const minimal = labels.filter((l) => !labels.some((m) => m !== l && byLabel.get(m).size < byLabel.get(l).size && isSubset(m, l)));
+  const overlaps = (a, b) => { const A = byLabel.get(a), B = byLabel.get(b); for (const r of A) if (B.has(r)) return true; return false; };
+  const logw = (l) => -Math.log(1 - Math.min(weightOf(l), 0.999999)); // noisy-OR is monotone in the sum of these
+  const seen = new Set(), comps = [];
+  for (const l of minimal) {
+    if (seen.has(l)) continue;
+    const comp = [], stack = [l]; seen.add(l);
+    while (stack.length) { const x = stack.pop(); comp.push(x); for (const y of minimal) if (!seen.has(y) && overlaps(x, y)) { seen.add(y); stack.push(y); } }
+    comps.push(comp.sort((a, b) => logw(b) - logw(a) || cmp(a, b)));
+  }
+  let approximate = false;
+  const chosen = [];
+  for (const comp of comps) {
+    if (comp.length === 1) { chosen.push(comp[0]); continue; }
+    if (comp.length <= EXACT_LIMIT) {
+      let best = [], bestW = -1;
+      const rec = (i, picked, w) => {
+        if (picked.length + (comp.length - i) < best.length) return;
+        if (i === comp.length) { if (picked.length > best.length || (picked.length === best.length && w > bestW + 1e-12)) { best = [...picked]; bestW = w; } return; }
+        if (picked.every((p) => !overlaps(p, comp[i]))) { picked.push(comp[i]); rec(i + 1, picked, w + logw(comp[i])); picked.pop(); }
+        rec(i + 1, picked, w);
+      };
+      rec(0, [], 0);
+      chosen.push(...best);
+    } else {
+      approximate = true; // greedy: may under-count, never over-count
+      const picked = [];
+      for (const l of [...comp].sort((a, b) => byLabel.get(a).size - byLabel.get(b).size || logw(b) - logw(a) || cmp(a, b))) if (picked.every((p) => !overlaps(p, l))) picked.push(l);
+      chosen.push(...picked);
+    }
+  }
+  chosen.sort(cmp);
+  const assign = new Map();
+  for (const it of items) {
+    const label = labelOf(it), set = byLabel.get(label);
+    assign.set(it.key, chosen.includes(label) ? label : chosen.find((c) => [...byLabel.get(c)].some((r) => set.has(r))));
+  }
+  return { origins: chosen, assign, approximate, labelOf };
 }

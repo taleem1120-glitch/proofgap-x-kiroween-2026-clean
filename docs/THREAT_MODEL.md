@@ -38,3 +38,10 @@ report → JSON (escaped) / text (sanitised) → file or stdout.
 
 ## Out of scope (not defended)
 Compromised host/Node runtime/npm registry; malicious analyst; side channels; multi-tenant use; signing or chain of custody; authenticity of evidence content.
+
+## Phase 5 additions
+| ID | Threat | Mitigation | Tests | Residual risk |
+|---|---|---|---|---|
+| T13 | Script injection / exfiltration via the HTML viewer | Self-contained page; CSP `default-src 'none'`, script/style only by SHA-256 hash, `connect-src`/`img-src`/`form-action` none; reports embedded as JSON data blocks with `< > &` escaped (re-checked by `renderHtml`); all DOM via `textContent`; no HTML-string APIs, eval, storage or network APIs | `viewer.test.js`; Playwright session: 6 payloads, `window.__pwned` unset, 0 dialogs, 1 request (the file itself) | Only headless Chromium tested. User-loaded files are parsed with `JSON.parse` and rendered by the same code. A malicious *viewer file* (not a report) is out of scope. |
+| T14 | Corroboration denial: adding a derivative that "bridges" genuine origins to make a supported claim look unsupported | Independence = maximum set of pairwise-disjoint root sets (monotone: adding evidence never lowers it); per-claim locality | `regression.test.js` D9, D10; metamorphic M10; benchmark `denial_bridge` | An author can still declare false shared origins (`originGroup`, equal hashes) to merge genuine origins. |
+| T15 | Laundering via shared artifacts and derived copies | Holders of the same artifact share all roots (fixpoint) inherited by derivatives; derived-only strength = min, capped by non-derived; shared artifacts across lineages → suspected → abstain | D11, D12, M5 | Abstention depends on cues; undeclared dependence without cues is undetectable. |

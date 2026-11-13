@@ -2,6 +2,7 @@
 // They see ONLY the case JSON (never the hidden truth).
 import { analyzeCase } from '../src/index.js';
 import { analyzeCase as analyzeCaseV010 } from './legacy/analyze-0.1.0.js';
+import { analyzeCase as analyzeCaseV020 } from './legacy/v0.2.0/src/analyze.js';
 
 const supportsOf = (c, claimId) => c.evidence.filter((e) => e.links.some((l) => l.claimId === claimId && l.stance === 'supports'));
 const distinct = (xs) => new Set(xs).size;
@@ -26,8 +27,12 @@ export const DETECTORS = {
   },
   // ProofGap X 0.1.0 (Phase 1/2 engine, extracted verbatim from git history) — before the Phase 3 defect fixes.
   P_proofgap_0_1_0: (c, id) => analyzeCaseV010(c).claims.find((x) => x.claimId === id).independentSupportOrigins.length >= 2,
-  // ProofGap X current.
+  // ProofGap X 0.2.0 (Phase 3 engine, extracted verbatim from git 391206b into bench/legacy/v0.2.0).
+  P_proofgap_0_2_0: (c, id) => analyzeCaseV020(c).claims.find((x) => x.claimId === id).independentSupportOrigins.length >= 2,
+  // ProofGap X current, HARD classification (status) only.
   P_proofgap_current: (c, id, rep) => rep.claims.find((x) => x.claimId === id).independentSupportOrigins.length >= 2,
+  // ProofGap X current DECISION: positive only if decision is supported; abstention counts as "not asserted".
+  P_proofgap_current_decision: (c, id, rep) => rep.claims.find((x) => x.claimId === id).decision === 'supported_by_independent_origins',
 };
 
 export const analyzeForBench = (c) => analyzeCase(c);

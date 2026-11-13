@@ -123,3 +123,42 @@ Run `20261113T212609Z` (`validation/20261113T212609Z/`, produced by `npm run val
 | file integrity (subset of security) | 14 | 14 | 0 |
 | benchmark + demo tests | 10 | 10 | 0 |
 Groups overlap (file integrity is inside security); the disjoint groups security + provenance + benchmark/demo sum to the 128 total. Deterministic benchmark accuracy (dev and held-out, all detectors, per-scenario counts) was **identical** to `bench/results/phase3-run1.json` (VERIFIED). Latency/memory not compared. Nothing here is a remote CI result; Node 20, Windows and macOS remain NOT TESTED.
+
+---
+
+# Phase 5 Acceptance Evidence (analysis 0.3.0)
+
+Labels: **VERIFIED** observed in this session; **FAILED** observed failing; **NOT TESTED**. Environment: Node v22.23.4, npm 11.4.2, Linux x64. Remote CI: **BLOCKED_BY_BILLING** (no remote result; not PASSED, not CODE_FAILED).
+
+## Local tests (`npm test` and `npm run validate:local`; record in `validation/<id>/` at the Phase 5 commit)
+| Group | Tests | Pass | Fail |
+|---|---|---|---|
+| all | 147 | 147 | 0 |
+| security (security, integrity, fuzz, cli, schema) | 55 | 55 | 0 |
+| provenance (regression, adversarial, metamorphic, gaps, proofgap) | 68 | 68 | 0 |
+| viewer + planner + graph | 14 | 14 | 0 |
+| benchmark + demo | 10 | 10 | 0 |
+Disjoint groups sum to 147. File-integrity subset 14/14. Status: VERIFIED.
+
+## Criteria
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P5-A1 | D9, D10, D12 are real defects of 0.2.0 | VERIFIED | `regression.test.js` copied into a worktree of the Phase 3 branch: D9, D10, D12 **fail** there; D1–D8, D11 pass |
+| P5-A2 | Adding evidence never lowers independent origins; copies never raise score | VERIFIED (seeded) | M5, M10 (150 seeds); one-off stress run on seeds 20000–22999: 0 violations of M1, M3, M5-monotonicity, M10 after fixes; the 2 remaining "covered copy adds an origin" cases both end as non-clean decisions (abstain) — not committed as a test |
+| P5-A3 | Graph bases are exactly verified/declared/suspected/unknown; "verified" only from local byte checks | VERIFIED | `graph.test.js` |
+| P5-A4 | Planner outcomes equal what the engine decides when the hypothetical evidence is actually added | VERIFIED | `planner.test.js` executes ADD / REASSESS / ROBUSTNESS plans on 120 generated cases, incl. minimality (k−1 items insufficient) |
+| P5-A5 | Planner never fabricates (hypothetical flag, only existing ids, no "exists/proves") | VERIFIED | `planner.test.js` |
+| P5-A6 | Showcase: A = 8 items → 1 origin (2 verified byte links); B = supported, abstain, contradicted | VERIFIED | `viewer.test.js`, browser session |
+| P5-A7 | Viewer offline and CSP-locked; inline hashes match; committed showcase byte-identical to rebuild | VERIFIED | `viewer.test.js` |
+| P5-A8 | Viewer renders without console/CSP errors; only request is the file itself | VERIFIED (headless Chromium via Playwright Power) | session evidence; screenshots under session artifacts (not committed) |
+| P5-A9 | XSS payloads in title, names, statements, descriptions do not execute | VERIFIED (headless Chromium) | 6 payloads: `window.__pwned` null, 0 dialogs, 0 injected elements; `viewer.test.js` static checks |
+| P5-A10 | Responsive: no horizontal overflow at 320/390/768/1400 px; 1 column < 1100 px, 2 columns above | VERIFIED after fix (FAILED first: 418 px document at 390 px, cause: unbreakable codes) | session evidence |
+| P5-A11 | Glyph rendering | FAILED first (✓ ✕ → shown as boxes in headless Chromium), fixed with ASCII/words, re-checked | session evidence |
+| P5-A12 | Keyboard: skip link, file input, export, disclosure widgets, graph nodes focusable in logical order | VERIFIED (partial: tab order sampled for the first 8 stops) | session evidence |
+| P5-A13 | Screen readers, Firefox/Safari, Windows/macOS, Node 20 | NOT TESTED | — |
+| P5-A14 | Benchmark metrics reported separately for status, decision and warnings; fresh split evaluated once after freeze | VERIFIED | `bench/results/phase5-run1.json`, `docs/BENCHMARK.md` |
+| P5-A15 | Undeclared dependence without cues detected | **FAILED (known limitation)** | heldout2: decision still asserts 51/88; warnings recall 37/88 |
+| P5-A16 | Publication eligibility: OSI licence + public repo | **NOT MET (owner action)** | `docs/COMPETITION.md` |
+
+## Benchmark (heldout2, fresh, 885 claims) — VERIFIED as measured, synthetic only
+Declared: current FPR 0/485, recall 312/312; 0.2.0 recall 263/312; 0.1.0 FPR 63/485; B3 FPR 0/485, recall 249/312. Undeclared: status FPR 88/88 (all detectors), decision FPR 51/88. Warnings: precision 37/37, recall 37/88, FPR 0/797. Abstentions: 37, all on truly uncorroborated claims. Scaling (1000/5000/500): ~300 ms, report 8.9 MB (larger than 0.2.0's 5.2 MB because of graph + plans).

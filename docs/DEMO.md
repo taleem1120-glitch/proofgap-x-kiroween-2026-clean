@@ -1,21 +1,32 @@
-# Demo: a strong-looking claim that rests on one email
+# Demo (everything shown is working code; all data is synthetic and fictional)
 
-Everything in `examples/demo/` is **synthetic**. Run:
-
+## A. Side-by-side showcase in the offline viewer (main demo)
 ```sh
-npm run demo        # = node src/cli.js examples/demo/case.json --evidence-dir examples/demo/evidence --format text
-node src/cli.js examples/demo/case.json --format text     # without file verification
+npm run showcase            # builds viewer/showcase.html (refuses to overwrite; delete it first to rebuild)
+# open viewer/showcase.html in a browser (file://, no server, no network)
+```
+A committed copy of `viewer/showcase.html` is already in the repo and is tested to be byte-identical to a fresh build.
+
+| | Scenario A "Eight documents agree" (`examples/showcase/deceptive.json`) | Scenario B "Three independent systems" (`examples/showcase/independent.json`) |
+|---|---|---|
+| Claim `door-0214` | 8 supporting items → **1 independent origin** → INSUFFICIENT, flagged FALSE CORROBORATION | 4 items → **3 origins** (CCTV clip is a declared copy of the recorder) → SUPPORTED under declared assumptions |
+| Why | screenshots, forum post, article, PDF all derive from the badge export; the "anonymous tip" and "shared drive" images are byte-identical to screenshot 1 (**verified** against local files) | badge system, CCTV recorder and HVAC log have no declared link (graph shows them as "unknown", i.e. assumed, not established) |
+| Abstention | — | `alarm-off`: two "independent" contractor reports have the same name and identical text → hard status SUPPORTED, **decision ABSTAINS** |
+| Counterfactual plan | smallest change: **1** item from an origin outside the badge lineage; if it supports → SUPPORTED, if it contradicts → CONFLICTING, if none → stays INSUFFICIENT | `door-0214` robustness: loses SUPPORTED only if **2** of 3 origins collapse |
+| Export | "Export report JSON" downloads the exact embedded, reproducible report | same |
+
+## B. Integrity demo (CLI, text)
+```sh
+npm run demo   # examples/demo: VERIFIED / MISMATCH (excluded) / MISSING / NOT_CHECKED, 4 items -> 1 origin
 ```
 
-## The scenario
-Claim **c1**: "Invoice 4471 was approved before payment was released." Four items appear to support it: the original email, a screenshot of it, a colleague's forward of it, and a ticket note quoting it. A naive counter says "4 supporting items, 4 sources".
+## Sub-three-minute presentation outline (only working features)
+1. **0:00–0:20 Problem.** "Eight documents agree" is often one document echoed eight times. Counting documents creates false corroboration.
+2. **0:20–1:05 Scenario A (left panel).** Show "8 supporting items collapse to 1 independent origin", the reasons list, the graph: derivation chain, green **verified** byte-identity arcs between the tip image, the shared-drive image and screenshot 1.
+3. **1:05–1:45 Scenario B (right panel).** Same claim, genuinely independent systems → SUPPORTED, with "unknown" independence stated honestly. Then `alarm-off`: the engine **abstains** because two "independent" reports look like one.
+4. **1:45–2:20 Counterfactual plan.** Open the plan table: the smallest additional evidence and how the verdict would change under each hypothetical outcome; note "hypothetical only, nothing is claimed to exist".
+5. **2:20–2:45 Trust.** Offline (CSP blocks all network), escaped untrusted labels, reproducible export, local SHA-256 verification with symlink/traversal protection; `npm test`.
+6. **2:45–3:00 Limits.** Declared provenance can be hidden; the tool abstains only when cues exist. Not forensic software.
 
-## What ProofGap X reports
-- **Independence:** the screenshot, forward and ticket note are all declared as derived from the one mail archive. Result: **4 items → 1 independent origin**, flagged as `FALSE_CORROBORATION`, with the derivation reasons spelled out.
-- **Conflict:** an independent audit trail contradicts the timing → status `conflicting`, not "strongly supported".
-- **Integrity (with `--evidence-dir`):** `e1`,`e3` VERIFIED; `e2` (screenshot) MISMATCH → excluded from scoring; `e4` MISSING → stays unverified; `e8` NOT_CHECKED (no hash). Without `--evidence-dir` every declared hash is shown as unverified.
-- **Contrast c2:** payment log + bank statement are declared independent → `supported_by_independent_origins`, but still flagged as resting on declared provenance.
-- **Ranked suggestions** say what each next step would show and would **not** show.
-
-## What this demo does NOT show
-That c1 is false (it may well be true), that the audit log is right, or that any file is authentic. ProofGap X reports structure of support under declared assumptions; it never certifies truth, authenticity or guilt.
+## What the demo does NOT show
+That any claim is true or false, that any file is authentic, or anyone's intent or guilt.

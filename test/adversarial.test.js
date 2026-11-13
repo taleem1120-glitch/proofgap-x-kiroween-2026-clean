@@ -29,10 +29,14 @@ test('A3 copies of copies via a diamond (a->b, a->c, b+c->d) are one origin', ()
   assert.equal(res(mk(srcs, srcs.map((s) => E(s.id)))).origins, 1);
 });
 
-test('A4 a "bridge" source derived from two otherwise independent origins merges them and cannot be used to fake a third', () => {
+// Changed in Phase 5 (defect D10): 0.2.0 expected 1 here, i.e. the bridge MERGED two genuinely independent originals.
+// A source derived from r1 and r2 does not make r1 and r2 depend on each other; it only adds no independence itself.
+test('A4 a "bridge" source derived from two independent origins adds no origin of its own and cannot fake a third', () => {
   const srcs = [S('r1'), S('r2'), S('bridge', { derivedFrom: ['r1', 'r2'] })];
   const out = res(mk(srcs, [E('r1'), E('r2'), E('bridge')]));
-  assert.equal(out.origins, 1, 'r1, r2 and their merge all depend on each other through the bridge');
+  assert.equal(out.origins, 2, 'bridge must neither merge r1/r2 nor count as a third');
+  const only = res(mk(srcs, [E('r1'), E('bridge')]));
+  assert.equal(only.origins, 1, 'bridge shares r1, so it cannot corroborate r1');
 });
 
 test('A5 the same file under two different source names (relabeled laundering) is one origin; claim stays insufficient', () => {

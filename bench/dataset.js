@@ -5,7 +5,8 @@ import { rng } from '../test/prng.js';
 
 export const SPLITS = Object.freeze({
   dev: { firstSeed: 1, count: 200 },          // used while developing; may be inspected and tuned against
-  heldout: { firstSeed: 100_001, count: 200 }, // not inspected during development; evaluated after code freeze
+  heldout: { firstSeed: 100_001, count: 200 }, // Phase 3 held-out; evaluated once in Phase 3. Re-used in Phase 5 => no longer pristine
+  heldout2: { firstSeed: 200_001, count: 200 }, // Phase 5 fresh held-out; evaluated ONCE after the Phase 5 code freeze
 });
 
 const H = (n) => n.toString(16).padStart(64, '0');
@@ -17,7 +18,12 @@ export const SCENARIOS = {
   genuine_independent:       { weight: 14, kind: 'declared',   make(r, p, c) { const k = 2 + r.int(3); const sources = [], items = []; for (let i = 0; i < k; i++) { sources.push({ id: `${p}o${i}`, name: `${p} origin ${i} ${r.int(1e6)}` }); items.push({ src: `${p}o${i}` }); } return { sources, items, trueOrigins: k }; } },
   genuine_with_copy:         { weight: 8,  kind: 'declared',   make(r, p) { const sources = [{ id: `${p}a`, name: `${p} A ${r.int(1e6)}` }, { id: `${p}b`, name: `${p} B ${r.int(1e6)}` }, { id: `${p}ac`, name: `${p} A copy ${r.int(1e6)}`, derivedFrom: [`${p}a`] }]; return { sources, items: [{ src: `${p}a` }, { src: `${p}b` }, { src: `${p}ac` }], trueOrigins: 2 }; } },
   derived_from_distinct_roots:{ weight: 6, kind: 'declared',   make(r, p) { const sources = [{ id: `${p}x`, name: `${p} X ${r.int(1e6)}`, derivedFrom: [`${p}rx`] }, { id: `${p}y`, name: `${p} Y ${r.int(1e6)}`, derivedFrom: [`${p}ry`] }, { id: `${p}rx`, name: `${p} RX ${r.int(1e6)}` }, { id: `${p}ry`, name: `${p} RY ${r.int(1e6)}` }]; return { sources, items: [{ src: `${p}x` }, { src: `${p}y` }], trueOrigins: 2 }; } },
-  bridge_three_roots:        { weight: 3,  kind: 'declared',   make(r, p) { const sources = [{ id: `${p}r1`, name: `${p} R1 ${r.int(1e6)}` }, { id: `${p}r2`, name: `${p} R2 ${r.int(1e6)}` }, { id: `${p}br`, name: `${p} bridge ${r.int(1e6)}`, derivedFrom: [`${p}r1`, `${p}r2`] }]; return { sources, items: [{ src: `${p}r1` }, { src: `${p}r2` }, { src: `${p}br` }], trueOrigins: 1 }; } },
+  // Phase 5 label correction: Phase 3 labelled this 1 origin, encoding the engine's own (wrong) union-find rule (defect D10).
+  // r1 and r2 are generated as genuinely separate originals; a bridge derived from both adds no origin and merges nothing.
+  bridge_three_roots:        { weight: 3,  kind: 'declared',   make(r, p) { const sources = [{ id: `${p}r1`, name: `${p} R1 ${r.int(1e6)}` }, { id: `${p}r2`, name: `${p} R2 ${r.int(1e6)}` }, { id: `${p}br`, name: `${p} bridge ${r.int(1e6)}`, derivedFrom: [`${p}r1`, `${p}r2`] }]; return { sources, items: [{ src: `${p}r1` }, { src: `${p}r2` }, { src: `${p}br` }], trueOrigins: 2, labelHistory: 'phase3:1 -> phase5:2' }; } },
+  // Phase 5 additions (scenario templates written BEFORE the fresh held-out split was generated):
+  bridge_only:               { weight: 3,  kind: 'declared',   make(r, p) { const sources = [{ id: `${p}q1`, name: `${p} Q1 ${r.int(1e6)}` }, { id: `${p}q2`, name: `${p} Q2 ${r.int(1e6)}` }, { id: `${p}qb`, name: `${p} merge ${r.int(1e6)}`, derivedFrom: [`${p}q1`, `${p}q2`] }]; return { sources, items: [{ src: `${p}q1` }, { src: `${p}qb` }], trueOrigins: 1 }; } },
+  denial_bridge:             { weight: 3,  kind: 'declared',   make(r, p) { const sources = [{ id: `${p}d1`, name: `${p} D1 ${r.int(1e6)}` }, { id: `${p}d2`, name: `${p} D2 ${r.int(1e6)}` }, { id: `${p}dx`, name: `${p} digest ${r.int(1e6)}`, derivedFrom: [`${p}d1`, `${p}d2`] }, { id: `${p}dz`, name: `${p} digest copy ${r.int(1e6)}`, derivedFrom: [`${p}dx`] }]; return { sources, items: [{ src: `${p}d1` }, { src: `${p}d2` }, { src: `${p}dz` }], trueOrigins: 2 }; } },
   single_item:               { weight: 6,  kind: 'declared',   make(r, p) { return { sources: [{ id: `${p}s`, name: `${p} only ${r.int(1e6)}` }], items: [{ src: `${p}s` }], trueOrigins: 1 }; } },
   same_source_duplicates:    { weight: 6,  kind: 'declared',   make(r, p) { const h = H(r.int(1e9) + 1); return { sources: [{ id: `${p}s`, name: `${p} only ${r.int(1e6)}` }], items: [{ src: `${p}s`, sha: h }, { src: `${p}s`, sha: h }], trueOrigins: 1 }; } },
   declared_copies:           { weight: 12, kind: 'declared',   make(r, p) { const n = 2 + r.int(4); const sources = [{ id: `${p}o`, name: `${p} original ${r.int(1e6)}` }]; const items = [{ src: `${p}o` }]; let prev = `${p}o`; for (let i = 0; i < n; i++) { const parent = r.bool(0.5) ? prev : `${p}o`; sources.push({ id: `${p}c${i}`, name: `${p} copy ${i} ${r.int(1e6)}`, derivedFrom: [parent] }); items.push({ src: `${p}c${i}` }); prev = `${p}c${i}`; } return { sources, items, trueOrigins: 1 }; } },
@@ -45,7 +51,7 @@ export function generateCase(seed) {
     c.sources.push(...sc.sources);
     for (const it of sc.items) c.evidence.push({ id: `e${ev++}`, sourceId: it.src, description: it.desc ?? `item ${ev} ${r.int(1e6)}`, ...(it.sha ? { sha256: it.sha } : {}), links: [{ claimId, stance: 'supports', strength: strength(r) }] });
     if (sc.contraSrc) c.evidence.push({ id: `e${ev++}`, sourceId: sc.contraSrc, description: `contra ${ev}`, links: [{ claimId, stance: 'contradicts', strength: strength(r) }] });
-    truth[claimId] = { scenario: name, kind: SCENARIOS[name].kind, trueOrigins: sc.trueOrigins, corroborated: sc.trueOrigins >= 2 };
+    truth[claimId] = { scenario: name, kind: SCENARIOS[name].kind, trueOrigins: sc.trueOrigins, corroborated: sc.trueOrigins >= 2, hiddenDependence: SCENARIOS[name].kind === 'undeclared' };
   }
   return { id: c.caseId, case: c, truth };
 }

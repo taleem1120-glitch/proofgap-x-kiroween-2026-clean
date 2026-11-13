@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "SHOW-B-INDEPENDENT",
+  "title": "Scenario B — three independent systems, one abstention (synthetic, fictional)",
+  "sources": [
+    { "id": "badge-system", "name": "Door badge system export" },
+    { "id": "cctv-nvr", "name": "CCTV recorder (separate vendor)" },
+    { "id": "hvac-bms", "name": "Building HVAC sensor log" },
+    { "id": "contractor-a", "name": "Security contractor report" },
+    { "id": "contractor-b", "name": "Security Contractor Report" },
+    { "id": "cctv-clip", "name": "Exported CCTV clip", "derivedFrom": ["cctv-nvr"] }
+  ],
+  "claims": [
+    { "id": "door-0214", "statement": "The server-room door was opened at 02:14 on 31 Oct." },
+    { "id": "alarm-off", "statement": "The room alarm was disarmed before the entry." },
+    { "id": "two-people", "statement": "Two people entered together." }
+  ],
+  "evidence": [
+    { "id": "B1", "sourceId": "badge-system", "description": "Badge log row 02:14:07 door SR-1", "links": [{ "claimId": "door-0214", "stance": "supports", "strength": 0.7 }] },
+    { "id": "B2", "sourceId": "cctv-nvr", "description": "Recorder frame 02:14:09 door open", "links": [{ "claimId": "door-0214", "stance": "supports", "strength": 0.7 }, { "claimId": "two-people", "stance": "contradicts", "strength": 0.6 }] },
+    { "id": "B3", "sourceId": "hvac-bms", "description": "Temperature dip at 02:15 near SR-1", "links": [{ "claimId": "door-0214", "stance": "supports", "strength": 0.3 }] },
+    { "id": "B4", "sourceId": "cctv-clip", "description": "Exported clip of the same frame", "links": [{ "claimId": "door-0214", "stance": "supports", "strength": 0.9 }] },
+    { "id": "B5", "sourceId": "contractor-a", "description": "Report: alarm disarmed 02:11", "links": [{ "claimId": "alarm-off", "stance": "supports", "strength": 0.6 }] },
+    { "id": "B6", "sourceId": "contractor-b", "description": "Report: alarm disarmed 02:11", "links": [{ "claimId": "alarm-off", "stance": "supports", "strength": 0.6 }] },
+    { "id": "B7", "sourceId": "badge-system", "description": "Badge log shows a single badge at 02:14", "links": [{ "claimId": "two-people", "stance": "contradicts", "strength": 0.5 }] }
+  ]
+}

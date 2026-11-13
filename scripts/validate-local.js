@@ -18,7 +18,9 @@ const GROUPS = {
   all: null, // npm test
   security: ['test/security.test.js', 'test/integrity.test.js', 'test/fuzz.test.js', 'test/cli.test.js', 'test/schema.test.js'],
   provenance: ['test/regression.test.js', 'test/adversarial.test.js', 'test/metamorphic.test.js', 'test/gaps.test.js', 'test/proofgap.test.js'],
+  // viewer/planner/graph are listed separately below; security also includes viewer.test.js checks of CSP/escaping
   fileIntegrity: ['test/integrity.test.js'],
+  viewerAndPlanner: ['test/viewer.test.js', 'test/planner.test.js', 'test/graph.test.js'],
   benchmarkTests: ['test/benchmark.test.js', 'test/demo.test.js'],
 };
 
@@ -34,10 +36,10 @@ for (const [name, files] of Object.entries(GROUPS)) {
 
 // Deterministic benchmark: run again, compare the ACCURACY parts with the committed run (latency/memory are machine dependent).
 const benchOut = `${dir}/bench.json`;
-const b = sh('node', ['--expose-gc', 'bench/run.js', 'both', '--out', benchOut]);
+const b = sh('node', ['--expose-gc', 'bench/run.js', 'all', '--out', benchOut]);
 writeFileSync(`${dir}/bench.log`, b.stdout + (b.stderr ? `\n--- stderr ---\n${b.stderr}` : ''));
-const acc = (p) => { const j = JSON.parse(readFileSync(p, 'utf8')); return JSON.stringify(['dev', 'heldout'].map((s) => ({ results: j[s].results, byScenario: j[s].byScenario, claims: j[s].claims, positives: j[s].positives }))); };
-const reference = 'bench/results/phase3-run1.json';
+const acc = (p) => { const j = JSON.parse(readFileSync(p, 'utf8')); return JSON.stringify(['dev', 'heldout', 'heldout2'].map((s) => ({ results: j[s].results, byScenario: j[s].byScenario, claims: j[s].claims, positives: j[s].positives, warnings: j[s].warnings, abstention: j[s].abstention }))); };
+const reference = 'bench/results/phase5-run1.json'; // phase3-run1.json was produced by engine 0.2.0 + the Phase 3 generator and is kept as history
 const accuracyIdentical = b.status === 0 && acc(benchOut) === acc(reference);
 
 const git = (...a) => sh('git', a).stdout.trim();
@@ -47,9 +49,9 @@ const summary = {
   git: { commit: git('rev-parse', 'HEAD'), branch: git('rev-parse', '--abbrev-ref', 'HEAD'), dirtyFiles: git('status', '--porcelain').split('\n').filter(Boolean) },
   lockfileSha256: sha('package-lock.json'), packageJsonSha256: sha('package.json'), schemaSha256: sha('schemas/case.v1.schema.json'),
   steps,
-  benchmark: { command: 'node --expose-gc bench/run.js both --out <dir>/bench.json', exitCode: b.status, referenceFile: reference, accuracyIdenticalToReference: accuracyIdentical, note: 'accuracy compared; latency/memory are machine dependent and are not compared' },
+  benchmark: { command: 'node --expose-gc bench/run.js all --out <dir>/bench.json', exitCode: b.status, referenceFile: reference, accuracyIdenticalToReference: accuracyIdentical, note: 'accuracy compared; latency/memory are machine dependent and are not compared' },
   ci: { status: 'BLOCKED_BY_BILLING', note: 'GitHub Actions jobs were never started (account billing/spending limit). No remote CI result exists; nothing here is a CI result.' },
-  notTested: ['Node 20', 'Windows', 'macOS', 'case-insensitive filesystems', 'real-world case data'],
+  notTested: ['Node 20', 'Windows', 'macOS', 'case-insensitive filesystems', 'real-world case data', 'browsers other than headless Chromium (viewer)', 'screen readers (viewer)'],
 };
 summary.allGreen = steps.every((s) => s.exitCode === 0 && s.fail === 0 && s.tests > 0) && accuracyIdentical;
 writeFileSync(`${dir}/summary.json`, JSON.stringify(summary, null, 2) + '\n');

@@ -117,3 +117,44 @@ D1–D8 change scores/origin counts only in the affected situations (they can on
 - [x] `scripts/validate-local.js` / `npm run validate:local`: full suite + focused groups + benchmark reproducibility check; records environment, hashes and logs in `validation/<id>/`.
 - [x] `docs/CI_STATUS.md`: CI marked BLOCKED_BY_BILLING; workflow preserved unchanged; no billing change, no re-run.
 - Remaining: owner resolves billing and runs CI (Node 20/22); Node 20 NOT TESTED until then.
+
+---
+
+# Phase 5 — competition-grade differentiator (analysis 0.3.0)
+
+Branch `feature/phase5-competition-grade` (from `feature/phase3-evidence-intelligence`; PRs #1–#3 open, unmerged).
+
+## Initial gap assessment (before coding)
+| Area | State at start of Phase 5 | Decision |
+|---|---|---|
+| Report viewer | **None** (text/JSON only) — biggest gap for Design and Presentation | Build (highest value) |
+| Independence graph | Not exposed; relationships not labelled verified/declared/suspected/unknown | Build (small, feeds viewer) |
+| Counterfactual planner | Only free-text heuristic suggestions | Build (deterministic, reuses classification rule) |
+| Two contrasting demo cases | One mixed demo case | Build |
+| Abstention | Warnings existed but never changed the decision; no "unknown" outcome | Build (separate `decision` from `status`) |
+| 100 % FPR question | Real: undeclared-copy slice only; warnings never evaluated | Investigate + report separately |
+| Licence / public repo | Missing / private | Flag only (owner decision) |
+| CI | BLOCKED_BY_BILLING | Unchanged, not touched |
+
+## Done
+- [x] P5-1 Probe of 0.2.0 found **D9** (uncited bridge source merges origins); fixing it exposed **D10** (one cited derivative of two origins erased genuine corroboration: "corroboration denial"). Independence redefined as max set of pairwise-disjoint declared root sets per claim (`packOrigins`, exact for overlap components ≤ 22, flagged `approximate` otherwise — never seen in tests/benchmark).
+- [x] P5-2 Metamorphic tests then exposed defects in my own intermediate redesign, fixed before freeze: M3 id-order dependence among equal-size packings (choose highest-score packing); **D11** artifact sharing not inherited by derivatives; derived-only strength rules (min over overlapping derived, cap by overlapping non-derived; non-derived supersets lend strength). A one-off stress run of 3,000 extra seeds then found a shared-artifact-across-lineages pattern → **D12** (suspected relationship → abstain). After the fixes, the stress run showed 0 violations of M1/M3/M5-monotonicity/M10 and 0 unsafe M5 cases.
+- [x] P5-3 `src/graph.js` (four relationship bases), `src/classify.js` (single rule), `src/planner.js` (counterfactual plans), `decision`/`abstentionCues` in reports.
+- [x] P5-4 Offline viewer (`viewer/app.js`, `viewer/style.css`, `src/html.js`), CLI `--format html` / `--compare`, committed `viewer/showcase.html`, showcase cases in `examples/showcase/`.
+- [x] P5-5 Browser verification via Playwright Power; fixed glyph and overflow defects.
+- [x] P5-6 Benchmark: decision vs status vs warnings reported separately; `bridge_three_roots` label corrected (documented); 2 templates added; fresh split `heldout2` evaluated once after freeze; 0.2.0 snapshot added as a detector.
+- [x] P5-7 Docs: `docs/COMPETITION.md`, `docs/DEMO.md`, `docs/BENCHMARK.md`, threat model T13–T15, README, KIRO_USAGE.
+
+## Test changes made in Phase 5 (each is a deliberate semantic change, not a hidden expectation edit)
+- `adversarial.test.js` A4: expected origins 1 → **2** (D10: a bridge no longer merges independent originals); still asserts a bridge cannot make a third origin, and that bridge + r1 alone = 1.
+- `metamorphic.test.js` M5: union-find assertion replaced by the 0.3.0 invariants (monotone, ≤ +1, covered copy adds nothing unless artifact entanglement applies, in which case no clean SUPPORTED) — stricter, with an independent root oracle; M10 added.
+- `regression.test.js`: D9–D12 added. D9, D10, D12 were run against the unmodified 0.2.0 engine and **fail there**; D11 passes on 0.2.0 (it guards a defect of the intermediate Phase 5 design).
+- `graph.test.js`: one fixture corrected (p and q hold byte-identical files, so the engine correctly does not call them declared-independent).
+
+## Remaining (prioritised)
+1. Owner: choose an OSI licence and make the repository public (submission blocker); verify official categories/rules (pages returned 403).
+2. Owner: resolve GitHub billing; run CI on Node 20/22.
+3. Record the < 3 min video from `docs/DEMO.md`.
+4. Undeclared dependence without cues (37/88 caught on heldout2): evaluate stronger, still deterministic cues with measured precision.
+5. Screen-reader and cross-browser checks of the viewer; better graph layout for large cases.
+6. External review of `integrity.js`, the viewer CSP and the independence definition.

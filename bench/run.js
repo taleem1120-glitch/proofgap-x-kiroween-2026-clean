@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: node --expose-gc bench/run.js [dev|heldout|both] [--out file.json]
+// Usage: node --expose-gc bench/run.js [dev|heldout|heldout2|both|all] [--out file.json]
 // Accuracy numbers are deterministic. Latency/memory numbers depend on the machine and are NOT.
 import { performance } from 'node:perf_hooks';
 import { writeFileSync } from 'node:fs';
@@ -10,13 +10,15 @@ import { confusion, summarize, percentile } from './metrics.js';
 import { validateCase, analyzeText, serializeReport, analyzeCase } from '../src/index.js';
 
 const args = process.argv.slice(2);
-const which = ['dev', 'heldout', 'both'].includes(args[0]) ? args[0] : 'both';
+const SPLIT_ARGS = { dev: ['dev'], heldout: ['heldout'], heldout2: ['heldout2'], both: ['dev', 'heldout'], all: ['dev', 'heldout', 'heldout2'] };
+const which = SPLIT_ARGS[args[0]] ? args[0] : 'both';
 const outIdx = args.indexOf('--out');
 const out = outIdx >= 0 ? args[outIdx + 1] : null;
 
 function evaluate(name) {
   const data = generateSplit(name);
   const preds = Object.fromEntries(Object.keys(DETECTORS).map((k) => [k, []]));
+  const warn = [], abst = { statusSupported: 0, abstained: 0, abstainedWhenTrulyUncorroborated: 0, abstainedWhenTrulyCorroborated: 0 };
   const byScenario = {};
   const lat = [];
   for (const item of data) {
@@ -25,6 +27,12 @@ function evaluate(name) {
     const rep = analyzeForBench(item.case);
     lat.push(performance.now() - t0);
     for (const [claimId, t] of Object.entries(item.truth)) {
+      const cl = rep.claims.find((x) => x.claimId === claimId);
+      warn.push({ truth: t.hiddenDependence, pred: cl.abstentionCues.length > 0, kind: t.kind });
+      if (cl.status === 'supported_by_independent_origins') {
+        abst.statusSupported++;
+        if (cl.decision !== cl.status) { abst.abstained++; abst[t.corroborated ? 'abstainedWhenTrulyCorroborated' : 'abstainedWhenTrulyUncorroborated']++; }
+      }
       for (const [dn, fn] of Object.entries(DETECTORS)) {
         const pred = fn(item.case, claimId, rep);
         preds[dn].push({ truth: t.corroborated, pred, scenario: t.scenario, kind: t.kind });
@@ -42,7 +50,10 @@ function evaluate(name) {
       undeclaredOnly: summarize(confusion(preds[dn].filter((p) => p.kind === 'undeclared'))) };
   }
   return { split: name, cases: data.length, claims, positives: Object.values(preds)[0].filter((p) => p.truth).length,
+    undeclaredClaims: Object.values(preds)[0].filter((p) => p.kind === 'undeclared').length,
     seeds: SPLITS[name], results, byScenario,
+    warnings: { task: 'cue fired on a claim (abstentionCues non-empty) vs hidden undeclared dependence in ground truth', ...summarize(confusion(warn)) },
+    abstention: abst,
     latencyMsPerCase: { median: percentile(lat, 0.5), p95: percentile(lat, 0.95), max: Math.max(...lat), note: 'analyzeCase only; machine dependent' } };
 }
 
@@ -64,12 +75,11 @@ function scaling() {
 }
 
 const run = { tool: 'proofgap-x bench', node: process.version, platform: `${process.platform}/${process.arch}`, cpu: cpus()[0]?.model, cpuCount: cpus().length, totalMemMB: Math.round(totalmem() / 1048576) };
-if (which === 'dev' || which === 'both') run.dev = evaluate('dev');
-if (which === 'heldout' || which === 'both') run.heldout = evaluate('heldout');
+for (const sp of SPLIT_ARGS[which]) run[sp] = evaluate(sp);
 run.scaling = scaling();
 
 const pct = (x) => (x.value === null ? 'n/a' : `${(100 * x.value).toFixed(1)}% [${x.ci95.map((v) => (100 * v).toFixed(1)).join('–')}] (${x.k}/${x.n})`);
-for (const split of ['dev', 'heldout']) {
+for (const split of ['dev', 'heldout', 'heldout2']) {
   if (!run[split]) continue;
   const r = run[split];
   console.log(`\n== ${split}: ${r.cases} cases, ${r.claims} claims, ${r.positives} truly corroborated ==`);
@@ -80,6 +90,8 @@ for (const split of ['dev', 'heldout']) {
       console.log(`  ${dn.padEnd(30)} precision ${pct(s.precision).padEnd(34)} recall ${pct(s.recall).padEnd(34)} FPR ${pct(s.falsePositiveRate)}`);
     }
   }
+  const w = r.warnings; console.log(`  warnings (hidden-dependence cue): precision ${pct(w.precision)} recall ${pct(w.recall)} FPR ${pct(w.falsePositiveRate)}`);
+  console.log(`  abstention: ${JSON.stringify(r.abstention)}`);
   console.log(`  latency/case (ms): median ${r.latencyMsPerCase.median.toFixed(3)} p95 ${r.latencyMsPerCase.p95.toFixed(3)} max ${r.latencyMsPerCase.max.toFixed(3)}`);
 }
 console.log(`\nscaling: ${JSON.stringify(run.scaling)}`);
