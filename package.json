@@ -1,6 +1,6 @@
 {
   "name": "proofgap-x",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Explainable evidence-confidence stress testing (Phase 1 prototype, not forensic software)",
   "type": "module",
   "private": true,
@@ -12,8 +12,10 @@
     "proofgap": "src/cli.js"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.js\"",
-    "analyze": "node src/cli.js"
+    "test": "node --test test/*.test.js",
+    "analyze": "node src/cli.js",
+    "bench": "node --expose-gc bench/run.js both",
+    "demo": "node src/cli.js examples/demo/case.json --evidence-dir examples/demo/evidence --format text"
   },
   "files": [
     "src",

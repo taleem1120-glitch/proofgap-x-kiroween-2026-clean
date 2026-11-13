@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "DEMO-INV-4471",
+  "title": "Demo: a claim that looks well corroborated but rests on one email (synthetic data)",
+  "sources": [
+    { "id": "mail-archive", "name": "Corporate mail archive" },
+    { "id": "screenshot-copy", "name": "Screenshot of the approval email", "derivedFrom": ["mail-archive"] },
+    { "id": "colleague-fwd", "name": "Forward of the approval email by a colleague", "derivedFrom": ["mail-archive"] },
+    { "id": "ticket-note", "name": "Ticket note quoting the email", "derivedFrom": ["colleague-fwd"] },
+    { "id": "payment-system", "name": "Payment system log" },
+    { "id": "bank", "name": "Bank statement" },
+    { "id": "audit-system", "name": "Audit trail system" }
+  ],
+  "claims": [
+    { "id": "c1", "statement": "Invoice 4471 was approved before payment was released." },
+    { "id": "c2", "statement": "Payment for invoice 4471 was released at 14:02 UTC." },
+    { "id": "c3", "statement": "The approval was recorded before the payment release." }
+  ],
+  "evidence": [
+    { "id": "e1", "sourceId": "mail-archive", "description": "Approval email export", "file": "approval-email.txt", "sha256": "ba1be1191e5978d5e21980d25e7325ad434e261eb837c9e7190790c1b5ecf92a", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] },
+    { "id": "e2", "sourceId": "screenshot-copy", "description": "Screenshot of approval email", "file": "approval-screenshot.txt", "sha256": "3857c508b6b7d2b18bc3c14b9622acb1f9b44bd87a71232cf2283bc7aa505d33", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] },
+    { "id": "e3", "sourceId": "colleague-fwd", "description": "Forwarded approval email", "file": "approval-forward.txt", "sha256": "c41141c608778136cffab22b4847cb5dd2334c8b9c59dca36505b4b066995510", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] },
+    { "id": "e4", "sourceId": "ticket-note", "description": "Ticket note quoting approval", "file": "ticket-note.txt", "sha256": "8cf949bab4a2ab02362afba2cd01118d337761aec6e45d57f422a0c071db6653", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.7 }] },
+    { "id": "e5", "sourceId": "payment-system", "description": "Payment release log entry", "file": "payment-log.txt", "sha256": "76e871c1643e4c34b0d724fb272b77ddd699b9678d49ece34580e745b61d2661", "links": [{ "claimId": "c2", "stance": "supports", "strength": 0.9 }] },
+    { "id": "e6", "sourceId": "bank", "description": "Bank statement debit", "file": "bank-statement.txt", "sha256": "581372cb611211ae230209c3c893c70d6d60010f598169c033adbfc7f514cf79", "links": [{ "claimId": "c2", "stance": "supports", "strength": 0.9 }] },
+    { "id": "e7", "sourceId": "audit-system", "description": "Audit record of approval", "file": "audit-log.txt", "sha256": "7e1f630a817ef2697809845074374b7a76e0fef1dc67f4055f87caf0736d13a8", "links": [{ "claimId": "c3", "stance": "contradicts", "strength": 0.6 }, { "claimId": "c1", "stance": "contradicts", "strength": 0.5 }] },
+    { "id": "e8", "sourceId": "mail-archive", "description": "Approval email header line", "links": [{ "claimId": "c3", "stance": "supports", "strength": 0.5 }] }
+  ]
+}

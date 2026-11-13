@@ -2,38 +2,43 @@
 
 Explainable evidence-confidence stress testing for digital investigations (Kiroween 2026).
 
-> **Status: Phase 1 prototype.** Not forensic software, not independently validated or security-audited, not enterprise-ready. Output describes *declared provenance and support structure*, never guilt, intent, or authenticity.
+> **Status: prototype (analysis 0.2.0).** Not forensic software; not independently reviewed or validated; not enterprise-ready. Output describes the *structure of support under declared provenance*. It never states guilt, intent, or authenticity.
 
 ## What it does
-Imports a structured JSON case, tracks which sources evidence came from, collapses duplicates and derived copies, and reports per claim whether support is missing, insufficient, conflicting, or backed by independent origins, with plain-language explanations. Reports are byte-reproducible.
+Reads a structured JSON case and answers, per claim: *how many genuinely independent origins stand behind the support, and what exactly is missing?*
+- **Independence engine** – derived copies, shared origin groups, identical artifacts and bridge sources collapse into one origin, with plain-language reasons. Independence is always labelled **declared, not verified**.
+- **Proof-gap engine** – LOGICAL findings (e.g. `FALSE_CORROBORATION`, `CONFLICT_UNRESOLVED`) plus ranked HEURISTIC suggestions, each stating what it would show and what it would **not** show.
+- **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
+- **Reports** – deterministic JSON (`--format json`, default) and human-readable text (`--format text`).
 
-## Setup
-Requires Node.js >= 20. No dependencies to install.
-
+## 60-second demo
 ```sh
-npm test                                   # run tests
-node src/cli.js examples/sample-case.json  # print report
-node src/cli.js examples/sample-case.json --out report.json  # refuses to overwrite
+npm run demo
 ```
+Four items seem to corroborate one claim; ProofGap shows they are one email in three disguises, flags a tampered file and a missing one. See `docs/DEMO.md`.
 
-## Case format (schema 1.0)
-See `examples/sample-case.json` (synthetic). Top level: `schemaVersion: "1.0"`, `caseId`, `title`, `sources[]` (`id`, `name`, optional `derivedFrom[]`, `originGroup`), `claims[]` (`id`, `statement`), `evidence[]` (`id`, `sourceId`, `description`, optional `sha256`, `links[]` of `{claimId, stance: supports|contradicts, strength 0..1}`). IDs match `[A-Za-z0-9_.-]{1,64}`.
+## Setup and commands
+Node.js ≥ 20, **zero runtime dependencies**.
+```sh
+npm ci                                   # uses package-lock.json (empty dependency tree)
+npm test                                 # all tests
+npm run bench                            # synthetic benchmark (writes nothing unless --out is given)
+node src/cli.js case.json [--out report-file] [--evidence-dir dir] [--format json|text]
+```
+Exit codes: 0 ok, 1 invalid input/I-O failure, 2 usage. `--out` never overwrites (fails if the path exists).
+
+## Case format (schema 1.0, `schemas/case.v1.schema.json`)
+`schemaVersion: "1.0"`, `caseId`, `title`, `sources[]` (`id`, `name`, optional `derivedFrom[]`, `originGroup`), `claims[]` (`id`, `statement`), `evidence[]` (`id`, `sourceId`, `description`, optional `sha256`, optional `file` relative path used only with `--evidence-dir`, `links[]` of `{claimId, stance: supports|contradicts, strength 0..1}`). Unknown properties are rejected. IDs match `[A-Za-z0-9_.-]{1,64}`. See `examples/`.
 
 ## Security defaults
-Local only (no network code, no telemetry); 1 MB input cap; item/string/depth limits (`src/limits.js`); `__proto__`/`constructor`/`prototype` keys and control characters rejected; derivation cycles rejected; output escapes `< > & U+2028/9`; CLI never overwrites files. Don't commit real case data.
+Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth limits; schema + semantic validation with `$`-paths; prototype-pollution keys, control/bidi characters and lone surrogates rejected; report output escaped; file verification restricted to an explicit directory (no symlinks, no traversal, regular files only, size/count/time limits). Threat model: `docs/THREAT_MODEL.md`.
 
-## Validation
-Input is checked in three stages before analysis: forbidden-key scan, then the JSON Schema in `schemas/case.v1.schema.json` (strict: unsupported properties rejected), then semantic checks (unique ids, reference integrity, derivation cycles/depth). Errors are path-specific, e.g. `$.evidence[0].sourceId: unknown source "x"`. The in-repo schema validator (`src/schema.js`) supports only the keyword subset the schema uses and rejects any other keyword. Exit codes: 0 ok, 1 invalid input or I/O failure, 2 usage.
-
-## Tests
-`npm test` runs unit, schema, seeded property/fuzz and CLI tests (details and recorded results in `.kiro/specs/phase1/acceptance.md`).
-
-## Known limitations
-- Independence relies on provenance the case author declares; undeclared common origins are invisible.
-- `sha256` values are not verified against actual files.
-- Scores are a simple heuristic (noisy-OR over independent origins, threshold of 2), uncalibrated.
-- Duplicate detection by description is exact after trim/lowercase only.
-- Fuzzing is seeded and small (200 seeds per property), not coverage-guided. Ajv/fast-check could not be installed (registry 403), so a small in-repo validator and PRNG are used. No formal threat model or external review.
+## Known limitations (read before relying on anything)
+- **Declared provenance cannot be verified.** If a case author hides that two sources share an origin, ProofGap cannot know. In the synthetic benchmark every detector, including this one, fails on such "undeclared copies".
+- Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
+- A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed; Windows/macOS and exotic filesystems are untested.
+- The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
+- No independent security review. In-repo schema validator (Ajv could not be installed in the sandbox).
 
 ## Layout
-`src/` code, `test/` tests (`node:test`), `examples/` synthetic data, `.kiro/specs/phase1/` requirements, design, tasks, acceptance; `.kiro/KIRO_USAGE.md` factual Kiro usage log.
+`src/` code · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/phase1/` requirements, design, tasks, acceptance (all phases) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.

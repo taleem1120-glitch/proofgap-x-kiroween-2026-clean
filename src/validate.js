@@ -153,14 +153,15 @@ function checkDerivation(sources, limits, add) {
   const byId = new Map(sources.map((s) => [s.id, s]));
   const state = new Map(); // 1=visiting 2=done
   const depth = new Map();
+  const stack = [];
   const visit = (id) => {
     if (state.get(id) === 2) return depth.get(id);
-    if (state.get(id) === 1) { add('$.sources', `derivation cycle involving "${id}"`); return 0; }
-    state.set(id, 1);
+    if (state.get(id) === 1) { add('$.sources', `derivation cycle: ${[...stack.slice(stack.indexOf(id)), id].join(' -> ')}`); return 0; }
+    state.set(id, 1); stack.push(id);
     let d = 0;
     for (const p of byId.get(id).derivedFrom ?? []) d = Math.max(d, 1 + visit(p));
     if (d > limits.maxDerivationDepth) add('$.sources', `derivation depth exceeds ${limits.maxDerivationDepth} at "${id}"`);
-    state.set(id, 2); depth.set(id, d);
+    stack.pop(); state.set(id, 2); depth.set(id, d);
     return d;
   };
   for (const s of sources) visit(s.id);

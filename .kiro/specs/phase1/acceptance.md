@@ -59,3 +59,55 @@ npm test
 node --test test/fuzz.test.js
 ```
 Fuzz failures print `seed <n>`; re-run by editing `SEEDS` in `test/prng.js`.
+
+---
+
+# Phase 3 Acceptance Criteria and Evidence
+
+Classification: **VERIFIED** = observed by running the command in this sandbox; **FAILED** = observed failing; **NOT TESTED** = not run.
+Environment: Node v22.23.4, npm 11.4.2, Linux sandbox. Commands: `npm ci`, `npm test`, `node --expose-gc bench/run.js both --out ...`.
+
+## Test results (`npm test`, observed)
+| File | Tests | Pass | Fail |
+|---|---|---|---|
+| proofgap.test.js (Phase 1, unmodified) | 19 | 19 | 0 |
+| schema.test.js (Phase 2, unmodified) | 9 | 9 | 0 |
+| fuzz.test.js (Phase 2, unmodified) | 15 | 15 | 0 |
+| cli.test.js (Phase 2, unmodified) | 10 | 10 | 0 |
+| regression.test.js (D1–D8) | 9 | 9 | 0 |
+| adversarial.test.js | 13 | 13 | 0 |
+| metamorphic.test.js | 9 | 9 | 0 |
+| gaps.test.js | 13 | 13 | 0 |
+| integrity.test.js | 14 | 14 | 0 |
+| security.test.js | 7 | 7 | 0 |
+| demo.test.js | 3 | 3 | 0 |
+| benchmark.test.js | 7 | 7 | 0 |
+| **Total** | **128** | **128** | **0** |
+
+Phase 1 and Phase 2 test files were not edited in Phase 3, and all 53 of their tests still pass (VERIFIED). Failures observed during development, all fixed in code, not by editing expectations: the six D1–D6 and D7/D8 regression tests failed first against the old engine (VERIFIED, 6/6 then 1/1 then 1/1); metamorphic M5 failed on seed 5009 and exposed D8; one `gaps` wording test failed ("confirm") and the engine text was reworded; one integrity test of mine compared against a hash the test itself declared (test bug, replaced by a stricter "no file opened" assertion); my own early M5 assertion was convoluted and was rewritten (documented here because it was a test change).
+
+## Criteria
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P3-A1 | Derived copies, shared groups, bridges, shared artifacts never create extra independent origins | VERIFIED | regression D3–D6, adversarial A1–A5, metamorphic M3/M5/M8 |
+| P3-A2 | Duplicates never hide contradictions or links to other claims | VERIFIED | regression D1–D2, adversarial A7 |
+| P3-A3 | Results independent of id order, array order and JSON formatting | VERIFIED | metamorphic M1–M3, M9 (150 seeds each; seeded, not exhaustive) |
+| P3-A4 | Self-assigned strength of derived evidence cannot inflate scores | VERIFIED | regression D7/D8, metamorphic M5 |
+| P3-A5 | Declared provenance separated from verified facts; independence never "verified" | VERIFIED | `trust` block test, gaps tests, security T6 |
+| P3-A6 | Findings are logical, recommendations heuristic, ranked 1..n, each with would-NOT-show; no fabricated identifiers | VERIFIED | gaps.test.js (100 + 100 random cases) |
+| P3-A7 | Integrity: five distinct states; traversal/absolute/symlink/dir/FIFO rejected; limits give NOT_CHECKED; MISMATCH excluded from scoring; absolute dir never echoed | VERIFIED (Linux) | integrity.test.js |
+| P3-A8 | Hard links are a limitation, not prevented | VERIFIED (documented, tested as limitation) | integrity.test.js |
+| P3-A9 | Demo shows 4 items → 1 origin, plus MISMATCH/MISSING states | VERIFIED | demo.test.js, `npm run demo` |
+| P3-A10 | Benchmark: hidden truth, disjoint dev/held-out, detectors blind to truth, metrics hand-checked | VERIFIED | benchmark.test.js |
+| P3-A11 | `npm ci` works with the committed lockfile | VERIFIED locally (0 deps) | observed "found 0 vulnerabilities" |
+| P3-A12 | CI passes on Node 20 and 22 | SEE BELOW | filled in after the workflow runs |
+| P3-A13 | Works on Node 20 | NOT TESTED locally | CI only |
+| P3-A14 | Works on Windows/macOS | NOT TESTED | — |
+| P3-A15 | Detects undeclared copies | **FAILED (by design/limitation)** | benchmark: 100% FPR on undeclared slice for every detector |
+
+## Benchmark (observed, `bench/results/phase3-run1.json`; full tables in `docs/BENCHMARK.md`)
+Held-out, declared-provenance scenarios, 535 uncorroborated + 263 corroborated claims: ProofGap 0.2.0 FPR 0/535, recall 263/263; 0.1.0 FPR 71/535; B3_originals_only FPR 28/535 with recall 207/263; item-count FPR 423/535. Undeclared-copy scenarios (89 claims): every detector FPR 89/89. This is a synthetic, author-built benchmark; it is **not** evidence of real-world accuracy or superiority.
+Scaling (one run, 1000 sources / 5000 evidence / 500 claims): ~251 ms wall, +32.7 MB heap, 137 MB RSS, 5.2 MB report.
+
+## CI evidence
+(see section appended after the first workflow run)

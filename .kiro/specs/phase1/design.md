@@ -14,3 +14,14 @@ Zero runtime dependencies; native ES Modules; Node >= 20 (`node:test`).
 Scoring: per claim, evidence is grouped by independence group (sorted root origins); each group contributes its max strength once; groups combine by noisy-OR. The score is a transparent heuristic over *declared* provenance; it is not a probability of truth.
 
 Trust boundary: the case file is untrusted input; provenance declarations inside it are taken at face value (see limitations).
+
+## Phase 3 modules
+| Module | Role |
+|---|---|
+| `src/independence.js` | root resolution, union-find independence groups, cluster explanations |
+| `src/gaps.js` | logical findings, heuristic ranked recommendations, assumptions |
+| `src/integrity.js` | opt-in local SHA-256 verification with path/resource safety |
+| `src/render.js` | human-readable text report |
+| `src/analyze.js` | artifact merging, scoring (policy in `POLICY`), report assembly |
+| `bench/` | hidden-truth synthetic dataset, detectors, metrics, runner |
+Data flow: validated case → (optional) integrity results → artifact classes → independence groups → per-claim contributions → findings/recommendations → report (JSON canonical / text).

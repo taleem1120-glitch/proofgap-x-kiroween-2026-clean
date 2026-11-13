@@ -65,3 +65,50 @@ The brief preferred well-reviewed dependencies (e.g. Ajv, fast-check). `npm inst
 - N2 Opt-in local sha256 verification of real files.
 - N3 CI workflow on Node 20 and 22.
 - N4 Threat model document and independent review.
+
+---
+
+# Phase 3 Tasks — advanced evidence intelligence
+
+Branch: `feature/phase3-evidence-intelligence` (based on `feature/phase2-schema-security`; PRs #1 and #2 were still open/unmerged when work started).
+
+- [x] P3-1 Independence engine (`src/independence.js`): union-find independence groups over declared roots, `originGroup` and shared artifacts; per-cluster plain-language reasons; declared vs verified kept separate (`trust` block, `corroboration.independenceBasis`).
+- [x] P3-2 Proof-gap engine (`src/gaps.js`): LOGICAL findings + ranked HEURISTIC recommendations, each with *would show / would NOT show*.
+- [x] P3-3 Local integrity (`src/integrity.js`): opt-in `--evidence-dir`; states VERIFIED/MISMATCH/MISSING/UNSAFE_PATH/NOT_CHECKED; path allow-list, no symlinks, regular files only, containment check, file/size/total/time limits.
+- [x] P3-4 Adversarial, metamorphic and regression tests (`adversarial`, `metamorphic`, `regression`, `security` test files).
+- [x] P3-5 Benchmark (`bench/`, `docs/BENCHMARK.md`): hidden-truth synthetic data, dev vs held-out, 4 baselines + ProofGap 0.1.0 + current.
+- [x] P3-6 Threat model `docs/THREAT_MODEL.md`; GitHub Actions workflow `.github/workflows/ci.yml` (Node 20 + 22, `npm ci`, SHA-pinned actions) — **workflow result: see acceptance.md (not claimed until observed)**.
+- [x] P3-7 Demo (`examples/demo`, `docs/DEMO.md`), text report renderer, README.
+
+## Phase 3 confirmed defects (found by new tests; each regression test was observed FAILING before its fix)
+| ID | Defect in the Phase 1/2 engine | Effect | Fix (analysis 0.2.0) | Regression test |
+|---|---|---|---|---|
+| D1 | A duplicate artifact was dropped wholesale | Links of the duplicate to *other claims* silently lost | Duplicate items are merged into one artifact; all links kept, counted once | `regression.test.js` D1 |
+| D2 | Same, for stance | A contradicting duplicate vanished instead of creating a conflict | Merged links keep both stances | D2, `adversarial` A7 |
+| D3 | Which duplicate survived depended on id sort order | Relabeling ids could manufacture a second "independent" origin | Sources that cite the same artifact are unioned into one group | D3 |
+| D4 | `originGroup` made `derivedFrom` be ignored | Declared derived copy counted independent | Roots = group ∪ parents' roots | D4 |
+| D5 | Independence key was the joined root string | A source derived from {r1,r2} counted independent of r1 | Union-find components: any shared root ⇒ one group | D5 |
+| D6 | Same as D5 for overlapping partial derivations | r1+r2 vs r2+r3 counted independent | Union-find transitive closure | D6 |
+| D7 | Origin strength = max over all evidence | A derived copy with self-assigned strength 1.0 raised the origin's strength | Strength comes from non-derived evidence when present | D7, D7b |
+| D8 | Derived-only cluster strength = max | Adding another derived copy rated 1.0 raised 0.5 → 1.0 (found by metamorphic M5, seed 5009) | Derived-only clusters use the minimum | D8 (observed failing: "score rose 0.5 -> 1") |
+Also: `npm test` used a quoted glob that Node 20 does not expand; changed to an unquoted glob (shell-expanded). **Node 20 behaviour NOT TESTED locally** (see CI).
+
+### Scoring-policy changes (explicit, not silent)
+D1–D8 change scores/origin counts only in the affected situations (they can only make results *more conservative* or merge origins; no case gains corroboration). `analysisVersion` is now `0.2.0` and every report carries `policy` text. The threshold (2 origins) and noisy-OR combination are unchanged. The only opt-in policy: when `--evidence-dir` is used, MISMATCH evidence is excluded from scoring.
+
+## Phase 3 limitations / NOT TESTED
+- NOT TESTED locally: Node 20 (only v22.23.4 available); CI result unknown until GitHub reports it (see acceptance.md).
+- NOT TESTED: Windows/macOS; case-insensitive or Unicode-normalising filesystems; hard-link/bind-mount/namespace tricks beyond the tested hard-link behaviour (hard links ARE hashed — documented limitation).
+- NOT TESTED: real investigator workflows, usability of the recommendations, any real-world case data.
+- Declared provenance is still unverifiable: undeclared copies fool every detector including ProofGap (benchmark: FPR 100% on that slice).
+- Benchmark is synthetic and author-built; "held-out" shares the generator. Latency/memory are single-machine single-pass numbers.
+- Ajv/fast-check still not installed (registry returned 403 in Phase 2; not retried in a way that circumvents policy). In-repo validator remains less reviewed than Ajv.
+- No independent security review; the threat model is self-authored.
+
+## Next priorities
+1. Independent review of `integrity.js` and the threat model; add Windows/macOS CI jobs.
+2. Evaluate on a benchmark authored by someone else, including real redacted cases if available.
+3. Provenance-evidence model: let cases attach verifiable provenance facts (custody records) so independence can be *verified*, not only declared.
+4. Heuristic undeclared-dependence detection with measured precision/recall (currently unscored warnings only).
+5. Retry Ajv/fast-check when the registry is reachable and use them as differential oracles.
+6. Report signing; HTML/CSV encoders with their own tests.

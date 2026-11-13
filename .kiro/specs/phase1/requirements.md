@@ -18,3 +18,11 @@ Scope: bounded vertical slice. Not forensic software; no certainty claims.
 - R12. THE SYSTEM SHALL report validation errors with `$`-style paths and SHALL NOT emit stack traces from the CLI.
 - R13. THE CLI SHALL read at most the size limit, accept only regular files, and SHALL NOT overwrite any existing output path.
 - R14. Text fields SHALL reject control characters, bidirectional control characters and unpaired surrogates.
+
+## Phase 3 additions
+- R15. Independence SHALL be computed from declared provenance as connected groups of shared roots/origin groups/artifacts, SHALL be explained per cluster, and SHALL always be labelled as declared, never verified.
+- R16. Duplicate evidence SHALL be merged (links kept, counted once); a contradiction SHALL NOT be lost by deduplication; results SHALL NOT depend on id ordering.
+- R17. Derived evidence SHALL NOT raise an origin's strength or add origins.
+- R18. For each claim THE SYSTEM SHALL emit LOGICAL findings and ranked HEURISTIC recommendations, each stating what it would and would not show, referencing only identifiers that exist in the case.
+- R19. WHEN `--evidence-dir` is given, THE SYSTEM SHALL verify declared SHA-256 values only against regular, non-symlink files inside that directory under file-count/size/total/time limits, reporting exactly one of VERIFIED, MISMATCH, MISSING, UNSAFE_PATH, NOT_CHECKED per evidence item; otherwise all declared hashes SHALL be shown as unverified.
+- R20. Reports SHALL be available as machine-readable JSON and human-readable text, deterministic for identical input.

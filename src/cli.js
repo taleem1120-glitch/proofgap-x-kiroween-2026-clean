@@ -1,17 +1,23 @@
 #!/usr/bin/env node
 import { openSync, fstatSync, readSync, closeSync, writeFileSync } from 'node:fs';
-import { analyzeText, CaseValidationError, DEFAULT_LIMITS } from './index.js';
+import { analyzeText, CaseValidationError, IntegrityConfigError, DEFAULT_LIMITS } from './index.js';
 
 // Exit codes: 0 ok, 1 invalid input / I/O failure, 2 usage error.
-const USAGE = 'Usage: proofgap <case.json> [--out report.json]';
+const USAGE = 'Usage: proofgap <case.json> [--out report-file] [--evidence-dir dir] [--format json|text]';
 const usage = () => { console.error(USAGE); process.exit(2); };
 
 const args = process.argv.slice(2);
-let input, output;
-if (args.length === 1) [input] = args;
-else if (args.length === 3 && args[1] === '--out') [input, , output] = args;
-else usage();
-if (input.startsWith('-') || (output !== undefined && output.startsWith('-'))) usage();
+const input = args.shift();
+if (!input || input.startsWith('-')) usage();
+const opt = {};
+const FLAGS = new Set(['--out', '--evidence-dir', '--format']);
+while (args.length) {
+  const f = args.shift(), v = args.shift();
+  if (!FLAGS.has(f) || v === undefined || v.startsWith('-') || Object.hasOwn(opt, f)) usage();
+  opt[f] = v;
+}
+if (opt['--format'] !== undefined && !['json', 'text'].includes(opt['--format'])) usage();
+const output = opt['--out'];
 
 /** Read a regular file, never more than maxBytes+1 bytes (guards against growth/special files). */
 function readBounded(path, maxBytes) {
@@ -29,13 +35,16 @@ function readBounded(path, maxBytes) {
 try {
   // Entire report is computed BEFORE any output file is created, so invalid
   // input never leaves a partial or empty output file behind.
-  const report = analyzeText(readBounded(input, DEFAULT_LIMITS.maxBytes));
+  const report = analyzeText(readBounded(input, DEFAULT_LIMITS.maxBytes), undefined,
+    { evidenceDir: opt['--evidence-dir'], format: opt['--format'] ?? 'json' });
   if (output) writeFileSync(output, report, { flag: 'wx', mode: 0o600 }); // 'wx': fail if path exists (incl. symlinks)
   else process.stdout.write(report);
 } catch (e) {
   if (e instanceof CaseValidationError) {
     console.error(e.message);
     for (const i of e.issues) console.error(`  ${i.path}: ${i.message}`);
+  } else if (e instanceof IntegrityConfigError) {
+    console.error(`Error: ${e.message}`);
   } else {
     console.error(`Error: ${e && e.code ? e.code : 'unexpected failure'}`); // no stack traces / paths leaked
   }

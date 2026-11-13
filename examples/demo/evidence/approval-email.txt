@@ -1,0 +1,6 @@
+From: approver@example.test
+To: finance@example.test
+Subject: Invoice 4471 approved
+Date: 2026-03-02T09:15:00Z
+
+Approved.
