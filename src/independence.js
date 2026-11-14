@@ -62,8 +62,11 @@ class UnionFind {
 export function groupSources(rootsBySource, sourceIds, artifactSourceSets = []) {
   const uf = new UnionFind();
   for (const id of sourceIds) { const rs = rootsBySource.get(id); for (const r of rs) uf.union(rs[0], r); }
+  // A non-citing source must never become an implicit bridge between claim sources.
+  // Restrict artifact joins to the local claim source set (D9).
+  const localIds = new Set(sourceIds);
   for (const set of artifactSourceSets) {
-    const flat = set.flatMap((id) => rootsBySource.get(id));
+    const flat = [...new Set(set.filter((id) => localIds.has(id)))].flatMap((id) => rootsBySource.get(id));
     for (const r of flat) uf.union(flat[0], r);
   }
   const comps = new Map();
@@ -140,6 +143,21 @@ export const EXACT_LIMIT = 22;
  */
 export function packOrigins(items, weightOf = () => 0) {
   const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+  // Fail closed: malformed or ambiguous roots must never become counted origins.
+  // The public label format uses "+" as a separator; accepting "+" inside roots
+  // would make different root sets indistinguishable. Schema validation should
+  // enforce the same restriction at the input boundary.
+  if (!Array.isArray(items)) throw new TypeError('items must be an array');
+  const itemKeys = new Set();
+  for (const item of items) {
+    if (item == null || !Array.isArray(item.roots) || item.roots.length === 0)
+      throw new TypeError('each item must have a nonempty roots array');
+    if (itemKeys.has(item.key)) throw new Error('duplicate evidence key');
+    itemKeys.add(item.key);
+    for (const root of item.roots)
+      if (typeof root !== 'string' || root.length === 0 || root.includes('+'))
+        throw new TypeError('root must be a nonempty string without +');
+  }
   const byLabel = new Map();
   const labelOf = (it) => [...new Set(it.roots)].sort().join('+');
   for (const it of items) { const label = labelOf(it); if (!byLabel.has(label)) byLabel.set(label, new Set(label.split('+'))); }
