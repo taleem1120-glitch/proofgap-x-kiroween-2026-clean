@@ -1,5 +1,57 @@
 # ProofGap X — Benchmark
 
+## Phase 11: ProofGap Cite (application 2)
+**Read first.** The benchmark is synthetic and author-built (`bench/cite/dataset.js`), and its scenarios encode the rules Cite implements. The numbers show the implementation follows its specification and expose its designed blind spots. They are **not** evidence of real-world accuracy, and there is no external comparison.
+
+- **Task.** Per claim, decide whether it is *independently corroborated*. Hidden truth, never written into the note: ≥ 2 truly independent primary origins and no contradiction. Positive prediction means verdict `independently_corroborated`.
+- **Scenarios.** 11 templates, including two that are deliberately **indistinguishable from the note alone**:
+  - `undeclared_independent` (truth yes) and `undeclared_echo` (truth no) look identical, and Cite abstains on both;
+  - `reencoded_repost` (truth no): two "primary" refs with different URLs whose saved copies differ by a suffix.
+- **Splits.** dev: seeds 1–150, used during development. **held-out:** seeds 500001–500150, generated and evaluated **once** after the Phase 11 code freeze. Tests assert the splits are disjoint and that truth never appears in the notes.
+- **Baselines** count supporting citations, distinct normalised URLs, or distinct outlet names.
+
+| Split | Detector | TP | FP | TN | FN | Precision | Recall | FPR |
+|---|---|---|---|---|---|---|---|---|
+| dev | ≥ 2 citations | 170 | 413 | 78 | 0 | 29.2% (170/583) | 100.0% (170/170) | 84.1% (413/491) |
+| dev | ≥ 2 distinct URLs | 170 | 356 | 135 | 0 | 32.3% (170/526) | 100.0% (170/170) | 72.5% (356/491) |
+| dev | ≥ 2 distinct outlets | 170 | 413 | 78 | 0 | 29.2% (170/583) | 100.0% (170/170) | 84.1% (413/491) |
+| dev | Cite, no saved files | 112 | 117 | 374 | 58 | 48.9% (112/229) | 65.9% (112/170) | 23.8% (117/491) |
+| dev | Cite, with saved files | 112 | 55 | 436 | 58 | 67.1% (112/167) | 65.9% (112/170) | 11.2% (55/491) |
+| held-out | ≥ 2 citations | 170 | 447 | 78 | 0 | 27.6% (170/617) | 100.0% (170/170) | 85.1% (447/525) |
+| held-out | ≥ 2 distinct URLs | 170 | 393 | 132 | 0 | 30.2% (170/563) | 100.0% (170/170) | 74.9% (393/525) |
+| held-out | ≥ 2 distinct outlets | 170 | 447 | 78 | 0 | 27.6% (170/617) | 100.0% (170/170) | 85.1% (447/525) |
+| held-out | Cite, no saved files | 123 | 137 | 388 | 47 | 47.3% (123/260) | 72.4% (123/170) | 26.1% (137/525) |
+| held-out | Cite, with saved files | 123 | 66 | 459 | 47 | 65.1% (123/189) | 72.4% (123/170) | 12.6% (66/525) |
+
+**Held-out per scenario** (positive predictions; claims per scenario = n):
+
+| Scenario | Truly corroborated | n | ≥ 2 URLs | Cite, no files | Cite, with files | Cite verdicts (with files) |
+|---|---|---|---|---|---|---|
+| circular | no | 75 | 75 | 0 | 0 | circular_reporting 75 |
+| conflicting | no | 33 | 33 | 0 | 0 | conflicting 33 |
+| echo_declared | no | 91 | 91 | 0 | 0 | single_origin 91 |
+| echo_identical_files | no | 71 | 71 | 71 | 0 | single_origin 71 |
+| reencoded_repost | no | 66 | 66 | 66 | 66 | independently_corroborated 66 |
+| single_primary | no | 48 | 0 | 0 | 0 | single_origin 48 |
+| syndicated_same_url | no | 54 | 0 | 0 | 0 | abstain_suspected_shared_origin 54 |
+| two_primaries | yes | 123 | 123 | 123 | 123 | independently_corroborated 123 |
+| undeclared_echo | no | 57 | 57 | 0 | 0 | origin_unresolved 57 |
+| undeclared_independent | yes | 47 | 47 | 0 | 0 | origin_unresolved 47 |
+| unsupported | no | 30 | 0 | 0 | 0 | unsupported 30 |
+
+**Reading the held-out table honestly:**
+- **All 66 Cite false positives are `reencoded_repost`.** Bytes differ, URLs differ, and nothing declared links them, so the tool cannot see it. This is the main open weakness.
+- **All 47 false negatives are `undeclared_independent`.** Cite deliberately abstains (`origin_unresolved`) when no primary source is declared. Crediting them would also credit the 57 `undeclared_echo` claims, which look identical.
+- **Saved-file hashing removes the 71 `echo_identical_files` false positives** (no files 137 FP → with files 66 FP).
+- **Same-URL syndication** (54) is caught by the identifier cue without files.
+- 95% Wilson intervals treat claims as independent, which is optimistic.
+
+**Latency and memory** (Node v22.23.4, one machine, one pass): median 2.23 ms per note including saved-file hashing. A large note (200 claims, 500 references) took 65.4 ms with heap +15.4 MB.
+
+Application 1's benchmarks below are unchanged: Phase 11 did not change the analysis policy (0.4.0), and `npm run validate:local` re-checks them byte for byte.
+
+---
+
 ## Phase 6 (engine 0.4.0): verified byte identity from local files
 
 ### Root cause of "37/88" (Phase 5, heldout2)

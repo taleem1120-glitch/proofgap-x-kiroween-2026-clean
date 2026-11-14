@@ -193,3 +193,20 @@ Branch `feature/phase7-release-candidate` (from `feature/phase6-verified-provena
 - [x] P7-4 `.kiro`: renamed `specs/phase1` → `specs/proofgap-x` (it covered every phase; references updated, including one comment in `test/regression.test.js`). Added `steering/proofgap-x.md` with the project's actual rules, dated Phase 7. Rewrote `KIRO_USAGE.md` as a per-phase table, correcting an outdated line ("no MCP servers") that stopped being true in Phase 5.
 - [x] P7-5 Release docs: README "For judges"; timed 180-second script in `docs/DEMO.md`; release checklist, licence comparison and requirement sources in `docs/COMPETITION.md`; `docs/CI_STATUS.md` updated for local Node 20/24.
 - [ ] Owner: licence approval (Apache-2.0 recommended), copyright holder name, public visibility, merging the PR stack, video, category decision, billing.
+
+---
+
+# Phase 11 — shared core and second application (package 0.5.0; analysis policy 0.4.0 unchanged)
+
+Branch `feature/phase11-dual-application` (from `feature/phase7-release-candidate`, PR #6). No Phase 10 record exists.
+
+- [x] P11-1 Gate 1: state re-checked (6 open PRs, linear stack, `main` has nothing outside it); official rules still HTTP 403, so verification is pending.
+- [x] P11-2 Gate 2: NOTICE in the proposal folder updated with the owner-supplied holder name (kept out of the repository); new commit scanned (0 secrets, 0 personal emails).
+- [x] P11-3 Gate 3: `src/core.js` (`CORE_API_VERSION` 1.0.0: `analyze`, `readInputFile`, `writeNewFile`, renderers, errors, defaults). Wording profiles in `analyze.js` / `html.js`; the default output is byte-identical to before.
+- [x] P11-4 App 1 moved to `apps/proofgap-x/cli.js` on the core; `src/cli.js` is a shim.
+- [x] P11-5 Gate 4: ProofGap Cite (`apps/proofgap-cite/`): Markdown parser and domain validation, citation-cycle detection, primary/secondary rule, URL/DOI cues, verdicts, lint/JSON/HTML CLI with `--fail-on-gaps`, example note and saved sources, showcase.
+- [x] P11-6 Gate 5: shared viewer extended (Cite verdict labels, "What is missing", source line); 320 px badge overflow found by browser check and fixed.
+- [x] P11-7 Gate 6: `test/core.test.js` (8), `test/cite.test.js` (25), 2 Cite benchmark tests, `security.test.js` T1b; mutation spot-check of Cite (6 mutations; one survived, which revealed an untested self-citation path, now covered). Cite benchmark: dev used in development, held-out evaluated once after freeze.
+- [x] P11-8 Gate 7: README two-app quick start, app READMEs, 2:50 storyboard, judging matrix, `.kiro` updates.
+
+Remaining: owner approvals in `docs/APPROVALS.md` (licence, history decision, merge, visibility, Pages, video, rules check, billing).

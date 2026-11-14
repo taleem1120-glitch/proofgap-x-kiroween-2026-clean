@@ -60,3 +60,25 @@ test('benchmark honesty guard: undeclared-copy scenarios are labelled uncorrobor
   for (const x of generateSplit('dev')) { const rep = analyzeCase(x.case); for (const [id, t] of Object.entries(x.truth)) if (t.kind === 'undeclared') { n++; assert.equal(t.corroborated, false); if (DETECTORS.P_proofgap_current(x.case, id, rep)) fooled++; } }
   assert.ok(n > 30); assert.equal(fooled, n, 'if this starts failing, the limitation text in docs/BENCHMARK.md must be revisited, not the test silently edited');
 });
+
+// ---- ProofGap Cite benchmark (Phase 11) ----
+import { generateNote, generateCiteSplit, CITE_SPLITS, CITE_SCENARIOS } from './../bench/cite/dataset.js';
+import { parseNote } from '../apps/proofgap-cite/src/parse.js';
+
+test('cite dataset: deterministic, disjoint dev/held-out seeds, no identical notes across splits, every note parses', () => {
+  assert.deepEqual(generateNote(7), generateNote(7));
+  assert.ok(CITE_SPLITS.dev.firstSeed + CITE_SPLITS.dev.count <= CITE_SPLITS.heldout.firstSeed);
+  const dev = new Set(generateCiteSplit('dev').map((n) => n.text));
+  for (const n of generateCiteSplit('heldout')) { assert.ok(!dev.has(n.text)); parseNote(n.text); }
+});
+
+test('cite dataset: ground truth is never written into the note, and every scenario appears in both splits', () => {
+  for (const name of ['dev', 'heldout']) {
+    const seen = new Set();
+    for (const n of generateCiteSplit(name)) {
+      for (const t of Object.values(n.truth)) seen.add(t.scenario);
+      assert.doesNotMatch(n.text, /corroborated|truth|undeclared_|reencoded|scenario/i);
+    }
+    assert.deepEqual([...seen].sort(), Object.keys(CITE_SCENARIOS).sort(), name);
+  }
+});

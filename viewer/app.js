@@ -11,6 +11,13 @@
     conflicting: ['Conflicting evidence', 'warn'],
     contradicted: ['Contradicted', 'bad'],
     no_evidence: ['No evidence', 'bad'],
+    // ProofGap Cite verdicts
+    independently_corroborated: ['Independently corroborated (declared lineage)', 'ok'],
+    abstain_suspected_shared_origin: ['Abstains: may be the same source', 'warn'],
+    origin_unresolved: ['Origin unresolved', 'warn'],
+    single_origin: ['Single origin', 'bad'],
+    circular_reporting: ['Circular reporting', 'bad'],
+    unsupported: ['Unsupported', 'bad'],
   };
   var BASIS_HELP = {
     verified: 'bytes hashed by this tool and identical (says nothing about who created them)',
@@ -104,15 +111,18 @@
   // ---------- claims ----------
   function claimCard(c) {
     var k = c.corroboration;
-    var head = el('div', { class: 'claimhead' }, [el('h4', {}, [c.claimId + ': ' + c.statement]), badge(c.decision)]);
+    var head = el('div', { class: 'claimhead' }, [el('h4', {}, [(c.line ? 'line ' + c.line + ' \u00b7 ' : '') + c.claimId + ': ' + c.statement]), badge(c.decision)]);
     var big = el('p', { class: 'collapse' }, [
       el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' supporting item(s) collapse to ',
       el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' independent origin(s)',
       k.falseCorroboration ? el('span', { class: 'flag' }, [' FALSE CORROBORATION']) : '',
     ]);
-    var meta = el('p', { class: 'meta' }, ['Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
+    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? 'Core decision: ' + c.coreDecision + ' \u00b7 ' : '') + 'Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
     var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
     var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
+    if (Array.isArray(c.missing) && c.missing.length) {
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+    }
     if (k.clusters.supports.length || k.clusters.contradicts.length) {
       var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
       k.clusters.supports.concat(k.clusters.contradicts.map(function (x) { return Object.assign({ contra: true }, x); })).forEach(function (o) {

@@ -9,7 +9,7 @@ State when this was written: code at PR #6 head; repository **private**; **no li
 ## A. Licensing: Apache-2.0
 **Proposal (not in the repository):** `/projects/sandbox/license-proposal/`
 - `LICENSE`: unmodified Apache-2.0 text, 202 lines. Word-for-word identical (1,581 words) to the SPDX licence-list copy.
-- `NOTICE`: `Copyright 2026 taleem1120-glitch`, the **PROPOSED** holder.
+- `NOTICE`: `Copyright 2026` followed by the owner's full legal name, supplied in Phase 11. It is kept **only in the proposal folder**, not in the repository, until A1 is approved.
 - `package.json.patch`: `"license": "UNLICENSED"` → `"Apache-2.0"`.
 
 **Compatibility review (technical, not legal):**
@@ -26,7 +26,7 @@ State when this was written: code at PR #6 head; repository **private**; **no li
 
 **Owner decides:**
 - [ ] A1. Approve Apache-2.0, or name another OSI licence.
-- [ ] A2. Confirm `taleem1120-glitch` as the copyright holder, or give a legal name or entity.
+- [x] A2. Copyright holder supplied by the owner (Phase 11): full legal name, year 2026. The owner confirms, to the best of his knowledge, his right to license the code. No legal verification has been done.
 - [ ] A3. Confirm there are no other contributors or rights holders.
 
 **Then the agent will:** copy `LICENSE` and `NOTICE` to the repository root, apply the `package.json` change, regenerate `package-lock.json`, add a README licence section, run `npm test`, and commit to the PR #6 branch so the licence lands together with the code. **Rollback:** revert that commit.
@@ -61,7 +61,7 @@ The GitHub setting "Keep my email addresses private" does not change existing co
 **Preconditions:** A done, or explicitly waived. B decided, because B2 must happen before merging.
 
 Choose one:
-- [ ] C1. **Recommended:** retarget PR #6 to `main` and merge it once with **"Create a merge commit"**. PRs #1–#5 then show as merged.
+- [ ] C1. **Recommended:** retarget the **top** PR of the stack (PR #7, Phase 11, if accepted; otherwise #6) to `main` and merge it once with **"Create a merge commit"**. All lower PRs then show as merged.
 - [ ] C2. Merge #1 → #6 strictly in order, each with **"Create a merge commit"**, retargeting the next PR to `main` after each merge. Auto-delete of branches is off, so GitHub won't retarget them.
 - **Never** squash or rebase any PR in this stack.
 
@@ -102,24 +102,12 @@ Steps:
 
 ---
 
-## F. Category: Skeleton Crew second application (needs approval to build)
-**Reassessment:**
-- **Core:** reusable at the data-model level. Sources, claims, evidence, `derivedFrom` and stance carry no domain meaning; independence, gaps, planner, graph, integrity and viewer work on any case JSON.
-- **Domain wording:** investigation-specific text exists in 4 strings only: the disclaimer and an explanation suffix in `src/analyze.js`, and the header and footer in `src/html.js`.
-- **Structure:** this repository is one application, not a skeleton template. The category asks for two distinct applications on the shared code.
-
-| Candidate second application | What is genuinely distinct | Expected judging value | Estimated cost | Risks |
-|---|---|---|---|---|
-| **ProofGap Cite**: "citation laundering" checker for research or news notes written in Markdown | New user (writer or researcher). New input: a Markdown note with claims and footnote citations, plus a folder of saved source copies, converted into case JSON by an adapter. New output: lint-style terminal annotations and exit code. Reuses verified byte identity, catching saved copies of the same press release under different outlets | Makes the category **met** instead of unmet. Strongest story ("10 articles, 1 press release") and directly reuses the strongest feature | **One focused session:** about 300–450 lines (adapter, profile wording, CLI), 15–20 tests, one synthetic dataset, a second showcase, `docs/SKELETON.md` | Judges may see it as the same engine with a new dataset; mitigated by the distinct input pipeline, UX and user. Parsing scope must stay small |
-| Security-advisory corroboration (mirrored advisories for one vulnerability) | Security analysts; advisory records as input | High relevance for security-minded judges | Higher: realistic records need an advisory format, and real data brings licence and network questions | Synthetic advisories look artificial; real data needs licence checks |
-| Product-review independence | Consumers or marketplaces | Low: reads as the same idea | Similar to Cite | Weak distinctness |
-
-**Required core change for any candidate:** an optional "profile" for the 4 domain strings. The default must leave app 1's output byte-identical, which is checked by the existing showcase and benchmark byte-equality tests, so it needs no scoring change and no version bump.
-
-- [ ] F1. Approve building **ProofGap Cite** as application 2 and entering **Skeleton Crew**. Recommended if credits allow one more session.
-- [ ] F2. Or decline; then enter Skeleton Crew without a second app (does not meet the category) or choose another category. No category is currently a strong fit.
-
----
+## F. Category: Skeleton Crew second application
+**Done in Phase 11, on branch `feature/phase11-dual-application`, not merged.**
+- ProofGap Cite is in `apps/proofgap-cite/`.
+- The core has a versioned interface, `src/core.js`; ProofGap X moved to `apps/proofgap-x/`, with `src/cli.js` kept as a shim.
+- Evidence is listed in `docs/COMPETITION.md` (category section) and `apps/proofgap-cite/README.md`.
+- The decision left to the owner is G2: read the official 2026 category text before entering Skeleton Crew.
 
 ## G. Other owner-only items
 - [ ] G1. Record and publish the < 3-minute video using `docs/DEMO.md`. Say "open source" only after A and D.
@@ -128,4 +116,4 @@ Steps:
 - [ ] G4. Submit on Devpost.
 
 ## Recommended order
-**A → B (B1) → C1 → D → E (optional) → G1 → G4.** F, if approved, goes before C so application 2 is merged with the rest. G2 should come first of all.
+**G2 → A → B (B1) → C1 (the Phase 11 PR is now the top of the stack) → D → E (optional) → G1 → G4.**

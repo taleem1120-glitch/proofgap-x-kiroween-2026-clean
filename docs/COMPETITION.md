@@ -1,4 +1,4 @@
-# Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phases 8–9)
+# Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phases 8, 9 and 11)
 
 **Owner actions are listed one by one, each separately authorized, in [`docs/APPROVALS.md`](APPROVALS.md)**, covering licensing, history, merging, visibility, Pages, category and video.
 
@@ -19,7 +19,7 @@ The official pages (`kiroween.devpost.com`, rules) returned **HTTP 403** to the 
 | 2 | Public repository | Private (GitHub API) | **BLOCKER · OWNER** |
 | 3 | Code on the default branch | `main` holds only the initial README; the code is in 6 stacked, unmerged PRs. Phase 8: all 6 report `mergeable=clean`; each head descends from its base; a local simulation merged all six into `main` with `--no-ff` without conflicts, ending at a tree identical to PR #6's head | **BLOCKER · OWNER**: follow the merge plan below |
 | 4 | Demo video < 3 min, public | Script ready (`docs/DEMO.md`); not recorded | **BLOCKER · OWNER** (recording and publishing) |
-| 5 | Category choice | No category is currently a strong fit (see below) | **BLOCKER · OWNER** decision |
+| 5 | Category choice | Phase 11: two distinct applications now exist on one core (see below); the official category text is still unverified (HTTP 403) | **OWNER** decision (rules check pending) |
 | 6 | Working application URL | None. The demo is a static, self-contained file (`viewer/showcase.html`) plus a CLI. Phase 8: the unchanged file served from a simulated GitHub Pages HTTPS origin rendered both panels, all 5 verdicts, both graphs and export, with no console or CSP errors and no request beyond itself. Real Pages hosting is NOT TESTED; see "Working-app evidence" | **WARNING · OWNER** (deployment needs approval; requirement NOT VERIFIED) |
 | 7 | New-project timing | Repository created 2026-11-13T19:16:22Z; all commits dated 13–14 Nov 2026 | VERIFIED |
 | 8 | `/.kiro` at root, not gitignored | `.kiro/specs/proofgap-x/`, `.kiro/steering/proofgap-x.md`, `.kiro/KIRO_USAGE.md` are tracked; `git check-ignore` reports nothing | VERIFIED |
@@ -104,18 +104,25 @@ Source caveat: the official 2026 pages returned HTTP 403, so the **official cate
 **Recommendation: Skeleton Crew**, conditional on the owner approving a second distinct application built on the unchanged core. The cheapest honest candidate is a "citation laundering" checker for news or research claims: articles citing articles that all trace to one press release. That reuses the engine, schema and viewer with a new dataset and labels. Until it exists, no category is a strong fit, and the submission should not claim one.
 
 
-**Phase 9 reassessment:** a concrete second application ("ProofGap Cite", a Markdown citation-laundering checker) and its cost and value comparison are in `docs/APPROVALS.md` §F; building it needs approval.
+**Phase 11 status: Skeleton Crew is now substantiated by working code.** The 2026 text is unverified; the summary used here is "a lean, reusable skeleton shown through two distinct applications".
 
-**Phase 7 re-check:** nothing changed in the product's shape, so the assessment stands. With the current product, **Skeleton Crew is the strongest achievable category and is not yet met**, because it needs a second, distinct application on the same core. Resurrection and Frankenstein would be misleading claims. Costume Contest would need a Halloween design pass. If the owner does not approve a second application, the honest options are to enter Costume Contest after a themed redesign, or to enter Skeleton Crew without a second app, knowing it does not meet that category's description.
+| Requirement (as summarised) | Evidence | Status |
+|---|---|---|
+| Reusable core | `src/` engine with a versioned interface `src/core.js` (`CORE_API_VERSION` 1.0.0); profiles change wording only (tested on 40 cases) | VERIFIED |
+| Two separate application folders | `apps/proofgap-x/`, `apps/proofgap-cite/`; apps import only `src/core.js` and never each other (tested) | VERIFIED |
+| Genuinely distinct applications | different user, input (JSON case vs Markdown + saved copies), domain rules (cycles invalid vs reported as circular reporting; primary/secondary required in Cite; URL/DOI cues), output (evidence report vs lint lines with exit-code gating). See `apps/proofgap-cite/README.md` | VERIFIED (by design and tests; judges may still see them as close cousins) |
+| Lean | zero dependencies; core 1,427 lines; Cite 475 lines; app-1 CLI 44 lines | VERIFIED |
 
-## Judging-readiness matrix (20% each)
+Other categories are unchanged: Resurrection and Frankenstein would be misleading claims; Costume Contest would need a themed redesign. **Recommended category: Skeleton Crew**, subject to the official 2026 text.
+
+## Judging-readiness matrix (20% each; Phase 11)
 | Criterion | Actual evidence | Missing proof |
 |---|---|---|
-| Potential Impact | Catches false corroboration (echoed, derived and byte-identical evidence) and abstains on suspected hidden dependence. File-backed heldout3: undeclared byte-identical copies falsely asserted 32/43 before 0.4.0, 0/43 after; declared FPR 0/479 | No real users or cases; synthetic, author-built benchmark; re-encoded copies still missed (24/47) |
-| Technological Implementation / Kiro usage | Per-claim, monotone independence; artifact entanglement; abstention; planner checked by executing its hypotheticals; locally verified byte identity; 13 confirmed defects with regression tests; 159 tests on Node 20, 22 and 24; deterministic outputs; zero dependencies | Remote CI blocked; Kiro usage is agent sessions, spec files and the Playwright Power only (`.kiro/KIRO_USAGE.md`); no spec workflow, hooks or Crew |
-| Design | Side-by-side viewer; graph with four relationship bases; text alternative; keyboard and responsive checks; CSP-locked | No usability or screen-reader testing; basic graph layout for large cases |
-| Innovation | Four-way relationship basis; corroboration-denial-resistant independence; counterfactual plans from the verdict rule; abstention as an outcome | No external review of novelty |
-| Presentation | Timed 180-second script, committed showcase, judges' instructions in the README | No video, no Devpost write-up, no public URL |
+| Potential Impact | **App 1:** undeclared byte-identical copies falsely asserted 32/43 → 0/43 (file-backed heldout3); declared FPR 0/479. **App 2 (held-out, 695 claims):** false-positive rate 66/525 (12.6%) against 393/525 for "≥ 2 distinct URLs"; precision 123/189 against 170/563 | Synthetic, author-built benchmarks; no real users or notes; re-encoded reposts missed (66/66) |
+| Technological Implementation / Kiro usage | Versioned core interface with an enforced import boundary; two apps; 13 confirmed engine defects with regression tests; mutation-checked Cite tests (one gap found and closed); deterministic outputs; zero dependencies; offline CSP viewer shared by both apps | CI BLOCKED_BY_BILLING; Kiro usage is agent sessions, spec and steering files, and the Playwright Power only |
+| Design | One accessible viewer serves both apps: verdict badges, "What is missing", graph with four relationship bases, text alternatives. Both showcases checked at 320/390/768/1400 px; a 320 px overflow in Cite was found and fixed | No usability or screen-reader testing |
+| Innovation | Counting independent *origins* rather than citations; verified byte identity of saved copies; citation cycles as findings; abstention as an outcome; counterfactual plans | No external novelty review |
+| Presentation | Two committed showcases, a 2:50 two-app storyboard, two-app quick start | No video, no public URL, no Devpost write-up |
 
 ## Kiro usage
 See `.kiro/KIRO_USAGE.md`. It is the single source and lists what was and was not used.

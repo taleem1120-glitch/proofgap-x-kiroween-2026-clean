@@ -68,3 +68,15 @@ test('T7 serialization is canonical: same case always yields same bytes (tamper-
   const a = analyzeText(JSON.stringify(c)); c.title = 'changed';
   assert.notEqual(JSON.parse(analyzeText(JSON.stringify(c))).inputSha256, JSON.parse(a).inputSha256);
 });
+
+test('T1b no network, process-spawning or eval capability in either application (apps/**; static check)', async () => {
+  const { readdirSync: rd, statSync: st } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const appsDir = fileURLToPath(new URL('../apps/', import.meta.url));
+  const walk = (d) => rd(d).flatMap((f) => { const p = join(d, f); return st(p).isDirectory() ? walk(p) : [p]; });
+  const banned = /\b(node:)?(http|https|http2|net|tls|dns|dgram|child_process|worker_threads|cluster|vm)\b['"]|\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\beval\s*\(|\bnew Function\b|\bprocess\.env\b/;
+  const files = walk(appsDir).filter((p) => p.endsWith('.js'));
+  assert.ok(files.length >= 6, 'expected both applications');
+  for (const f of files) assert.doesNotMatch(readFileSync(f, 'utf8'), banned, f);
+});

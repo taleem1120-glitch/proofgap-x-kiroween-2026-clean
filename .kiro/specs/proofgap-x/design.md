@@ -25,3 +25,14 @@ Trust boundary: the case file is untrusted input; provenance declarations inside
 | `src/analyze.js` | artifact merging, scoring (policy in `POLICY`), report assembly |
 | `bench/` | hidden-truth synthetic dataset, detectors, metrics, runner |
 Data flow: validated case → (optional) integrity results → artifact classes → independence groups → per-claim contributions → findings/recommendations → report (JSON canonical / text).
+
+## Phase 11: core interface and applications
+```
+apps/proofgap-x/cli.js ──┐                       ┌─ validate / schema / limits
+                         ├─> src/core.js (1.0.0) ─┼─ analyze (independence, gaps, planner, graph, abstention)
+apps/proofgap-cite/ ─────┘   analyze(), readInputFile, ├─ integrity (local SHA-256, safe paths)
+  parse.js  (Markdown → note)  writeNewFile, renderers └─ report / render / html + viewer/
+  lineage.js (cycles → originGroup; cites → derivedFrom; refs → sources; saved copies → evidence)
+  verdict.js (primary-rooted origins, URL/DOI cues → Cite verdicts + what is missing)
+```
+The core report is extended, never replaced: Cite adds `cite`, per-claim `line`, `missing`, `citeEvidence`, and `coreDecision`, while keeping `status`. `decision` carries the Cite verdict so the shared viewer shows it.

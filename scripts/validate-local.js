@@ -21,6 +21,7 @@ const GROUPS = {
   // viewer/planner/graph are listed separately below; security also includes viewer.test.js checks of CSP/escaping
   fileIntegrity: ['test/integrity.test.js', 'test/observed.test.js'],
   viewerAndPlanner: ['test/viewer.test.js', 'test/planner.test.js', 'test/graph.test.js'],
+  coreAndCite: ['test/core.test.js', 'test/cite.test.js'],
   benchmarkTests: ['test/benchmark.test.js', 'test/demo.test.js'],
 };
 
@@ -49,6 +50,13 @@ writeFileSync(`${dir}/bench-files.log`, fb.stdout + (fb.stderr ? `\n--- stderr -
 const facc = (p) => { const j = JSON.parse(readFileSync(p, 'utf8')); const pick = (e) => ({ decision: e.decision, status: e.status, undeclaredByCopyMode: e.undeclaredByCopyMode, byScenario: e.byScenario }); return JSON.stringify({ before: pick(j.engines.before_v0_3_0), after: pick(j.engines.after_current), newVerifiedLinks: j.newVerifiedLinks }); };
 const filesIdentical = fb.status === 0 && facc(filesOut) === facc(filesRef);
 
+// ProofGap Cite benchmark (Phase 11): rerun held-out and compare accuracy fields with the committed record.
+const citeRef = 'bench/results/phase11-cite-heldout.json', citeOut = `${dir}/bench-cite-heldout.json`;
+const cb = sh('node', ['--expose-gc', 'bench/cite/run.js', 'heldout', '--out', citeOut]);
+writeFileSync(`${dir}/bench-cite.log`, cb.stdout + (cb.stderr ? `\n--- stderr ---\n${cb.stderr}` : ''));
+const cacc = (p) => { const j = JSON.parse(readFileSync(p, 'utf8')); return JSON.stringify({ d: j.detectors, s: j.byScenario, c: j.claims }); };
+const citeIdentical = cb.status === 0 && cacc(citeOut) === cacc(citeRef);
+
 const git = (...a) => sh('git', a).stdout.trim();
 const summary = {
   id, node: process.version, npm: sh('npm', ['--version']).stdout.trim(),
@@ -58,14 +66,15 @@ const summary = {
   steps,
   benchmark: { command: 'node --expose-gc bench/run.js all --out <dir>/bench.json', exitCode: b.status, referenceFile: reference, accuracyIdenticalToReference: accuracyIdentical, note: 'accuracy compared; latency/memory are machine dependent and are not compared' },
   benchmarkFiles: { command: 'node bench/run-files.js heldout3 --out <dir>/bench-files-heldout3.json', exitCode: fb.status, referenceFile: filesRef, accuracyIdenticalToReference: filesIdentical },
+  benchmarkCite: { command: 'node --expose-gc bench/cite/run.js heldout --out <dir>/bench-cite-heldout.json', exitCode: cb.status, referenceFile: citeRef, accuracyIdenticalToReference: citeIdentical },
   ci: { status: 'BLOCKED_BY_BILLING', note: 'GitHub Actions jobs were never started (account billing/spending limit). No remote CI result exists; nothing here is a CI result.' },
   notTested: ['Node 20', 'Windows', 'macOS', 'case-insensitive filesystems', 'real-world case data', 'browsers other than headless Chromium (viewer)', 'screen readers (viewer)'],
 };
-summary.allGreen = steps.every((s) => s.exitCode === 0 && s.fail === 0 && s.tests > 0) && accuracyIdentical && filesIdentical;
+summary.allGreen = steps.every((s) => s.exitCode === 0 && s.fail === 0 && s.tests > 0) && accuracyIdentical && filesIdentical && citeIdentical;
 writeFileSync(`${dir}/summary.json`, JSON.stringify(summary, null, 2) + '\n');
 const md = [`# Local validation ${id}`, '', `Node ${summary.node}, npm ${summary.npm}, ${summary.os}, ${summary.cpuCount}× ${summary.cpu}, ${summary.totalMemMB} MB`, `Commit ${summary.git.commit} (${summary.git.branch}); uncommitted files at run time: ${summary.git.dirtyFiles.length}`, '',
   '| Group | Command | Tests | Pass | Fail | Exit |', '|---|---|---|---|---|---|', ...steps.map((s) => `| ${s.name} | \`${s.command}\` | ${s.tests} | ${s.pass} | ${s.fail} | ${s.exitCode} |`), '',
-  `Benchmark accuracy identical to \`${reference}\`: **${accuracyIdentical}** (exit ${b.status}).`, `File-backed benchmark identical to \`${filesRef}\`: **${filesIdentical}** (exit ${fb.status}).`, '', `GitHub Actions CI: **BLOCKED_BY_BILLING** (not PASSED, not CODE_FAILED).`, '', `Overall local result: **${summary.allGreen ? 'ALL LOCAL CHECKS PASSED' : 'FAILURES PRESENT'}**`, `NOT TESTED: ${summary.notTested.join(', ')}`, ''].join('\n');
+  `Benchmark accuracy identical to \`${reference}\`: **${accuracyIdentical}** (exit ${b.status}).`, `File-backed benchmark identical to \`${filesRef}\`: **${filesIdentical}** (exit ${fb.status}).`, `Cite benchmark identical to \`${citeRef}\`: **${citeIdentical}** (exit ${cb.status}).`, '', `GitHub Actions CI: **BLOCKED_BY_BILLING** (not PASSED, not CODE_FAILED).`, '', `Overall local result: **${summary.allGreen ? 'ALL LOCAL CHECKS PASSED' : 'FAILURES PRESENT'}**`, `NOT TESTED: ${summary.notTested.join(', ')}`, ''].join('\n');
 writeFileSync(`${dir}/summary.md`, md);
 console.log(md);
 process.exit(summary.allGreen ? 0 : 1);

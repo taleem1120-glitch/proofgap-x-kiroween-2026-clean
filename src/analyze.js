@@ -29,7 +29,18 @@ const combine = (xs) => Math.round((1 - xs.reduce((p, x) => p * (1 - x), 1)) * 1
  * @param c validated case
  * @param opts.integrity result of verifyEvidenceFiles(); defaults to "not requested"
  */
+/**
+ * Wording that depends on the application domain. Defaults are the ProofGap X (evidence) texts; changing
+ * them never changes classification, scores or structure (tested). Applications pass `opts.profile`.
+ */
+export const DEFAULT_PROFILE = Object.freeze({
+  id: 'proofgap-x',
+  disclaimer: 'Prototype analysis of declared evidence provenance. It does not establish forensic authenticity, intent, or guilt, and has not been independently validated.',
+  claimCaveat: 'This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt.',
+});
+
 export function analyzeCase(c, opts = {}) {
+  const profile = { ...DEFAULT_PROFILE, ...(opts.profile ?? {}) };
   const integrity = opts.integrity ?? integrityNotRequested(c.evidence);
   const integrityByEvidence = new Map(integrity.results.map((r) => [r.evidenceId, r]));
   const verificationRan = integrity.mode !== 'not_requested';
@@ -180,7 +191,7 @@ export function analyzeCase(c, opts = {}) {
     else if (status === 'contradicted') why.push(`Only contradicting evidence from ${con.length} independent origin(s) is linked.`);
     else if (status === 'insufficient_support') why.push(`Support comes from ${sup.length} independent origin(s); at least ${th} are needed. Derived copies and duplicates do not add independence.`);
     else why.push(`Supported by ${sup.length} independent origins (combined score ${supportScore}).`);
-    why.push('This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt.');
+    why.push(profile.claimCaveat);
 
     const supportItems = [...new Set(sup.flatMap((x) => x.evidenceIds))].sort();
     const contradictItems = [...new Set(con.flatMap((x) => x.evidenceIds))].sort();
@@ -231,7 +242,8 @@ export function analyzeCase(c, opts = {}) {
     tool: 'proofgap-x', analysisVersion: ANALYSIS_VERSION, schemaVersion: '1.0',
     caseId: c.caseId, title: c.title,
     inputSha256: createHash('sha256').update(canonicalize(c)).digest('hex'),
-    disclaimer: 'Prototype analysis of declared evidence provenance. It does not establish forensic authenticity, intent, or guilt, and has not been independently validated.',
+    disclaimer: profile.disclaimer,
+    ...(opts.profile ? { application: profile.id } : {}),
     policy: POLICY,
     trust: {
       declaredOnly: ['derivedFrom', 'originGroup', 'strength', 'stance', 'sha256 values whose integrity status is not VERIFIED'],

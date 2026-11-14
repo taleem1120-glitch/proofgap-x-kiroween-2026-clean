@@ -33,3 +33,9 @@ Scope: bounded vertical slice. Not forensic software; no certainty claims.
 - R23. THE SYSTEM SHALL report a hard classification (`status`) and a separate `decision` that abstains when a heuristic cue links two support origins.
 - R24. For each claim THE SYSTEM SHALL produce a counterfactual plan whose outcomes are computed by the same classification rule, marked hypothetical, citing only existing identifiers.
 - R25. The HTML viewer SHALL work offline, perform no network requests, and render untrusted text only as text.
+
+## Phase 11 additions
+- R26. Applications SHALL use only the versioned core interface `src/core.js`; the default profile SHALL keep application 1's outputs byte-identical.
+- R27. ProofGap Cite SHALL parse the documented Markdown subset with line-numbered validation errors, ignore fenced code, and enforce size/count limits.
+- R28. ProofGap Cite SHALL report citation cycles as findings, and SHALL call a claim independently corroborated only with ≥ 2 independent origins that each trace to a declared primary source, with no identifier or core cue linking them.
+- R29. ProofGap Cite SHALL NOT fetch URLs and SHALL NOT infer independence from different URLs, outlets or citation counts; identical identifiers SHALL be a cue only.

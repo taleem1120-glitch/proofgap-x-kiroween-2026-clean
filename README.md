@@ -2,7 +2,7 @@
 
 Explainable evidence-confidence stress testing for digital investigations (Kiroween 2026).
 
-> **Status: prototype (analysis 0.4.0).** Not forensic software; not independently reviewed or validated; not enterprise-ready. Output describes the *structure of support under declared provenance*. It never states guilt, intent, or authenticity.
+> **Status: prototype (package 0.5.0; analysis policy 0.4.0, unchanged in Phase 11; ProofGap Cite 0.1.0).** Not forensic software; not independently reviewed or validated; not enterprise-ready. Output describes the *structure of support under declared provenance*. It never states guilt, intent, or authenticity.
 
 ## What it does
 Reads a structured JSON case and answers, per claim: *how many genuinely independent origins stand behind the support, and what exactly is missing?*
@@ -11,24 +11,39 @@ Reads a structured JSON case and answers, per claim: *how many genuinely indepen
 - **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
 - **Reports** – deterministic JSON (`--format json`, default), human-readable text (`--format text`) and a self-contained offline HTML viewer (`--format html [--compare other.json]`).
 
-## For judges: try it in 5 minutes
-**No install needed for the demo.** Open `viewer/showcase.html` in a browser straight from the downloaded repository (`file://`, no server, no network). All data is synthetic and fictional.
+## Two applications on one core
+ProofGap is a small, dependency-free provenance core (`src/`, interface `src/core.js`, `CORE_API_VERSION` 1.0.0) with two separate applications:
 
-1. **Left panel, "Eight documents agree":** claim `door-0214` shows *8 supporting items collapse to 1 independent origin* (FALSE CORROBORATION). Open "Why these count as 1 origin(s)" for the derivation chain. In the graph, the green arcs are byte-identical files the tool hashed itself; evidence A8 is labelled HASHED LOCALLY because the case never declared its hash.
-2. **Right panel, "Three independent systems":** `door-0214` is SUPPORTED by 3 origins. `alarm-off` **abstains**, because two "independent" contractor reports share a name and identical text. `two-people` is contradicted.
-3. **Counterfactual plan** (in each claim): the smallest additional evidence that could change the verdict, and the verdict under each hypothetical outcome.
-4. **Export report JSON:** downloads the exact engine report, byte-identical to the CLI output below.
+| | Application | Input | Answers |
+|---|---|---|---|
+| 1 | **ProofGap X** (`apps/proofgap-x/`) | structured JSON evidence case + optional evidence files | how many independent origins support each claim, what is verified, the smallest evidence that would change the verdict |
+| 2 | **ProofGap Cite** (`apps/proofgap-cite/`) | Markdown note with footnote citations + folder of saved source copies | whether "six sources say so" rests on one press release, a citation loop or one file saved six times, and what is missing |
 
-To reproduce everything from source (Node.js 20 or newer; zero dependencies):
+Applications may import only `src/core.js` (enforced by `test/core.test.js`).
+
+## For judges: try both in 5 minutes
+**No install needed for the demos.** Open these files straight from the downloaded repository (`file://`, no server, no network). All data is synthetic and fictional.
+
+1. **`viewer/showcase.html` (ProofGap X).**
+   - **Left panel:** "eight documents agree" collapses to **1 independent origin** (false corroboration). The green graph arcs are files the tool hashed itself; A8 is "HASHED LOCALLY".
+   - **Right panel:** independent systems are supported; one claim **abstains**; one is contradicted. Each claim has a counterfactual evidence plan.
+2. **`apps/proofgap-cite/showcase.html` (ProofGap Cite).** A draft article about a water crisis:
+   - **Line 6:** 6 citations → **1 origin**. Four outlets echo one press release, and the blog's saved copy is byte-identical to the Daily Planet's.
+   - **Line 7:** two independent primary sources → corroborated.
+   - **Lines 8–11:** a forum/wiki citation loop, two sources with unknown origin, two "outlets" that are the same wire URL, and an uncited sentence.
+   - Each claim says **what is missing**.
+3. In either page, **Export report JSON** downloads the exact engine report, byte-identical to the CLI output.
+
+From source (Node.js 20 or newer; zero dependencies):
 ```sh
-npm ci                     # empty dependency tree; verifies package-lock.json
-npm test                   # 159 tests
-rm viewer/showcase.html && npm run showcase     # rebuild the showcase from the engine (refuses to overwrite)
-node src/cli.js examples/showcase/deceptive.json --evidence-dir examples/showcase/evidence --format text
-npm run demo               # integrity demo: VERIFIED / MISMATCH / MISSING / NOT_CHECKED
-npm run validate:local     # tests + focused groups + benchmark reproducibility, recorded under validation/<id>/
+npm ci && npm test                       # full suite
+npm run cite                             # Cite lint output: file:line: [verdict] … missing: …
+node apps/proofgap-x/cli.js examples/showcase/deceptive.json --evidence-dir examples/showcase/evidence --format text
+npm run demo                             # ProofGap X integrity demo
+rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite   # rebuild both showcases from the engine
+npm run validate:local                   # tests + focused groups + all benchmark reproductions, recorded under validation/<id>/
 ```
-Locally verified on Node 20.20.2, 22.23.4 and 24.22.1 (Linux). Remote CI has not run (see below). A 180-second demo script is in `docs/DEMO.md`.
+Remote CI has not run (see below). The video storyboard is in `docs/DEMO.md`.
 
 ## What is new in 0.4.0
 - **Verified byte identity:** with `--evidence-dir`, every safely readable non-empty file is hashed by the tool, also when the case declares no hash. Byte-identical files are one artifact (basis *verified*, bytes only). Without `--evidence-dir`, nothing changes. Measured effect and limits: `docs/BENCHMARK.md`.
@@ -69,4 +84,4 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 - **Not publishable yet:** private repository, no OSI licence chosen, and the default branch does not yet contain the code (owner decisions). See `docs/COMPETITION.md` (status) and `docs/APPROVALS.md` (owner actions).
 
 ## Layout
-`src/` code · `viewer/` offline viewer + committed showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/proofgap-x/` requirements, design, tasks, acceptance (all phases) · `.kiro/steering/proofgap-x.md` project rules (added in Phase 7) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.
+`src/` core (`core.js` = application interface) · `apps/proofgap-x/` application 1 · `apps/proofgap-cite/` application 2 (CLI, examples, showcase) · `viewer/` shared offline viewer + app-1 showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/proofgap-x/` requirements, design, tasks, acceptance (all phases) · `.kiro/steering/proofgap-x.md` project rules (added in Phase 7) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.

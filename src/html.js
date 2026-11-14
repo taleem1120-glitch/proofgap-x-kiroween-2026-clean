@@ -11,7 +11,16 @@ import { createHash } from 'node:crypto';
 const read = (name) => readFileSync(new URL(`../viewer/${name}`, import.meta.url), 'utf8');
 const b64 = (s) => createHash('sha256').update(s, 'utf8').digest('base64');
 
-export function renderHtml(serializedReports, { title = 'ProofGap X report viewer' } = {}) {
+export const DEFAULT_HTML_PROFILE = Object.freeze({
+  title: 'ProofGap X report viewer',
+  heading: 'ProofGap X — evidence independence & proof gaps',
+  intro: 'Results describe the structure of support under declared provenance. They are not findings of truth, authenticity, intent or guilt.',
+  footer: 'ProofGap X prototype · synthetic example data · not forensic software · not independently validated.',
+});
+
+export function renderHtml(serializedReports, options = {}) {
+  const { title, heading, intro, footer } = { ...DEFAULT_HTML_PROFILE, ...options };
+  const custom = Object.keys(options).length > 0;
   if (!Array.isArray(serializedReports) || serializedReports.length < 1 || serializedReports.length > 2) throw new Error('renderHtml expects 1 or 2 serialized reports');
   for (const r of serializedReports) {
     if (typeof r !== 'string' || /[<>&\u2028\u2029]/.test(r)) throw new Error('report text must come from serializeReport (unescaped markup characters found)');
@@ -34,13 +43,13 @@ export function renderHtml(serializedReports, { title = 'ProofGap X report viewe
 <body>
 <a class="skip" href="#reports">Skip to reports</a>
 <header class="top">
-<h1>ProofGap X — evidence independence &amp; proof gaps</h1>
+<h1>${custom ? esc(heading) : 'ProofGap X — evidence independence &amp; proof gaps'}</h1>
 <p>Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
-<p>Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.</p>
+<p>${custom ? esc(intro) : 'Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.'}</p>
 <div class="controls"><label class="file">Open 1–2 report JSON files: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
 </header>
 <main id="reports" class="grid" tabindex="-1"></main>
-<footer>ProofGap X prototype · synthetic example data · not forensic software · not independently validated.</footer>
+<footer>${custom ? esc(footer) : 'ProofGap X prototype · synthetic example data · not forensic software · not independently validated.'}</footer>
 ${blocks}
 <script>${js}</script>
 </body>

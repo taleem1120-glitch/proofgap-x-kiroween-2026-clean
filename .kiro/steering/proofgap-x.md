@@ -19,6 +19,12 @@ Provenance of this file: added in Phase 7 (14 Nov 2026). It records the rules th
 - Untrusted text: JSON output escapes `< > & U+2028 U+2029`; the viewer inserts text with `textContent` only and runs under a hash-locked CSP.
 - The CLI never overwrites files (`wx`) and reads at most the input size limit.
 
+## Two applications on one core (added Phase 11)
+- `src/` is the domain-neutral core; `src/core.js` is the only interface applications may import (`CORE_API_VERSION`, semver). `test/core.test.js` enforces this.
+- `apps/proofgap-x/` (JSON evidence cases) and `apps/proofgap-cite/` (Markdown citations) must never import each other.
+- Domain wording goes through a profile (`disclaimer`, `claimCaveat`; HTML `title`, `heading`, `intro`, `footer`). The default profile must keep application 1's output byte-identical.
+- ProofGap Cite never fetches URLs and never treats different URLs, outlets or citation counts as independence.
+
 ## Changing behaviour
 - Any scoring or classification change bumps `ANALYSIS_VERSION`, updates the `POLICY` text, and gets a regression test that fails on the previous engine.
 - Never edit an existing test expectation to hide a defect. If an expectation was wrong, record why in `.kiro/specs/proofgap-x/tasks.md`.
