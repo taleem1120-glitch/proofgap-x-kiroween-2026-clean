@@ -8,7 +8,7 @@
 - Billing settings were not changed; blocked jobs were not re-run; later commits use `[skip ci]` so no further blocked runs are queued. To resume CI, the owner fixes billing and re-runs the workflow (or pushes without `[skip ci]`).
 
 ## What substitutes for CI meanwhile (local only, not equivalent)
-`npm run validate:local` runs the full suite, focused security / provenance / file-integrity groups and the deterministic benchmark, and records results under `validation/<UTC-id>/` (commands, exact counts, Node/npm/OS/CPU, git commit, lockfile and schema hashes, raw logs). Local runs use one Node version (v22.23.4) on one Linux machine. **Node 20 remains NOT TESTED.**
+`npm run validate:local` runs the full suite, focused security / provenance / file-integrity groups and the deterministic benchmark, and records results under `validation/<UTC-id>/` (commands, exact counts, Node/npm/OS/CPU, git commit, lockfile and schema hashes, raw logs). Local runs are on one Linux machine. Since Phase 7 the suite has also been run locally on **Node 20.20.2 and 24.22.1** (159/159 each), in addition to 22.23.4. That is not a CI result, and Windows/macOS remain NOT TESTED.
 
 ## Reproduce
 ```sh

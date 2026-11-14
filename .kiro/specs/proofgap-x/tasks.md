@@ -180,3 +180,16 @@ Test change in Phase 6: one expectation in my **new** `observed.test.js` was wro
 3. Record the video. Resolve CI billing.
 4. Near-duplicate detection (re-encoded copies) only with a verifiable, measured method; not attempted.
 5. Measure over-merging on real or realistic data containing shared public files.
+
+---
+
+# Phase 7 — release candidate (no engine change; analysis 0.4.0)
+
+Branch `feature/phase7-release-candidate` (from `feature/phase6-verified-provenance`; PRs #1–#5 open, unmerged).
+
+- [x] P7-1 Audit: repository state, 6 branches, 5 stacked PRs, zero dependencies, 146 tracked files; secret-pattern scan of all history (0 matches); proprietary-name scan; email domains; largest blobs (< 100 KB); no binaries.
+- [x] P7-2 Runtimes: full suite on Node 20.20.2, 22.23.4 and 24.22.1, 159/159 each; `npm ci` on 20 and 22.
+- [x] P7-3 Viewer end-to-end in headless Chromium (Playwright Power): file picker (valid, non-report, broken JSON), Enter on export and disclosures, 320 px, network, contrast. No critical defect found, so no code changed.
+- [x] P7-4 `.kiro`: renamed `specs/phase1` → `specs/proofgap-x` (it covered every phase; references updated, including one comment in `test/regression.test.js`). Added `steering/proofgap-x.md` with the project's actual rules, dated Phase 7. Rewrote `KIRO_USAGE.md` as a per-phase table, correcting an outdated line ("no MCP servers") that stopped being true in Phase 5.
+- [x] P7-5 Release docs: README "For judges"; timed 180-second script in `docs/DEMO.md`; release checklist, licence comparison and requirement sources in `docs/COMPETITION.md`; `docs/CI_STATUS.md` updated for local Node 20/24.
+- [ ] Owner: licence approval (Apache-2.0 recommended), copyright holder name, public visibility, merging the PR stack, video, category decision, billing.

@@ -11,8 +11,24 @@ Reads a structured JSON case and answers, per claim: *how many genuinely indepen
 - **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
 - **Reports** – deterministic JSON (`--format json`, default), human-readable text (`--format text`) and a self-contained offline HTML viewer (`--format html [--compare other.json]`).
 
-## 60-second demo
-Open **`viewer/showcase.html`** in any browser (offline, no server). Left: "eight documents agree" collapses to **one** independent origin. Right: genuinely independent systems are supported, and one claim **abstains** because two "independent" reports look like one. Each claim has a counterfactual evidence plan. Rebuild with `rm viewer/showcase.html && npm run showcase`; CLI integrity demo: `npm run demo`. See `docs/DEMO.md`.
+## For judges: try it in 5 minutes
+**No install needed for the demo.** Open `viewer/showcase.html` in a browser straight from the downloaded repository (`file://`, no server, no network). All data is synthetic and fictional.
+
+1. **Left panel, "Eight documents agree":** claim `door-0214` shows *8 supporting items collapse to 1 independent origin* (FALSE CORROBORATION). Open "Why these count as 1 origin(s)" for the derivation chain. In the graph, the green arcs are byte-identical files the tool hashed itself; evidence A8 is labelled HASHED LOCALLY because the case never declared its hash.
+2. **Right panel, "Three independent systems":** `door-0214` is SUPPORTED by 3 origins. `alarm-off` **abstains**, because two "independent" contractor reports share a name and identical text. `two-people` is contradicted.
+3. **Counterfactual plan** (in each claim): the smallest additional evidence that could change the verdict, and the verdict under each hypothetical outcome.
+4. **Export report JSON:** downloads the exact engine report, byte-identical to the CLI output below.
+
+To reproduce everything from source (Node.js 20 or newer; zero dependencies):
+```sh
+npm ci                     # empty dependency tree; verifies package-lock.json
+npm test                   # 159 tests
+rm viewer/showcase.html && npm run showcase     # rebuild the showcase from the engine (refuses to overwrite)
+node src/cli.js examples/showcase/deceptive.json --evidence-dir examples/showcase/evidence --format text
+npm run demo               # integrity demo: VERIFIED / MISMATCH / MISSING / NOT_CHECKED
+npm run validate:local     # tests + focused groups + benchmark reproducibility, recorded under validation/<id>/
+```
+Locally verified on Node 20.20.2, 22.23.4 and 24.22.1 (Linux). Remote CI has not run (see below). A 180-second demo script is in `docs/DEMO.md`.
 
 ## What is new in 0.4.0
 - **Verified byte identity:** with `--evidence-dir`, every safely readable non-empty file is hashed by the tool, also when the case declares no hash. Byte-identical files are one artifact (basis *verified*, bytes only). Without `--evidence-dir`, nothing changes. Measured effect and limits: `docs/BENCHMARK.md`.
@@ -46,11 +62,11 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 ## Known limitations (read before relying on anything)
 - **Declared provenance cannot be verified.** If a case author hides that two sources share an origin, the hard classification cannot know (synthetic benchmark: 88/88 such claims). The decision abstains only when a cue exists. With local files, byte-identical copies are now caught; re-encoded copies are not (file-backed heldout3: 24/47 still asserted).
 - Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
-- A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed; Windows/macOS and exotic filesystems are untested.
+- A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed. Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
 - No independent security review. In-repo schema validator (Ajv could not be installed in the sandbox).
 - Viewer tested in headless Chromium only; no screen-reader or cross-browser testing.
-- **Not publishable yet:** private repository, no OSI license chosen (owner decision). See `docs/COMPETITION.md`.
+- **Not publishable yet:** private repository, no OSI licence chosen, and the default branch does not yet contain the code (owner decisions). See the release checklist in `docs/COMPETITION.md`.
 
 ## Layout
-`src/` code · `viewer/` offline viewer + committed showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/phase1/` requirements, design, tasks, acceptance (all phases) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.
+`src/` code · `viewer/` offline viewer + committed showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/proofgap-x/` requirements, design, tasks, acceptance (all phases) · `.kiro/steering/proofgap-x.md` project rules (added in Phase 7) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.

@@ -1,19 +1,64 @@
-# Kiroween 2026 readiness (factual; updated Phase 6)
+# Kiroween 2026 release-candidate readiness (factual; Phase 7)
 
-Status labels: **VERIFIED** (observed in this repository/session), **FAILED**, **NOT TESTED / NOT VERIFIED**.
+Labels: **BLOCKER** (submission impossible until resolved) · **WARNING** (risk or weakness; submission possible) · **VERIFIED** (observed in this repository or session). Items marked **OWNER** need explicit owner approval; the agent has not done them.
 
-## Eligibility and publication blockers (owner action required before any submission)
-| Item | Finding | Status |
-|---|---|---|
-| New-project rule (built 30 Oct – 4 Dec 2026) | GitHub API: repository created 2026-11-13T19:16:22Z; every commit dated 13 Nov 2026 | VERIFIED (dates); rule text taken from the [Kiroween 2026 Devpost page](https://kiroween.devpost.com/) search snippet because the page returned HTTP 403 to fetching |
-| Public repository with an OSI-approved license | Repository is **private**; no `LICENSE` file; `package.json` says `UNLICENSED`. A secondary source ([dev.to summary](https://dev.to/brian_mk/decoding-kiroween-4nm)) states a public repo with a visible OSI license is required | **BLOCKER — owner must choose a license and make the repo public; not done by the agent (ownership/legal decision)** |
-| Source independence | No ATHARNEX / EvidenceForge X code; zero runtime dependencies; `bench/legacy/` contains only earlier ProofGap X code from this repo's own git history | VERIFIED (repo contents) |
-| Third-party content | Only synthetic, fictional example data; no real personal or case data | VERIFIED |
-| Official category list and judging rules | Could not fetch official pages (HTTP 403). Categories below are from secondary search snippets only | NOT VERIFIED |
-| Demo video (< 3 min per prior-year forum reference) | Outline exists (`docs/DEMO.md`); no video recorded | NOT DONE |
-| Merged default branch | PRs #1–#4 open, unmerged by instruction | Owner decision |
+## Official requirements: sources and confidence
+The official pages (`kiroween.devpost.com`, rules) returned **HTTP 403** to the agent in every phase, so no requirement below is copied from the official rules.
+- From the official Devpost page's search snippet: only **new projects** built during the submission period, **30 Oct – 4 Dec 2026**, are eligible.
+- From a secondary summary ([dev.to](https://dev.to/brian_mk/decoding-kiroween-4nm)), believed to describe the 2025 rules: a public repository with a visible **OSI-approved licence**; a **demo video under 3 minutes** (judges need not watch beyond 3:00).
+- Also from Kiroween 2025 rules as recalled, **NOT VERIFIED** for 2026: a `/.kiro` directory at the repository root that is not gitignored, a URL to a working application or testing instructions, and a write-up of Kiro usage.
 
-## Category fit (Phase 6 assessment)
+**The owner must read the official 2026 rules before submitting.** Everything below is checked against the list above.
+
+## Release checklist
+| # | Gate | Current state | Status |
+|---|---|---|---|
+| 1 | OSI licence | None; `package.json` says `UNLICENSED` | **BLOCKER · OWNER** (see licence section) |
+| 2 | Public repository | Private (GitHub API) | **BLOCKER · OWNER** |
+| 3 | Code on the default branch | `main` holds only the initial README. The code is in 6 stacked, unmerged PRs (#1 → … → #6) | **BLOCKER · OWNER**: merge #1 to #6 in order, or retarget the stack to `main` |
+| 4 | Demo video < 3 min, public | Script ready (`docs/DEMO.md`); not recorded | **BLOCKER · OWNER** (recording and publishing) |
+| 5 | Category choice | No category is currently a strong fit (see below) | **BLOCKER · OWNER** decision |
+| 6 | Working application URL | None. The demo is a static offline file (`viewer/showcase.html`) plus a CLI. Judges can open the file from a clone or download. Hosting it (for example on GitHub Pages) is a deployment | **WARNING · OWNER** (deployment needs approval; requirement NOT VERIFIED) |
+| 7 | New-project timing | Repository created 2026-11-13T19:16:22Z; all commits dated 13–14 Nov 2026 | VERIFIED |
+| 8 | `/.kiro` at root, not gitignored | `.kiro/specs/proofgap-x/`, `.kiro/steering/proofgap-x.md`, `.kiro/KIRO_USAGE.md` are tracked; `git check-ignore` reports nothing | VERIFIED |
+| 9 | Repeatable install | `npm ci` succeeds on Node 20.20.2 and 22.23.4 with an empty dependency tree; fresh-clone check recorded in `.kiro/specs/proofgap-x/acceptance.md` | VERIFIED (Linux only) |
+| 10 | Tests | 159/159 on Node 20.20.2, 22.23.4 and 24.22.1 | VERIFIED (local) |
+| 11 | CI | GitHub Actions **BLOCKED_BY_BILLING**; jobs never started | WARNING · OWNER (billing) |
+| 12 | Secrets in tree or history | 0 matches across all history for GitHub/AWS/Slack/Google/OpenAI token formats, private-key headers, and `password/secret/token/api_key = value` patterns | VERIFIED (pattern scan; not a guarantee) |
+| 13 | Personal data | Example data uses only reserved `example.test` addresses and fictional entities. The **initial commit's author email is a personal address** (owner's own); it becomes public with the repository and can only be removed by rewriting history | **WARNING · OWNER** (accept, or rewrite history before going public) |
+| 14 | Environment details in `validation/` records | Sandbox paths (`/projects/sandbox/...`), kernel version and CPU model; no usernames, hostnames or tokens | WARNING (low risk; also present in history) |
+| 15 | ATHARNEX / EvidenceForge X material | Names appear only in the independence statements in this document and in the steering file; no code, data or assets | VERIFIED |
+| 16 | Third-party code and assets | Zero runtime dependencies. No vendored code, fonts, images or icons; the viewer uses system fonts and inline SVG it draws itself. CI *references* `actions/checkout` and `actions/setup-node` (MIT) without vendoring them. `bench/legacy/` holds only this repository's own earlier code | VERIFIED |
+| 17 | Viewer end-to-end | Committed showcase equals a fresh engine build (test). Export equals CLI bytes. File picker loads 1–2 reports and rejects non-reports and broken JSON with a reason. Enter activates export and disclosures. No overflow at 320–1400 px. No console errors. Only network request is the file itself. XSS payloads inert. Muted text contrast about 8:1 | VERIFIED (headless Chromium only) |
+| 18 | Screen readers, Firefox/Safari, Windows/macOS | Not run | WARNING (NOT TESTED) |
+| 19 | Accuracy claims | Benchmark is synthetic and author-built; no real-world claims made | WARNING (by nature) |
+| 20 | Ownership of AI-generated code | Written by the Kiro agent under the owner's account. Rights depend on Kiro's terms and local law | **WARNING · OWNER** (confirm; not legal advice) |
+
+## Licence recommendation (proposal only; nothing committed)
+| | Apache-2.0 | MIT | GPL-3.0 |
+|---|---|---|---|
+| OSI-approved | yes | yes | yes |
+| Patent grant | **explicit**, with termination on patent suits | none | yes |
+| Contribution terms | Section 5: contributions under the same licence by default | none | via licence |
+| Reuse by others, including closed products | yes | yes | only as copyleft |
+| Burden on users | keep LICENSE and NOTICE, state changes | keep notice | publish derivative source |
+| Compatibility with this repo | no dependencies, so no conflicts | same | same |
+
+**Recommendation: Apache-2.0.** ProofGap X is security and evidence tooling that others may embed, and the explicit patent grant and contribution clause give users and contributors clearer terms than MIT at almost no cost. Choose MIT if the shortest possible licence matters more. Avoid GPL-3.0 unless copyleft is the intent.
+
+If the owner approves Apache-2.0, the agent will:
+1. Add `LICENSE` containing the unmodified official text from <https://www.apache.org/licenses/LICENSE-2.0.txt>.
+2. Add a `NOTICE` file:
+   ```
+   ProofGap X
+   Copyright 2026 <owner's legal name or GitHub handle>
+   ```
+3. Set `"license": "Apache-2.0"` in `package.json` and refresh `package-lock.json`.
+4. Add a licence section to the README.
+
+The owner must supply the copyright holder name. No licence file is in the repository until then, on purpose: GitHub's licence detector would read even a draft as the project's licence.
+
+## Category fit
 Source caveat: the official 2026 pages returned HTTP 403, so the **official category text is NOT VERIFIED**. The four names come from the owner's brief. Third-party 2026 project pages cite "Resurrection" and "Costume Contest" as 2026 categories. The descriptions below summarize the **Kiroween 2025** definitions as I understand them, and the owner must check them against the 2026 rules.
 
 | Category (summary, unverified for 2026) | What ProofGap X actually has | Fit |
@@ -25,30 +70,17 @@ Source caveat: the official 2026 pages returned HTTP 403, so the **official cate
 
 **Recommendation: Skeleton Crew**, conditional on the owner approving a second distinct application built on the unchanged core. The cheapest honest candidate is a "citation laundering" checker for news or research claims: articles citing articles that all trace to one press release. That reuses the engine, schema and viewer with a new dataset and labels. Until it exists, no category is a strong fit, and the submission should not claim one.
 
-## Delivery gates (Phase 6 audit)
-| Gate | State | Status |
-|---|---|---|
-| OSI licence | None (`package.json`: `UNLICENSED`) | **BLOCKER (owner)**. Recommendation: **Apache-2.0** (OSI-approved; explicit patent grant and contribution terms suit security tooling). MIT is the simpler alternative. Not added: needs owner approval |
-| Repository visibility | Private (GitHub API) | **BLOCKER (owner)**: must be public at submission. Not changed |
-| Project age | Repo created 2026-11-13, inside the 30 Oct – 4 Dec window | VERIFIED |
-| Third-party / proprietary code | None; `bench/legacy/` holds only earlier ProofGap X snapshots from this repo's history | VERIFIED |
-| Reproducibility | `npm ci && npm test`; `npm run validate:local` reruns tests plus both benchmarks and compares them with committed records | VERIFIED locally |
-| CI | GitHub Actions **BLOCKED_BY_BILLING**; workflow preserved | Not run |
-| Demo | Committed `viewer/showcase.html`; export is byte-identical to CLI output | VERIFIED (headless Chromium) |
-| Video (< 3 min) | Outline in `docs/DEMO.md`; not recorded | **NOT DONE** |
-| Kiro usage evidence | Agent sessions and Playwright Power only (see below); no spec workflow, hooks or steering | Weak for the Kiro-usage share of the Technology criterion |
-| PRs | #1–#5 stacked, open, unmerged | Owner decision |
+
+**Phase 7 re-check:** nothing changed in the product's shape, so the assessment stands. With the current product, **Skeleton Crew is the strongest achievable category and is not yet met**, because it needs a second, distinct application on the same core. Resurrection and Frankenstein would be misleading claims. Costume Contest would need a Halloween design pass. If the owner does not approve a second application, the honest options are to enter Costume Contest after a themed redesign, or to enter Skeleton Crew without a second app, knowing it does not meet that category's description.
 
 ## Judging-readiness matrix (20% each)
 | Criterion | Actual evidence | Missing proof |
 |---|---|---|
-| Potential Impact | 0.4.0: verified byte identity under `--evidence-dir` stops undeclared byte-identical copies from posing as corroboration (file-backed heldout3: 32/43 falsely asserted before, 0/43 after; declared FPR 0/479 unchanged). Detects false corroboration (echoed / derived / byte-identical evidence) and abstains on suspected hidden dependence; synthetic benchmark: 0/485 declared false corroborations vs 63/485 for ProofGap 0.1.0 and recall 312/312 vs 263/312 for 0.2.0 (heldout2) | No real users, no real or redacted cases, benchmark is author-built; undeclared copies without cues are still missed (37/88 caught) |
-| Technological Implementation / Kiro usage | 0.3.0 engine (max-disjoint-root packing, per-claim locality, artifact entanglement, abstention), counterfactual planner validated by executing hypotheticals, 12 confirmed defects with regression tests, 147 local tests, deterministic outputs, offline CSP viewer verified in headless Chromium | Remote CI BLOCKED_BY_BILLING; Node 20 NOT TESTED; Kiro usage limited to agent sessions + Playwright Power (see below) — no specs workflow, hooks or steering |
-| Design | Side-by-side viewer: graph with verified/declared/suspected/unknown edges, collapse counter, plan tables, text alternative, keyboard order checked, no horizontal overflow at 320/390/768/1400 px, CSP-locked | No usability testing, no screen-reader testing, graph layout is basic for large cases (>~40 nodes) |
-| Innovation | Explicit four-way relationship basis; corroboration-denial resistant independence definition (monotone under added evidence); counterfactual plans computed by the same rule as the verdict; abstention as a first-class outcome | No literature comparison or external review of novelty |
-| Presentation | `docs/DEMO.md` sub-3-minute outline on working features, committed showcase, README, threat model, benchmark doc | No video, no screenshots committed, no Devpost write-up |
+| Potential Impact | Catches false corroboration (echoed, derived and byte-identical evidence) and abstains on suspected hidden dependence. File-backed heldout3: undeclared byte-identical copies falsely asserted 32/43 before 0.4.0, 0/43 after; declared FPR 0/479 | No real users or cases; synthetic, author-built benchmark; re-encoded copies still missed (24/47) |
+| Technological Implementation / Kiro usage | Per-claim, monotone independence; artifact entanglement; abstention; planner checked by executing its hypotheticals; locally verified byte identity; 13 confirmed defects with regression tests; 159 tests on Node 20, 22 and 24; deterministic outputs; zero dependencies | Remote CI blocked; Kiro usage is agent sessions, spec files and the Playwright Power only (`.kiro/KIRO_USAGE.md`); no spec workflow, hooks or Crew |
+| Design | Side-by-side viewer; graph with four relationship bases; text alternative; keyboard and responsive checks; CSP-locked | No usability or screen-reader testing; basic graph layout for large cases |
+| Innovation | Four-way relationship basis; corroboration-denial-resistant independence; counterfactual plans from the verdict rule; abstention as an outcome | No external review of novelty |
+| Presentation | Timed 180-second script, committed showcase, judges' instructions in the README | No video, no Devpost write-up, no public URL |
 
-## Kiro usage (only what actually happened)
-- **Kiro Web agent sessions (Vibe mode)** implemented Phases 1–5 from the maintainer's written briefs. Spec documents in `.kiro/specs/phase1/` were written by the agent as ordinary files during those sessions — **not** produced through Kiro's spec workflow.
-- **Playwright Power** (Kiro Power backed by a Playwright MCP server) was used in the Phase 5 and Phase 6 sessions (Phase 6: end-to-end export check, label and responsive re-checks) to load the viewer in headless Chromium: rendering, console/CSP errors, network requests, an XSS payload case, keyboard focus order, responsive widths, and screenshots (saved outside the repo).
-- **Not used / not claimed:** hooks, steering files, custom agents, sub-agents, Kiro spec workflow, MCP servers other than the Playwright Power.
+## Kiro usage
+See `.kiro/KIRO_USAGE.md`. It is the single source and lists what was and was not used.

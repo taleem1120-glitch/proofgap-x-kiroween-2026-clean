@@ -298,7 +298,7 @@ For each claim: *is it corroborated by at least 2 truly independent origins?* (p
 B0–B3 are simple baselines I wrote; they are plausible but not strong. B3 is the fairest competitor. A better baseline written by someone else might do better.
 
 ## Process and honesty notes
-- The adversarial/metamorphic tests (not this benchmark) found defects D1–D8 (see `.kiro/specs/phase1/tasks.md`). The dev split was run during development; after the first dev run only the report `trust` block (no scoring effect) was added.
+- The adversarial/metamorphic tests (not this benchmark) found defects D1–D8 (see `.kiro/specs/proofgap-x/tasks.md`). The dev split was run during development; after the first dev run only the report `trust` block (no scoring effect) was added.
 - The held-out split was **run once after code freeze** (`bench/results/phase3-run1.json`; same run also contains dev). It uses the same generator, so it protects against tuning to specific seeds, **not** against generator bias or distribution shift.
 - Confidence intervals are 95% Wilson intervals treating claims as independent. Claims within a case share a generator and are correlated, so the intervals are optimistic.
 - Accuracy numbers are deterministic and reproducible (`npm run bench`). Latency and memory are **machine-dependent**, from a single pass, and noisy.

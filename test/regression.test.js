@@ -1,4 +1,4 @@
-// Regression tests for defects CONFIRMED in the Phase 1/2 engine (see .kiro/specs/phase1/tasks.md, "Phase 3 confirmed defects").
+// Regression tests for defects CONFIRMED in the Phase 1/2 engine (see .kiro/specs/proofgap-x/tasks.md, "Phase 3 confirmed defects").
 // Each test was written and observed FAILING against the Phase 2 code before the fix.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
