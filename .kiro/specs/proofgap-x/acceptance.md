@@ -183,3 +183,20 @@ Remote CI: **BLOCKED_BY_BILLING**. Environment: Node v22.23.4, Linux x64. Local 
 | P6-A10 | Showcase export equals engine output | VERIFIED | Playwright download SHA-256 equals CLI output for both panels |
 | P6-A11 | Viewer label and edge note for observed-only hashes; no overflow at 390/1400 px; no console errors | VERIFIED (headless Chromium) | session evidence |
 | P6-A12 | Licence / public repo | **NOT MET (owner)** | `docs/COMPETITION.md` |
+
+---
+
+# Phase 7 Acceptance Evidence (release candidate; engine unchanged at 0.4.0)
+
+Remote CI: **BLOCKED_BY_BILLING**. Code commit under test: `000e2b40828107b566e21abb26e8d19dab08d4d0`.
+
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P7-A1 | Full suite on Node 20, 22, 24 | VERIFIED (Linux) | 159/159 on 20.20.2, 22.23.4, 24.22.1 |
+| P7-A2 | Fresh clone installs and passes | VERIFIED | fresh `git clone` of the pushed branch at `000e2b4`: `npm ci` (0 packages) and `npm test` 159/159 on Node 20.20.2 and 22.23.4; showcase rebuilt on Node 20 byte-identical to committed |
+| P7-A3 | `validate:local` on two runtimes, both benchmarks reproduced exactly | VERIFIED | `validation/20261114T065153Z` (Node 22), `validation/20261114T065204Z` (Node 20). Their "uncommitted files" counts are the validation folders themselves |
+| P7-A4 | No secrets in tree or history | VERIFIED (pattern scan, not a guarantee) | 0 matches for 10 credential patterns over `git log --all -p` |
+| P7-A5 | No ATHARNEX / EvidenceForge X material; no third-party code or assets | VERIFIED | name scan (independence statements only); zero dependencies; no binaries; largest blob 95 KB |
+| P7-A6 | Viewer file picker, keyboard activation, 320 px, network, contrast | VERIFIED (headless Chromium) | Playwright Power session; no defect |
+| P7-A7 | Licence, public repository, merged default branch, video, category | **NOT MET (owner)** | `docs/COMPETITION.md` release checklist |
+| P7-A8 | Screen readers, other browsers, Windows/macOS | NOT TESTED | — |

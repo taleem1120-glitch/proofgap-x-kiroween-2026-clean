@@ -1,0 +1,16 @@
+== file-backed heldout3: 200 cases, 884 claims, 315 truly corroborated ==
+  before_v0_3_0
+    decision all:        precision 315/371 (84.9%, CI 80.9–88.2)  recall 315/315 (100.0%, CI 98.8–100.0)  FPR 56/569 (9.8%, CI 7.7–12.6)
+    decision declared:   precision 315/315 (100.0%, CI 98.8–100.0)  recall 315/315 (100.0%, CI 98.8–100.0)  FPR 0/479 (0.0%, CI 0.0–0.8)
+    decision undeclared: FPR 56/90 (62.2%, CI 51.9–71.5)   status undeclared FPR 90/90 (100.0%, CI 95.9–100.0)
+    undeclared byte_identical: n=43 falsely asserted (decision) 32, (status) 43
+    undeclared reencoded: n=47 falsely asserted (decision) 24, (status) 47
+    ms/case median 0.66
+  after_current
+    decision all:        precision 315/339 (92.9%, CI 89.7–95.2)  recall 315/315 (100.0%, CI 98.8–100.0)  FPR 24/569 (4.2%, CI 2.9–6.2)
+    decision declared:   precision 315/315 (100.0%, CI 98.8–100.0)  recall 315/315 (100.0%, CI 98.8–100.0)  FPR 0/479 (0.0%, CI 0.0–0.8)
+    decision undeclared: FPR 24/90 (26.7%, CI 18.6–36.6)   status undeclared FPR 47/90 (52.2%, CI 42.0–62.2)
+    undeclared byte_identical: n=43 falsely asserted (decision) 0, (status) 0
+    undeclared reencoded: n=47 falsely asserted (decision) 24, (status) 47
+    ms/case median 0.92
+  new verified (local-hashing) links: on 43 claims, of which truly corroborated: 0
