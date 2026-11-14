@@ -66,7 +66,7 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
 - No independent security review. In-repo schema validator (Ajv could not be installed in the sandbox).
 - Viewer tested in headless Chromium only; no screen-reader or cross-browser testing.
-- **Not publishable yet:** private repository, no OSI licence chosen, and the default branch does not yet contain the code (owner decisions). See the release checklist in `docs/COMPETITION.md`.
+- **Not publishable yet:** private repository, no OSI licence chosen, and the default branch does not yet contain the code (owner decisions). See `docs/COMPETITION.md` (status) and `docs/APPROVALS.md` (owner actions).
 
 ## Layout
 `src/` code · `viewer/` offline viewer + committed showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/proofgap-x/` requirements, design, tasks, acceptance (all phases) · `.kiro/steering/proofgap-x.md` project rules (added in Phase 7) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.

@@ -1,4 +1,6 @@
-# Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phase 8)
+# Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phases 8–9)
+
+**Owner actions are listed one by one, each separately authorized, in [`docs/APPROVALS.md`](APPROVALS.md)**, covering licensing, history, merging, visibility, Pages, category and video.
 
 Labels: **BLOCKER** (submission impossible until resolved) · **WARNING** (risk or weakness; submission possible) · **VERIFIED** (observed in this repository or session). Items marked **OWNER** need explicit owner approval; the agent has not done them.
 
@@ -101,6 +103,8 @@ Source caveat: the official 2026 pages returned HTTP 403, so the **official cate
 
 **Recommendation: Skeleton Crew**, conditional on the owner approving a second distinct application built on the unchanged core. The cheapest honest candidate is a "citation laundering" checker for news or research claims: articles citing articles that all trace to one press release. That reuses the engine, schema and viewer with a new dataset and labels. Until it exists, no category is a strong fit, and the submission should not claim one.
 
+
+**Phase 9 reassessment:** a concrete second application ("ProofGap Cite", a Markdown citation-laundering checker) and its cost and value comparison are in `docs/APPROVALS.md` §F; building it needs approval.
 
 **Phase 7 re-check:** nothing changed in the product's shape, so the assessment stands. With the current product, **Skeleton Crew is the strongest achievable category and is not yet met**, because it needs a second, distinct application on the same core. Resurrection and Frankenstein would be misleading claims. Costume Contest would need a Halloween design pass. If the owner does not approve a second application, the honest options are to enter Costume Contest after a themed redesign, or to enter Skeleton Crew without a second app, knowing it does not meet that category's description.
 
