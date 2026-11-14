@@ -1,4 +1,4 @@
-# Kiroween 2026 release-candidate readiness (factual; Phase 7)
+# Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phase 8)
 
 Labels: **BLOCKER** (submission impossible until resolved) · **WARNING** (risk or weakness; submission possible) · **VERIFIED** (observed in this repository or session). Items marked **OWNER** need explicit owner approval; the agent has not done them.
 
@@ -15,24 +15,53 @@ The official pages (`kiroween.devpost.com`, rules) returned **HTTP 403** to the 
 |---|---|---|---|
 | 1 | OSI licence | None; `package.json` says `UNLICENSED` | **BLOCKER · OWNER** (see licence section) |
 | 2 | Public repository | Private (GitHub API) | **BLOCKER · OWNER** |
-| 3 | Code on the default branch | `main` holds only the initial README. The code is in 6 stacked, unmerged PRs (#1 → … → #6) | **BLOCKER · OWNER**: merge #1 to #6 in order, or retarget the stack to `main` |
+| 3 | Code on the default branch | `main` holds only the initial README; the code is in 6 stacked, unmerged PRs. Phase 8: all 6 report `mergeable=clean`; each head descends from its base; a local simulation merged all six into `main` with `--no-ff` without conflicts, ending at a tree identical to PR #6's head | **BLOCKER · OWNER**: follow the merge plan below |
 | 4 | Demo video < 3 min, public | Script ready (`docs/DEMO.md`); not recorded | **BLOCKER · OWNER** (recording and publishing) |
 | 5 | Category choice | No category is currently a strong fit (see below) | **BLOCKER · OWNER** decision |
-| 6 | Working application URL | None. The demo is a static offline file (`viewer/showcase.html`) plus a CLI. Judges can open the file from a clone or download. Hosting it (for example on GitHub Pages) is a deployment | **WARNING · OWNER** (deployment needs approval; requirement NOT VERIFIED) |
+| 6 | Working application URL | None. The demo is a static, self-contained file (`viewer/showcase.html`) plus a CLI. Phase 8: the unchanged file served from a simulated GitHub Pages HTTPS origin rendered both panels, all 5 verdicts, both graphs and export, with no console or CSP errors and no request beyond itself. Real Pages hosting is NOT TESTED; see "Working-app evidence" | **WARNING · OWNER** (deployment needs approval; requirement NOT VERIFIED) |
 | 7 | New-project timing | Repository created 2026-11-13T19:16:22Z; all commits dated 13–14 Nov 2026 | VERIFIED |
 | 8 | `/.kiro` at root, not gitignored | `.kiro/specs/proofgap-x/`, `.kiro/steering/proofgap-x.md`, `.kiro/KIRO_USAGE.md` are tracked; `git check-ignore` reports nothing | VERIFIED |
 | 9 | Repeatable install | `npm ci` succeeds on Node 20.20.2 and 22.23.4 with an empty dependency tree; fresh-clone check recorded in `.kiro/specs/proofgap-x/acceptance.md` | VERIFIED (Linux only) |
 | 10 | Tests | 159/159 on Node 20.20.2, 22.23.4 and 24.22.1 | VERIFIED (local) |
 | 11 | CI | GitHub Actions **BLOCKED_BY_BILLING**; jobs never started | WARNING · OWNER (billing) |
 | 12 | Secrets in tree or history | 0 matches across all history for GitHub/AWS/Slack/Google/OpenAI token formats, private-key headers, and `password/secret/token/api_key = value` patterns | VERIFIED (pattern scan; not a guarantee) |
-| 13 | Personal data | Example data uses only reserved `example.test` addresses and fictional entities. The **initial commit's author email is a personal address** (owner's own); it becomes public with the repository and can only be removed by rewriting history | **WARNING · OWNER** (accept, or rewrite history before going public) |
-| 14 | Environment details in `validation/` records | Sandbox paths (`/projects/sandbox/...`), kernel version and CPU model; no usernames, hostnames or tokens | WARNING (low risk; also present in history) |
+| 13 | Personal data | Example data uses only reserved `example.test` addresses and fictional entities. Exactly **one** commit (`4a45e30`, the GitHub-created root commit) carries a personal author email; all 11 later commits use a `users.noreply.github.com` address. No email appears in any file content in any revision | **WARNING · OWNER** (see history remediation below) |
+| 14 | Environment details in `validation/` records | Sandbox paths (`/projects/sandbox/...`), kernel version and CPU model. Phase 8 re-check: 0 tracked files contain `/root/` or `/home/` paths. The Phase 7 check for this had a flawed pattern (an empty hostname made it match every file), so only today's result counts | WARNING (low risk) |
 | 15 | ATHARNEX / EvidenceForge X material | Names appear only in the independence statements in this document and in the steering file; no code, data or assets | VERIFIED |
 | 16 | Third-party code and assets | Zero runtime dependencies. No vendored code, fonts, images or icons; the viewer uses system fonts and inline SVG it draws itself. CI *references* `actions/checkout` and `actions/setup-node` (MIT) without vendoring them. `bench/legacy/` holds only this repository's own earlier code | VERIFIED |
 | 17 | Viewer end-to-end | Committed showcase equals a fresh engine build (test). Export equals CLI bytes. File picker loads 1–2 reports and rejects non-reports and broken JSON with a reason. Enter activates export and disclosures. No overflow at 320–1400 px. No console errors. Only network request is the file itself. XSS payloads inert. Muted text contrast about 8:1 | VERIFIED (headless Chromium only) |
 | 18 | Screen readers, Firefox/Safari, Windows/macOS | Not run | WARNING (NOT TESTED) |
 | 19 | Accuracy claims | Benchmark is synthetic and author-built; no real-world claims made | WARNING (by nature) |
 | 20 | Ownership of AI-generated code | Written by the Kiro agent under the owner's account. Rights depend on Kiro's terms and local law | **WARNING · OWNER** (confirm; not legal advice) |
+
+## Merge plan (Phase 8; owner executes)
+The PRs form one linear stack: main ← #1 (phase1) ← #2 (phase2) ← #3 (phase3) ← #4 (phase5) ← #5 (phase6) ← #6 (phase7). There is no "phase4" branch; #4 sits directly on #3. Dependency order and number order coincide.
+
+**Recommended (safest): one merge of the whole stack.**
+1. Apply the licence first if approved: commit it on `feature/phase7-release-candidate`, so the code never reaches `main` unlicensed.
+2. Retarget PR #6 to `main` (Edit → base: `main`). It then contains all 12 commits.
+3. Merge #6 with **"Create a merge commit"**, not squash and not rebase. #1–#5 then show as merged automatically, because their commits are in `main`.
+4. Only afterwards delete the feature branches, if wanted.
+
+**Alternative, preserving per-phase review:** merge #1, #2, #3, #4, #5, #6 strictly in that order, each with **"Create a merge commit"**. After each merge, retarget the next PR to `main` (`delete_branch_on_merge` is off, so GitHub will not do it automatically).
+
+**Do not use squash or rebase merges anywhere in the stack.** Each would rewrite commits, so every later PR would show duplicated diffs or conflicts.
+
+## Git history remediation (owner decision; nothing rewritten)
+- **Secrets:** none found, so no secret remediation is needed. 10 credential patterns were scanned across all history (12 commits, every branch), with 0 matches.
+- **Personal email in root commit `4a45e30`:** visible to anyone once the repository is public (for example via `.patch` URLs). It is not a credential. Options:
+  - (a) **Accept.** It is the owner's own address on the commit GitHub created with the repository. **Recommended**, unless the owner wants that address private.
+  - (b) **Rewrite only the root commit's author** to the noreply address, then force-push all 7 branches. Every SHA changes, all 6 PRs must be recreated, and the SHAs cited in `.kiro/specs/`, `docs/` and `validation/` records stop matching. It must happen **before** the repository goes public, because public clones cannot be recalled.
+  - The GitHub setting "Keep my email addresses private" does **not** change existing commits.
+
+## Working-app evidence (what is actually needed)
+- **What exists:** `viewer/showcase.html` runs offline and needs no server. That is the working app. The CLI reproduces it from source.
+- **If the rules require a URL:** the lowest-effort option is GitHub Pages, "Deploy from a branch", on `main`, root folder, giving `https://taleem1120-glitch.github.io/proofgap-x-kiroween-2026/viewer/showcase.html`. Before enabling it, add an empty `.nojekyll` file so Jekyll does not process the repository.
+- **Risks, NOT TESTED:**
+  - Branch-based Pages builds run as a GitHub Actions workflow, so the current billing lock may block them as well.
+  - Pages on a private repository requires a paid plan, so do this after the repository is public.
+- **Fallback if Pages is blocked:** the video plus the README "For judges" steps (download, open the file).
+- **Evidence to collect after deploying:** load the public URL, confirm the five verdicts shown in `docs/DEMO.md`, and record the URL and date here.
 
 ## Licence recommendation (proposal only; nothing committed)
 | | Apache-2.0 | MIT | GPL-3.0 |
@@ -45,6 +74,8 @@ The official pages (`kiroween.devpost.com`, rules) returned **HTTP 403** to the 
 | Compatibility with this repo | no dependencies, so no conflicts | same | same |
 
 **Recommendation: Apache-2.0.** ProofGap X is security and evidence tooling that others may embed, and the explicit patent grant and contribution clause give users and contributors clearer terms than MIT at almost no cost. Choose MIT if the shortest possible licence matters more. Avoid GPL-3.0 unless copyleft is the intent.
+
+Prepared files (Phase 8), deliberately **outside** the repository: `/projects/sandbox/license-proposal/` contains `LICENSE`, `NOTICE`, `package.json.patch` and `PROPOSAL.md`. `LICENSE` is the GitHub licence API text and is word-for-word identical (1,581 words) to the SPDX text; apache.org returned HTTP 403. Licence compatibility: zero runtime or dev dependencies; referenced CI actions `actions/checkout` and `actions/setup-node` are MIT (GitHub API) and are not vendored; no third-party assets, so there is no conflict with Apache-2.0.
 
 If the owner approves Apache-2.0, the agent will:
 1. Add `LICENSE` containing the unmodified official text from <https://www.apache.org/licenses/LICENSE-2.0.txt>.
