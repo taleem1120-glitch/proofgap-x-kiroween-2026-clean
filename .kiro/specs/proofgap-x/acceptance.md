@@ -200,3 +200,23 @@ Remote CI: **BLOCKED_BY_BILLING**. Code commit under test: `000e2b40828107b566e2
 | P7-A6 | Viewer file picker, keyboard activation, 320 px, network, contrast | VERIFIED (headless Chromium) | Playwright Power session; no defect |
 | P7-A7 | Licence, public repository, merged default branch, video, category | **NOT MET (owner)** | `docs/COMPETITION.md` release checklist |
 | P7-A8 | Screen readers, other browsers, Windows/macOS | NOT TESTED | — |
+
+---
+
+# Phase 11 Acceptance Evidence (code commit `4b34eadbb039bc21a7f46b3d3cdfd26ef22c8d14`)
+
+Remote CI: **BLOCKED_BY_BILLING**. Official 2026 rules: **verification pending** (HTTP 403).
+
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P11-A1 | Full suite on Node 20.20.2, 22.23.4, 24.22.1 | VERIFIED (Linux) | 195/195 each; `validate:local` records `validation/20261114T072648Z` (22) and `validation/20261114T072701Z` (20): security 68, provenance 68, viewer/planner/graph 14, core+Cite 33, benchmark/demo 12 (disjoint, total 195) |
+| P11-A2 | App 1 output unchanged through the core | VERIFIED | showcase byte-identical test; app-1 benchmarks (phase5, phase6-files) reproduced exactly; `core.analyze` default equals the engine on 60 cases; the shim and app CLI give identical bytes |
+| P11-A3 | Core interface boundary | VERIFIED | `test/core.test.js`: apps import only `src/core.js`; the apps never import each other |
+| P11-A4 | Cite verdict rules (cycles, primary/secondary, URL/DOI cues, saved-file identity, unknown provenance) | VERIFIED | `test/cite.test.js` (25); 6-mutation spot-check: 5 caught at once, 1 survivor led to a new self-citation test that catches it |
+| P11-A5 | Cite benchmark, held-out evaluated once after freeze | VERIFIED (synthetic) | `bench/results/phase11-cite-heldout.json`: with saved files TP 123 FP 66 TN 459 FN 47 (695 claims); reproduced exactly by both `validate:local` runs |
+| P11-A6 | Re-encoded reposts detected | **FAILED (known limit)** | held-out 66/66 falsely called corroborated |
+| P11-A7 | Undeclared but genuinely independent sources credited | **FAILED (deliberate abstention)** | held-out 47/47 `origin_unresolved` |
+| P11-A8 | Cite showcase offline: verdicts, missing lists, graph, export equal to CLI JSON; hostile note inert | VERIFIED (headless Chromium) | Playwright Power session |
+| P11-A9 | No overflow 320–1400 px (both showcases) | VERIFIED after fix (FAILED first: 363 px at 320 px) | session evidence |
+| P11-A10 | Latency/memory, Cite | VERIFIED (one machine, one pass) | held-out median 2.23 ms/note with hashing; 200-claim/500-reference note 65.4 ms, heap +15.4 MB |
+| P11-A11 | Licence, public repo, merge, Pages, video | **NOT DONE (owner)** | `docs/APPROVALS.md` |

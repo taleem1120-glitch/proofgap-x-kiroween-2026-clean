@@ -1,0 +1,132 @@
+{
+  "id": "20261114T072701Z",
+  "node": "v20.20.2",
+  "npm": "11.4.2",
+  "os": "linux 6.1.189-236.400.amzn2023.x86_64 x64",
+  "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+  "cpuCount": 8,
+  "totalMemMB": 31560,
+  "git": {
+    "commit": "4b34eadbb039bc21a7f46b3d3cdfd26ef22c8d14",
+    "branch": "feature/phase11-dual-application",
+    "dirtyFiles": [
+      "?? validation/20261114T072648Z/",
+      "?? validation/20261114T072701Z/"
+    ]
+  },
+  "lockfileSha256": "aa7ae102564291b780325e688b93d876f3119d4cafb77b0ea504b1cdfb733cf9",
+  "packageJsonSha256": "167dcd5d0eb1ed8cc0bf22e0d5741d15d231fc1dd1e0f6876d604107ed636ba8",
+  "schemaSha256": "6467c3e920bbae6cb5cee9fa76450b82753d8be2a4b85306a1b7af2849f41cdc",
+  "steps": [
+    {
+      "name": "all",
+      "command": "npm test",
+      "exitCode": 0,
+      "tests": 195,
+      "pass": 195,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "security",
+      "command": "node --test test/security.test.js test/integrity.test.js test/observed.test.js test/fuzz.test.js test/cli.test.js test/schema.test.js",
+      "exitCode": 0,
+      "tests": 68,
+      "pass": 68,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "provenance",
+      "command": "node --test test/regression.test.js test/adversarial.test.js test/metamorphic.test.js test/gaps.test.js test/proofgap.test.js",
+      "exitCode": 0,
+      "tests": 68,
+      "pass": 68,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "fileIntegrity",
+      "command": "node --test test/integrity.test.js test/observed.test.js",
+      "exitCode": 0,
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "viewerAndPlanner",
+      "command": "node --test test/viewer.test.js test/planner.test.js test/graph.test.js",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "coreAndCite",
+      "command": "node --test test/core.test.js test/cite.test.js",
+      "exitCode": 0,
+      "tests": 33,
+      "pass": 33,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    {
+      "name": "benchmarkTests",
+      "command": "node --test test/benchmark.test.js test/demo.test.js",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  ],
+  "benchmark": {
+    "command": "node --expose-gc bench/run.js all --out <dir>/bench.json",
+    "exitCode": 0,
+    "referenceFile": "bench/results/phase5-run1.json",
+    "accuracyIdenticalToReference": true,
+    "note": "accuracy compared; latency/memory are machine dependent and are not compared"
+  },
+  "benchmarkFiles": {
+    "command": "node bench/run-files.js heldout3 --out <dir>/bench-files-heldout3.json",
+    "exitCode": 0,
+    "referenceFile": "bench/results/phase6-files-heldout3.json",
+    "accuracyIdenticalToReference": true
+  },
+  "benchmarkCite": {
+    "command": "node --expose-gc bench/cite/run.js heldout --out <dir>/bench-cite-heldout.json",
+    "exitCode": 0,
+    "referenceFile": "bench/results/phase11-cite-heldout.json",
+    "accuracyIdenticalToReference": true
+  },
+  "ci": {
+    "status": "BLOCKED_BY_BILLING",
+    "note": "GitHub Actions jobs were never started (account billing/spending limit). No remote CI result exists; nothing here is a CI result."
+  },
+  "notTested": [
+    "Node 20",
+    "Windows",
+    "macOS",
+    "case-insensitive filesystems",
+    "real-world case data",
+    "browsers other than headless Chromium (viewer)",
+    "screen readers (viewer)"
+  ],
+  "allGreen": true
+}

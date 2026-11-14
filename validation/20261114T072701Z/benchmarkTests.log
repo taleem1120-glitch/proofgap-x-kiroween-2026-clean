@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: metrics: confusion matrix and ratios on a hand-computed example
+ok 1 - metrics: confusion matrix and ratios on a hand-computed example
+  ---
+  duration_ms: 1.527557
+  ...
+# Subtest: metrics: undefined ratios are null (never silently 0 or 1), Wilson interval matches known values
+ok 2 - metrics: undefined ratios are null (never silently 0 or 1), Wilson interval matches known values
+  ---
+  duration_ms: 0.222683
+  ...
+# Subtest: dataset: deterministic, disjoint seeds between dev and held-out, no identical cases across splits
+ok 3 - dataset: deterministic, disjoint seeds between dev and held-out, no identical cases across splits
+  ---
+  duration_ms: 52.726728
+  ...
+# Subtest: dataset: every case passes the strict validator and labels are consistent with hidden origin counts
+ok 4 - dataset: every case passes the strict validator and labels are consistent with hidden origin counts
+  ---
+  duration_ms: 55.163559
+  ...
+# Subtest: dataset: every scenario is exercised in both splits, and both classes are present
+ok 5 - dataset: every scenario is exercised in both splits, and both classes are present
+  ---
+  duration_ms: 7.563575
+  ...
+# Subtest: detectors see no ground truth: output is unchanged when the truth object is mutated or removed
+ok 6 - detectors see no ground truth: output is unchanged when the truth object is mutated or removed
+  ---
+  duration_ms: 13.595369
+  ...
+# Subtest: benchmark honesty guard: undeclared-copy scenarios are labelled uncorroborated and ProofGap does NOT detect them (known limitation)
+ok 7 - benchmark honesty guard: undeclared-copy scenarios are labelled uncorroborated and ProofGap does NOT detect them (known limitation)
+  ---
+  duration_ms: 134.130332
+  ...
+# Subtest: cite dataset: deterministic, disjoint dev/held-out seeds, no identical notes across splits, every note parses
+ok 8 - cite dataset: deterministic, disjoint dev/held-out seeds, no identical notes across splits, every note parses
+  ---
+  duration_ms: 42.841764
+  ...
+# Subtest: cite dataset: ground truth is never written into the note, and every scenario appears in both splits
+ok 9 - cite dataset: ground truth is never written into the note, and every scenario appears in both splits
+  ---
+  duration_ms: 19.525873
+  ...
+# Subtest: demo without verification: 4 items look like corroboration but are ONE declared origin
+ok 10 - demo without verification: 4 items look like corroboration but are ONE declared origin
+  ---
+  duration_ms: 9.181413
+  ...
+# Subtest: demo with verification: exact integrity states, MISMATCH excluded from scoring
+ok 11 - demo with verification: exact integrity states, MISMATCH excluded from scoring
+  ---
+  duration_ms: 5.513708
+  ...
+# Subtest: demo output is byte-reproducible
+ok 12 - demo output is byte-reproducible
+  ---
+  duration_ms: 6.762317
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 500.903141

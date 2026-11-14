@@ -1,0 +1,18 @@
+== Cite heldout: 150 notes, 695 claims, 170 truly corroborated ==
+  B1_two_or_more_citations   TP 170 FP 447 TN 78 FN 0 | precision 170/617 (27.6%, CI 24.2–31.2) | recall 170/170 (100.0%, CI 97.8–100.0) | FPR 447/525 (85.1%, CI 81.8–87.9)
+  B2_distinct_urls           TP 170 FP 393 TN 132 FN 0 | precision 170/563 (30.2%, CI 26.5–34.1) | recall 170/170 (100.0%, CI 97.8–100.0) | FPR 393/525 (74.9%, CI 71.0–78.4)
+  B3_distinct_outlets        TP 170 FP 447 TN 78 FN 0 | precision 170/617 (27.6%, CI 24.2–31.2) | recall 170/170 (100.0%, CI 97.8–100.0) | FPR 447/525 (85.1%, CI 81.8–87.9)
+  cite_without_saved_files   TP 123 FP 137 TN 388 FN 47 | precision 123/260 (47.3%, CI 41.3–53.4) | recall 123/170 (72.4%, CI 65.2–78.5) | FPR 137/525 (26.1%, CI 22.5–30.0)
+  cite_with_saved_files      TP 123 FP 66 TN 459 FN 47 | precision 123/189 (65.1%, CI 58.0–71.5) | recall 123/170 (72.4%, CI 65.2–78.5) | FPR 66/525 (12.6%, CI 10.0–15.7)
+  circular                 n= 75 truth=N cite+files positive=0 no-files=0 urls=75  verdicts {"circular_reporting":75}
+  conflicting              n= 33 truth=N cite+files positive=0 no-files=0 urls=33  verdicts {"conflicting":33}
+  echo_declared            n= 91 truth=N cite+files positive=0 no-files=0 urls=91  verdicts {"single_origin":91}
+  echo_identical_files     n= 71 truth=N cite+files positive=0 no-files=71 urls=71  verdicts {"single_origin":71}
+  reencoded_repost         n= 66 truth=N cite+files positive=66 no-files=66 urls=66  verdicts {"independently_corroborated":66}
+  single_primary           n= 48 truth=N cite+files positive=0 no-files=0 urls=0  verdicts {"single_origin":48}
+  syndicated_same_url      n= 54 truth=N cite+files positive=0 no-files=0 urls=0  verdicts {"abstain_suspected_shared_origin":54}
+  two_primaries            n=123 truth=Y cite+files positive=123 no-files=123 urls=123  verdicts {"independently_corroborated":123}
+  undeclared_echo          n= 57 truth=N cite+files positive=0 no-files=0 urls=57  verdicts {"origin_unresolved":57}
+  undeclared_independent   n= 47 truth=Y cite+files positive=0 no-files=0 urls=47  verdicts {"origin_unresolved":47}
+  unsupported              n= 30 truth=N cite+files positive=0 no-files=0 urls=0  verdicts {"unsupported":30}
+  latency: median 2.24 ms/note (with files); large note 65.5 ms, heap +22.0 MB

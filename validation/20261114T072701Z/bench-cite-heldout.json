@@ -1,0 +1,389 @@
+{
+  "split": "heldout",
+  "seeds": {
+    "firstSeed": 500001,
+    "count": 150
+  },
+  "notes": 150,
+  "claims": 695,
+  "positives": 170,
+  "node": "v20.20.2",
+  "detectors": {
+    "B1_two_or_more_citations": {
+      "tp": 170,
+      "fp": 447,
+      "tn": 78,
+      "fn": 0,
+      "precision": {
+        "value": 0.2755267423014587,
+        "k": 170,
+        "n": 617,
+        "ci95": [
+          0.24174367560968776,
+          0.3120877686749737
+        ]
+      },
+      "recall": {
+        "value": 1,
+        "k": 170,
+        "n": 170,
+        "ci95": [
+          0.9779017220274089,
+          1
+        ]
+      },
+      "falsePositiveRate": {
+        "value": 0.8514285714285714,
+        "k": 447,
+        "n": 525,
+        "ci95": [
+          0.8184550016351471,
+          0.8792964611847218
+        ]
+      },
+      "accuracy": {
+        "value": 0.35683453237410073,
+        "k": 248,
+        "n": 695,
+        "ci95": [
+          0.3220937467162353,
+          0.393149306931401
+        ]
+      }
+    },
+    "B2_distinct_urls": {
+      "tp": 170,
+      "fp": 393,
+      "tn": 132,
+      "fn": 0,
+      "precision": {
+        "value": 0.3019538188277087,
+        "k": 170,
+        "n": 563,
+        "ci95": [
+          0.2654769140593495,
+          0.34111512152872325
+        ]
+      },
+      "recall": {
+        "value": 1,
+        "k": 170,
+        "n": 170,
+        "ci95": [
+          0.9779017220274089,
+          1
+        ]
+      },
+      "falsePositiveRate": {
+        "value": 0.7485714285714286,
+        "k": 393,
+        "n": 525,
+        "ci95": [
+          0.7097459306715127,
+          0.7837855918108335
+        ]
+      },
+      "accuracy": {
+        "value": 0.43453237410071943,
+        "k": 302,
+        "n": 695,
+        "ci95": [
+          0.39813843808866006,
+          0.47164607388086205
+        ]
+      }
+    },
+    "B3_distinct_outlets": {
+      "tp": 170,
+      "fp": 447,
+      "tn": 78,
+      "fn": 0,
+      "precision": {
+        "value": 0.2755267423014587,
+        "k": 170,
+        "n": 617,
+        "ci95": [
+          0.24174367560968776,
+          0.3120877686749737
+        ]
+      },
+      "recall": {
+        "value": 1,
+        "k": 170,
+        "n": 170,
+        "ci95": [
+          0.9779017220274089,
+          1
+        ]
+      },
+      "falsePositiveRate": {
+        "value": 0.8514285714285714,
+        "k": 447,
+        "n": 525,
+        "ci95": [
+          0.8184550016351471,
+          0.8792964611847218
+        ]
+      },
+      "accuracy": {
+        "value": 0.35683453237410073,
+        "k": 248,
+        "n": 695,
+        "ci95": [
+          0.3220937467162353,
+          0.393149306931401
+        ]
+      }
+    },
+    "cite_without_saved_files": {
+      "tp": 123,
+      "fp": 137,
+      "tn": 388,
+      "fn": 47,
+      "precision": {
+        "value": 0.47307692307692306,
+        "k": 123,
+        "n": 260,
+        "ci95": [
+          0.41322224971373994,
+          0.5337156099717684
+        ]
+      },
+      "recall": {
+        "value": 0.7235294117647059,
+        "k": 123,
+        "n": 170,
+        "ci95": [
+          0.6519203131302868,
+          0.7852592802466724
+        ]
+      },
+      "falsePositiveRate": {
+        "value": 0.26095238095238094,
+        "k": 137,
+        "n": 525,
+        "ci95": [
+          0.2252194436810202,
+          0.30015828757158913
+        ]
+      },
+      "accuracy": {
+        "value": 0.7352517985611511,
+        "k": 511,
+        "n": 695,
+        "ci95": [
+          0.7012214843884925,
+          0.7666957088638839
+        ]
+      }
+    },
+    "cite_with_saved_files": {
+      "tp": 123,
+      "fp": 66,
+      "tn": 459,
+      "fn": 47,
+      "precision": {
+        "value": 0.6507936507936508,
+        "k": 123,
+        "n": 189,
+        "ci95": [
+          0.5804376389985302,
+          0.71514173806534
+        ]
+      },
+      "recall": {
+        "value": 0.7235294117647059,
+        "k": 123,
+        "n": 170,
+        "ci95": [
+          0.6519203131302868,
+          0.7852592802466724
+        ]
+      },
+      "falsePositiveRate": {
+        "value": 0.12571428571428572,
+        "k": 66,
+        "n": 525,
+        "ci95": [
+          0.10004655306111479,
+          0.15681977515512238
+        ]
+      },
+      "accuracy": {
+        "value": 0.837410071942446,
+        "k": 582,
+        "n": 695,
+        "ci95": [
+          0.8081346038307303,
+          0.8629759883263478
+        ]
+      }
+    }
+  },
+  "byScenario": {
+    "reencoded_repost": {
+      "n": 66,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 66,
+        "B2_distinct_urls": 66,
+        "B3_distinct_outlets": 66,
+        "cite_without_saved_files": 66,
+        "cite_with_saved_files": 66
+      },
+      "citeVerdictsWithFiles": {
+        "independently_corroborated": 66
+      }
+    },
+    "circular": {
+      "n": 75,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 75,
+        "B2_distinct_urls": 75,
+        "B3_distinct_outlets": 75,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "circular_reporting": 75
+      }
+    },
+    "syndicated_same_url": {
+      "n": 54,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 54,
+        "B2_distinct_urls": 0,
+        "B3_distinct_outlets": 54,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "abstain_suspected_shared_origin": 54
+      }
+    },
+    "echo_declared": {
+      "n": 91,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 91,
+        "B2_distinct_urls": 91,
+        "B3_distinct_outlets": 91,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "single_origin": 91
+      }
+    },
+    "single_primary": {
+      "n": 48,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 0,
+        "B2_distinct_urls": 0,
+        "B3_distinct_outlets": 0,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "single_origin": 48
+      }
+    },
+    "undeclared_independent": {
+      "n": 47,
+      "truth": true,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 47,
+        "B2_distinct_urls": 47,
+        "B3_distinct_outlets": 47,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "origin_unresolved": 47
+      }
+    },
+    "undeclared_echo": {
+      "n": 57,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 57,
+        "B2_distinct_urls": 57,
+        "B3_distinct_outlets": 57,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "origin_unresolved": 57
+      }
+    },
+    "echo_identical_files": {
+      "n": 71,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 71,
+        "B2_distinct_urls": 71,
+        "B3_distinct_outlets": 71,
+        "cite_without_saved_files": 71,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "single_origin": 71
+      }
+    },
+    "two_primaries": {
+      "n": 123,
+      "truth": true,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 123,
+        "B2_distinct_urls": 123,
+        "B3_distinct_outlets": 123,
+        "cite_without_saved_files": 123,
+        "cite_with_saved_files": 123
+      },
+      "citeVerdictsWithFiles": {
+        "independently_corroborated": 123
+      }
+    },
+    "unsupported": {
+      "n": 30,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 0,
+        "B2_distinct_urls": 0,
+        "B3_distinct_outlets": 0,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "unsupported": 30
+      }
+    },
+    "conflicting": {
+      "n": 33,
+      "truth": false,
+      "predictedPositive": {
+        "B1_two_or_more_citations": 33,
+        "B2_distinct_urls": 33,
+        "B3_distinct_outlets": 33,
+        "cite_without_saved_files": 0,
+        "cite_with_saved_files": 0
+      },
+      "citeVerdictsWithFiles": {
+        "conflicting": 33
+      }
+    }
+  },
+  "latency": {
+    "medianMsPerNoteWithFiles": 2.2408570000000054,
+    "largeNote": {
+      "claims": 200,
+      "references": 500,
+      "ms": 65.51410699999997,
+      "heapUsedDeltaMB": 22.02471923828125,
+      "gcExposed": true
+    }
+  }
+}

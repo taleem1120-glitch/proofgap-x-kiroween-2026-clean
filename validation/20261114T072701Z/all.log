@@ -1,0 +1,989 @@
+
+> proofgap-x@0.5.0 test
+> node --test test/*.test.js
+
+TAP version 13
+# Subtest: A1 misleading provenance: ten copies, each claiming to be an original BUT declaring the same originGroup, are ONE origin
+ok 1 - A1 misleading provenance: ten copies, each claiming to be an original BUT declaring the same originGroup, are ONE origin
+  ---
+  duration_ms: 11.309592
+  ...
+# Subtest: A2 many derived copies from one origin never reach the threshold, whatever their number or strength
+ok 2 - A2 many derived copies from one origin never reach the threshold, whatever their number or strength
+  ---
+  duration_ms: 10.452274
+  ...
+# Subtest: A3 copies of copies via a diamond (a->b, a->c, b+c->d) are one origin
+ok 3 - A3 copies of copies via a diamond (a->b, a->c, b+c->d) are one origin
+  ---
+  duration_ms: 2.304651
+  ...
+# Subtest: A4 a "bridge" source derived from two independent origins adds no origin of its own and cannot fake a third
+ok 4 - A4 a "bridge" source derived from two independent origins adds no origin of its own and cannot fake a third
+  ---
+  duration_ms: 1.905582
+  ...
+# Subtest: A5 the same file under two different source names (relabeled laundering) is one origin; claim stays insufficient
+ok 5 - A5 the same file under two different source names (relabeled laundering) is one origin; claim stays insufficient
+  ---
+  duration_ms: 1.874335
+  ...
+# Subtest: A6 contradiction laundering: supporting a claim twice does not outvote a contradiction; status remains conflicting
+ok 6 - A6 contradiction laundering: supporting a claim twice does not outvote a contradiction; status remains conflicting
+  ---
+  duration_ms: 1.079937
+  ...
+# Subtest: A7 hiding a contradiction behind a duplicate: identical artifact marked both ways still conflicts
+ok 7 - A7 hiding a contradiction behind a duplicate: identical artifact marked both ways still conflicts
+  ---
+  duration_ms: 0.882465
+  ...
+# Subtest: A8 missing evidence is never silently "supported"
+ok 8 - A8 missing evidence is never silently "supported"
+  ---
+  duration_ms: 0.590738
+  ...
+# Subtest: A9 strength gaming: 1000 weak-but-independent claims of origin do not exceed what noisy-OR gives, and stay bounded in [0,1]
+ok 9 - A9 strength gaming: 1000 weak-but-independent claims of origin do not exceed what noisy-OR gives, and stay bounded in [0,1]
+  ---
+  duration_ms: 286.688707
+  ...
+# Subtest: A10 cycles and self-derivation are rejected before analysis, with the path in the message
+ok 10 - A10 cycles and self-derivation are rejected before analysis, with the path in the message
+  ---
+  duration_ms: 1.268972
+  ...
+# Subtest: A11 analysis refuses to run on an unvalidated cyclic graph instead of looping or overflowing
+ok 11 - A11 analysis refuses to run on an unvalidated cyclic graph instead of looping or overflowing
+  ---
+  duration_ms: 0.387702
+  ...
+# Subtest: A12 originGroup name collisions with source ids cannot merge unrelated origins
+ok 12 - A12 originGroup name collisions with source ids cannot merge unrelated origins
+  ---
+  duration_ms: 3.449568
+  ...
+# Subtest: A13 plausible-looking but ordinary case still reaches SUPPORTED (no over-blocking)
+ok 13 - A13 plausible-looking but ordinary case still reaches SUPPORTED (no over-blocking)
+  ---
+  duration_ms: 1.055175
+  ...
+# Subtest: metrics: confusion matrix and ratios on a hand-computed example
+ok 14 - metrics: confusion matrix and ratios on a hand-computed example
+  ---
+  duration_ms: 1.981101
+  ...
+# Subtest: metrics: undefined ratios are null (never silently 0 or 1), Wilson interval matches known values
+ok 15 - metrics: undefined ratios are null (never silently 0 or 1), Wilson interval matches known values
+  ---
+  duration_ms: 0.246829
+  ...
+# Subtest: dataset: deterministic, disjoint seeds between dev and held-out, no identical cases across splits
+ok 16 - dataset: deterministic, disjoint seeds between dev and held-out, no identical cases across splits
+  ---
+  duration_ms: 138.945439
+  ...
+# Subtest: dataset: every case passes the strict validator and labels are consistent with hidden origin counts
+ok 17 - dataset: every case passes the strict validator and labels are consistent with hidden origin counts
+  ---
+  duration_ms: 153.766581
+  ...
+# Subtest: dataset: every scenario is exercised in both splits, and both classes are present
+ok 18 - dataset: every scenario is exercised in both splits, and both classes are present
+  ---
+  duration_ms: 16.269063
+  ...
+# Subtest: detectors see no ground truth: output is unchanged when the truth object is mutated or removed
+ok 19 - detectors see no ground truth: output is unchanged when the truth object is mutated or removed
+  ---
+  duration_ms: 21.822556
+  ...
+# Subtest: benchmark honesty guard: undeclared-copy scenarios are labelled uncorroborated and ProofGap does NOT detect them (known limitation)
+ok 20 - benchmark honesty guard: undeclared-copy scenarios are labelled uncorroborated and ProofGap does NOT detect them (known limitation)
+  ---
+  duration_ms: 379.270015
+  ...
+# Subtest: cite dataset: deterministic, disjoint dev/held-out seeds, no identical notes across splits, every note parses
+ok 21 - cite dataset: deterministic, disjoint dev/held-out seeds, no identical notes across splits, every note parses
+  ---
+  duration_ms: 126.749259
+  ...
+# Subtest: cite dataset: ground truth is never written into the note, and every scenario appears in both splits
+ok 22 - cite dataset: ground truth is never written into the note, and every scenario appears in both splits
+  ---
+  duration_ms: 21.82731
+  ...
+# Subtest: two independent primaries -> independently_corroborated; copies of them add no origin
+ok 23 - two independent primaries -> independently_corroborated; copies of them add no origin
+  ---
+  duration_ms: 13.543546
+  ...
+# Subtest: press-release echo: many secondaries citing one primary -> single_origin with exact missing item
+ok 24 - press-release echo: many secondaries citing one primary -> single_origin with exact missing item
+  ---
+  duration_ms: 4.155851
+  ...
+# Subtest: circular reporting is a finding, not invalid input (unlike app 1, where cycles are rejected)
+ok 25 - circular reporting is a finding, not invalid input (unlike app 1, where cycles are rejected)
+  ---
+  duration_ms: 2.301455
+  ...
+# Subtest: self-citation and 3-cycles are detected; a cycle plus a separate primary still cannot reach two primary origins
+ok 26 - self-citation and 3-cycles are detected; a cycle plus a separate primary still cannot reach two primary origins
+  ---
+  duration_ms: 2.681114
+  ...
+# Subtest: unknown provenance: separate URLs and outlets never count as independence
+ok 27 - unknown provenance: separate URLs and outlets never count as independence
+  ---
+  duration_ms: 3.367452
+  ...
+# Subtest: a primary that declares an upstream is treated as derived, not original
+ok 28 - a primary that declares an upstream is treated as derived, not original
+  ---
+  duration_ms: 5.266251
+  ...
+# Subtest: unsupported, contradicted and conflicting claims
+ok 29 - unsupported, contradicted and conflicting claims
+  ---
+  duration_ms: 3.614741
+  ...
+# Subtest: same URL (after tracking-parameter and www normalisation) on two "primary" refs -> abstain, never corroborated
+ok 30 - same URL (after tracking-parameter and www normalisation) on two "primary" refs -> abstain, never corroborated
+  ---
+  duration_ms: 2.674858
+  ...
+# Subtest: same DOI on two refs -> abstain; a DOI is never trusted as identity either
+ok 31 - same DOI on two refs -> abstain; a DOI is never trusted as identity either
+  ---
+  duration_ms: 2.683562
+  ...
+# Subtest: identical titles from different outlets trigger the core cue and abstain
+ok 32 - identical titles from different outlets trigger the core cue and abstain
+  ---
+  duration_ms: 2.030716
+  ...
+# Subtest: byte-identical saved copies under different outlets and URLs are one source (verified); without files the tool does not guess
+ok 33 - byte-identical saved copies under different outlets and URLs are one source (verified); without files the tool does not guess
+  ---
+  duration_ms: 4.986947
+  ...
+# Subtest: different bytes, empty files and symlinks never create a "same source" link
+ok 34 - different bytes, empty files and symlinks never create a "same source" link
+  ---
+  duration_ms: 26.909179
+  ...
+# Subtest: saved paths that escape the sources folder are UNSAFE_PATH and never read
+ok 35 - saved paths that escape the sources folder are UNSAFE_PATH and never read
+  ---
+  duration_ms: 2.064071
+  ...
+# Subtest: citation tokens inside fenced code blocks are ignored (cannot inject claims or citations)
+ok 36 - citation tokens inside fenced code blocks are ignored (cannot inject claims or citations)
+  ---
+  duration_ms: 0.268552
+  ...
+# Subtest: order of references and claims does not change verdicts (metamorphic)
+ok 37 - order of references and claims does not change verdicts (metamorphic)
+  ---
+  duration_ms: 6.5932
+  ...
+# Subtest: domain validation errors carry line numbers
+ok 38 - domain validation errors carry line numbers
+  ---
+  duration_ms: 1.540869
+  ...
+# Subtest: resource limits: bytes, claims, references, citations per claim, line length
+ok 39 - resource limits: bytes, claims, references, citations per claim, line length
+  ---
+  duration_ms: 0.6052
+  ...
+# Subtest: a lineage deeper than the core limit is reported as a note issue, not a crash
+ok 40 - a lineage deeper than the core limit is reported as a note issue, not a crash
+  ---
+  duration_ms: 2.047517
+  ...
+# Subtest: unused references are reported as note findings
+ok 41 - unused references are reported as note findings
+  ---
+  duration_ms: 1.304497
+  ...
+# Subtest: example note: one claim per verdict, exactly as documented
+ok 42 - example note: one claim per verdict, exactly as documented
+  ---
+  duration_ms: 11.269198
+  ...
+# Subtest: reports are deterministic and the committed Cite showcase equals a fresh build
+ok 43 - reports are deterministic and the committed Cite showcase equals a fresh build
+  ---
+  duration_ms: 30.114025
+  ...
+# Subtest: HTML: hostile labels and claims stay inside the escaped JSON block; Cite header is used
+ok 44 - HTML: hostile labels and claims stay inside the escaped JSON block; Cite header is used
+  ---
+  duration_ms: 2.651781
+  ...
+# Subtest: lint output names file:line and verdict; control characters are neutralised
+ok 45 - lint output names file:line and verdict; control characters are neutralised
+  ---
+  duration_ms: 1.369886
+  ...
+# Subtest: CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with line numbers, never overwrites
+ok 46 - CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with line numbers, never overwrites
+  ---
+  duration_ms: 1648.369946
+  ...
+# Subtest: a self-citing "primary" is not an original source (only path where the primary-with-upstream guard matters)
+ok 47 - a self-citing "primary" is not an original source (only path where the primary-with-upstream guard matters)
+  ---
+  duration_ms: 1.487564
+  ...
+# Subtest: CLI: valid input writes report to stdout, exit 0
+ok 48 - CLI: valid input writes report to stdout, exit 0
+  ---
+  duration_ms: 112.597009
+  ...
+# Subtest: CLI: usage errors exit 2 and do nothing
+ok 49 - CLI: usage errors exit 2 and do nothing
+  ---
+  duration_ms: 945.916662
+  ...
+# Subtest: CLI: invalid case exits 1 with path-specific errors, no stack trace, and creates no output file
+ok 50 - CLI: invalid case exits 1 with path-specific errors, no stack trace, and creates no output file
+  ---
+  duration_ms: 102.568724
+  ...
+# Subtest: CLI: malformed JSON, empty file, binary garbage all exit 1 safely
+ok 51 - CLI: malformed JSON, empty file, binary garbage all exit 1 safely
+  ---
+  duration_ms: 342.970997
+  ...
+# Subtest: CLI: oversized file rejected without being parsed
+ok 52 - CLI: oversized file rejected without being parsed
+  ---
+  duration_ms: 111.926915
+  ...
+# Subtest: CLI: missing file, directory, and special file exit 1 without leaking stack
+ok 53 - CLI: missing file, directory, and special file exit 1 without leaking stack
+  ---
+  duration_ms: 435.000392
+  ...
+# Subtest: CLI: never overwrites an existing output file (regular file, same as input, symlink, dangling symlink, dir)
+ok 54 - CLI: never overwrites an existing output file (regular file, same as input, symlink, dangling symlink, dir)
+  ---
+  duration_ms: 543.240509
+  ...
+# Subtest: CLI: writes a new output file once, with owner-only permissions, and repeat run is refused
+ok 55 - CLI: writes a new output file once, with owner-only permissions, and repeat run is refused
+  ---
+  duration_ms: 154.16354
+  ...
+# Subtest: CLI: output into a missing directory fails cleanly
+ok 56 - CLI: output into a missing directory fails cleanly
+  ---
+  duration_ms: 77.236065
+  ...
+# Subtest: CLI: cleanup check - temp dir contains only expected files
+ok 57 - CLI: cleanup check - temp dir contains only expected files
+  ---
+  duration_ms: 2.115764
+  ...
+# Subtest: core exposes a semver API version and the documented surface
+ok 58 - core exposes a semver API version and the documented surface
+  ---
+  duration_ms: 1.727695
+  ...
+# Subtest: applications import nothing from the engine except src/core.js (and their own files)
+ok 59 - applications import nothing from the engine except src/core.js (and their own files)
+  ---
+  duration_ms: 1.755339
+  ...
+# Subtest: the two applications live in separate folders and do not import each other
+ok 60 - the two applications live in separate folders and do not import each other
+  ---
+  duration_ms: 1.762315
+  ...
+# Subtest: core.analyze with the default profile is byte-identical to the engine (60 generated cases)
+ok 61 - core.analyze with the default profile is byte-identical to the engine (60 generated cases)
+  ---
+  duration_ms: 349.792604
+  ...
+# Subtest: a profile changes wording only: classification, scores, graph, plans unchanged; application id recorded
+ok 62 - a profile changes wording only: classification, scores, graph, plans unchanged; application id recorded
+  ---
+  duration_ms: 313.294364
+  ...
+# Subtest: analyze() rejects ambiguous input and malformed profiles
+ok 63 - analyze() rejects ambiguous input and malformed profiles
+  ---
+  duration_ms: 1.156065
+  ...
+# Subtest: renderHtml: the default header is unchanged; a custom header is escaped as text
+ok 64 - renderHtml: the default header is unchanged; a custom header is escaped as text
+  ---
+  duration_ms: 7.901453
+  ...
+# Subtest: app 1 CLI shim and app folder produce identical bytes
+ok 65 - app 1 CLI shim and app folder produce identical bytes
+  ---
+  duration_ms: 250.551364
+  ...
+# Subtest: demo without verification: 4 items look like corroboration but are ONE declared origin
+ok 66 - demo without verification: 4 items look like corroboration but are ONE declared origin
+  ---
+  duration_ms: 14.352481
+  ...
+# Subtest: demo with verification: exact integrity states, MISMATCH excluded from scoring
+ok 67 - demo with verification: exact integrity states, MISMATCH excluded from scoring
+  ---
+  duration_ms: 10.413606
+  ...
+# Subtest: demo output is byte-reproducible
+ok 68 - demo output is byte-reproducible
+  ---
+  duration_ms: 26.101979
+  ...
+# Subtest: property: generated valid cases validate, analyze deterministically, and satisfy invariants (200 seeds)
+ok 69 - property: generated valid cases validate, analyze deterministically, and satisfy invariants (200 seeds)
+  ---
+  duration_ms: 1348.870396
+  ...
+# Subtest: property: random mutations of a valid case either validate (and then analyze safely) or fail with CaseValidationError only
+ok 70 - property: random mutations of a valid case either validate (and then analyze safely) or fail with CaseValidationError only
+  ---
+  duration_ms: 103.55136
+  ...
+# Subtest: fuzz: arbitrary garbage text only ever yields CaseValidationError
+ok 71 - fuzz: arbitrary garbage text only ever yields CaseValidationError
+  ---
+  duration_ms: 7.526537
+  ...
+# Subtest: fuzz: truncating a valid document at every 7th byte never crashes
+ok 72 - fuzz: truncating a valid document at every 7th byte never crashes
+  ---
+  duration_ms: 7.530968
+  ...
+# Subtest: malformed JSON: deep nesting does not crash or hang
+ok 73 - malformed JSON: deep nesting does not crash or hang
+  ---
+  duration_ms: 166.47024
+  ...
+# Subtest: oversized values are rejected at each limit boundary
+ok 74 - oversized values are rejected at each limit boundary
+  ---
+  duration_ms: 64.269177
+  ...
+# Subtest: error flood: many invalid items cannot produce unbounded issue lists
+ok 75 - error flood: many invalid items cannot produce unbounded issue lists
+  ---
+  duration_ms: 7.717876
+  ...
+# Subtest: prototype pollution: forbidden keys at any depth are rejected and Object.prototype stays clean
+ok 76 - prototype pollution: forbidden keys at any depth are rejected and Object.prototype stays clean
+  ---
+  duration_ms: 1.661861
+  ...
+# Subtest: duplicate identifiers (sources, claims, evidence) are rejected at the right path
+ok 77 - duplicate identifiers (sources, claims, evidence) are rejected at the right path
+  ---
+  duration_ms: 0.776009
+  ...
+# Subtest: invalid provenance references are rejected
+ok 78 - invalid provenance references are rejected
+  ---
+  duration_ms: 0.948509
+  ...
+# Subtest: property: validation accepts a case iff the derivation graph is acyclic (random edge sets, independent oracle)
+ok 79 - property: validation accepts a case iff the derivation graph is acyclic (random edge sets, independent oracle)
+  ---
+  duration_ms: 10.731649
+  ...
+# Subtest: excessive derivation depth: chain at the limit is accepted, one beyond is rejected; no stack overflow on huge chains
+ok 80 - excessive derivation depth: chain at the limit is accepted, one beyond is rejected; no stack overflow on huge chains
+  ---
+  duration_ms: 14.702245
+  ...
+# Subtest: wide fan-in derivation graphs stay within time bounds (no exponential blow-up)
+ok 81 - wide fan-in derivation graphs stay within time bounds (no exponential blow-up)
+  ---
+  duration_ms: 27.732512
+  ...
+# Subtest: Unicode edge cases
+ok 82 - Unicode edge cases
+  ---
+  duration_ms: 5.691428
+  ...
+# Subtest: numeric edge cases in strength
+ok 83 - numeric edge cases in strength
+  ---
+  duration_ms: 1.248165
+  ...
+# Subtest: no evidence: NO_LINKED_EVIDENCE finding and an acquisition recommendation
+ok 84 - no evidence: NO_LINKED_EVIDENCE finding and an acquisition recommendation
+  ---
+  duration_ms: 7.54777
+  ...
+# Subtest: single origin: BELOW_INDEPENDENCE_THRESHOLD; copies add FALSE_CORROBORATION with the exact numbers
+ok 85 - single origin: BELOW_INDEPENDENCE_THRESHOLD; copies add FALSE_CORROBORATION with the exact numbers
+  ---
+  duration_ms: 2.796701
+  ...
+# Subtest: genuine corroboration has no false-corroboration finding, but still flags unverified provenance
+ok 86 - genuine corroboration has no false-corroboration finding, but still flags unverified provenance
+  ---
+  duration_ms: 1.049956
+  ...
+# Subtest: conflict across origins and self-contradicting origin are both reported
+ok 87 - conflict across origins and self-contradicting origin are both reported
+  ---
+  duration_ms: 1.21593
+  ...
+# Subtest: contradicted-only claim is explained
+ok 88 - contradicted-only claim is explained
+  ---
+  duration_ms: 0.820261
+  ...
+# Subtest: every recommendation is heuristic, ranked 1..n by the documented priority, and states what it would NOT prove
+ok 89 - every recommendation is heuristic, ranked 1..n by the documented priority, and states what it would NOT prove
+  ---
+  duration_ms: 184.127764
+  ...
+# Subtest: recommendations never fabricate: every quoted identifier exists in the case, and no recommendation claims a result
+ok 90 - recommendations never fabricate: every quoted identifier exists in the case, and no recommendation claims a result
+  ---
+  duration_ms: 157.825323
+  ...
+# Subtest: findings reference only evidence ids that exist; reports never claim verification when none ran
+ok 91 - findings reference only evidence ids that exist; reports never claim verification when none ran
+  ---
+  duration_ms: 1.950123
+  ...
+# Subtest: independence is never presented as verified
+ok 92 - independence is never presented as verified
+  ---
+  duration_ms: 1.951003
+  ...
+# Subtest: heuristic warnings flag possible undeclared dependence but never change scores
+ok 93 - heuristic warnings flag possible undeclared dependence but never change scores
+  ---
+  duration_ms: 1.097329
+  ...
+# Subtest: text rendering: contains verdict labels, caveats, and no raw control characters
+ok 94 - text rendering: contains verdict labels, caveats, and no raw control characters
+  ---
+  duration_ms: 3.568745
+  ...
+# Subtest: text rendering sanitises hostile characters even if validation were bypassed
+ok 95 - text rendering sanitises hostile characters even if validation were bypassed
+  ---
+  duration_ms: 1.5949
+  ...
+# Subtest: trust block separates declared facts from verified facts and never reports verified provenance/independence
+ok 96 - trust block separates declared facts from verified facts and never reports verified provenance/independence
+  ---
+  duration_ms: 1.256151
+  ...
+# Subtest: edge bases: same_bytes is "verified" only when both files were VERIFIED, else "declared"; heuristics are "suspected"
+ok 97 - edge bases: same_bytes is "verified" only when both files were VERIFIED, else "declared"; heuristics are "suspected"
+  ---
+  duration_ms: 14.574226
+  ...
+# Subtest: graph integrity on random cases: only 4 bases, every edge endpoint is a node, counts add up, deterministic
+ok 98 - graph integrity on random cases: only 4 bases, every edge endpoint is a node, counts add up, deterministic
+  ---
+  duration_ms: 400.854895
+  ...
+# Subtest: unknown edges: every pair of distinct origins bearing on a claim is marked independence_not_established
+ok 99 - unknown edges: every pair of distinct origins bearing on a claim is marked independence_not_established
+  ---
+  duration_ms: 1.235142
+  ...
+# Subtest: exactly five distinct states exist
+ok 100 - exactly five distinct states exist
+  ---
+  duration_ms: 1.52958
+  ...
+# Subtest: VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+ok 101 - VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+  ---
+  duration_ms: 2.680293
+  ...
+# Subtest: unverified hashes are never presented as verified when verification was not requested
+ok 102 - unverified hashes are never presented as verified when verification was not requested
+  ---
+  duration_ms: 0.305609
+  ...
+# Subtest: UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+ok 103 - UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+  ---
+  duration_ms: 0.833676
+  ...
+# Subtest: UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+ok 104 - UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+  ---
+  duration_ms: 0.536281
+  ...
+# Subtest: UNSAFE_PATH: directories and non-regular files are not read
+ok 105 - UNSAFE_PATH: directories and non-regular files are not read
+  ---
+  duration_ms: 5.915015
+  ...
+# Subtest: limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+ok 106 - limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+  ---
+  duration_ms: 1.159132
+  ...
+# Subtest: a file cited by several evidence items is read once (count/bytes limits not double-spent)
+ok 107 - a file cited by several evidence items is read once (count/bytes limits not double-spent)
+  ---
+  duration_ms: 0.530806
+  ...
+# Subtest: a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+ok 108 - a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+  ---
+  duration_ms: 17.298692
+  ...
+# Subtest: bad configuration fails loudly; reports never contain the absolute evidence directory
+ok 109 - bad configuration fails loudly; reports never contain the absolute evidence directory
+  ---
+  duration_ms: 1.110817
+  ...
+# Subtest: hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+ok 110 - hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+  ---
+  duration_ms: 0.378348
+  ...
+# Subtest: integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+ok 111 - integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+  ---
+  duration_ms: 10.004969
+  ...
+# Subtest: schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+ok 112 - schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+  ---
+  duration_ms: 0.642611
+  ...
+# Subtest: CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+ok 113 - CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+  ---
+  duration_ms: 850.90197
+  ...
+# Subtest: M1: reordering every array in the case yields an identical report (except the input-order-sensitive hash)
+ok 114 - M1: reordering every array in the case yields an identical report (except the input-order-sensitive hash)
+  ---
+  duration_ms: 678.28503
+  ...
+# Subtest: M2: JSON formatting (pretty, minified, key order) yields byte-identical reports
+ok 115 - M2: JSON formatting (pretty, minified, key order) yields byte-identical reports
+  ---
+  duration_ms: 420.846805
+  ...
+# Subtest: M3: relabeling ids (bijection that scrambles sort order) preserves statuses, scores and origin counts
+ok 116 - M3: relabeling ids (bijection that scrambles sort order) preserves statuses, scores and origin counts
+  ---
+  duration_ms: 350.561725
+  ...
+# Subtest: M4: duplicating an evidence item (new id; same hash, or same source+description with different case/whitespace) never changes any claim result
+ok 117 - M4: duplicating an evidence item (new id; same hash, or same source+description with different case/whitespace) never changes any claim result
+  ---
+  duration_ms: 347.512762
+  ...
+# Subtest: M5: a derived copy (strength 1.0) never lowers origins, adds at most one, and adds none / raises no score when an existing supporter's roots are covered by it
+ok 118 - M5: a derived copy (strength 1.0) never lowers origins, adds at most one, and adds none / raises no score when an existing supporter's roots are covered by it
+  ---
+  duration_ms: 206.678755
+  ...
+# Subtest: M10: monotonicity — adding ANY supporting item (random source, random strength) never lowers a claim's independent support origins
+ok 119 - M10: monotonicity — adding ANY supporting item (random source, random strength) never lowers a claim's independent support origins
+  ---
+  duration_ms: 148.968233
+  ...
+# Subtest: M6: monotonicity — adding a contradicting item never changes supportScore; raising a strength never lowers it
+ok 120 - M6: monotonicity — adding a contradicting item never changes supportScore; raising a strength never lowers it
+  ---
+  duration_ms: 250.478449
+  ...
+# Subtest: M7: unrelated claims/evidence cannot change another claim's result
+ok 121 - M7: unrelated claims/evidence cannot change another claim's result
+  ---
+  duration_ms: 75.88538
+  ...
+# Subtest: M8: inserting extra hops into a derivation chain does not change origin counts or scores
+ok 122 - M8: inserting extra hops into a derivation chain does not change origin counts or scores
+  ---
+  duration_ms: 1.91318
+  ...
+# Subtest: M9: report serialization of the same case is stable across 20 repeated runs
+ok 123 - M9: report serialization of the same case is stable across 20 repeated runs
+  ---
+  duration_ms: 23.181046
+  ...
+# Subtest: D13 regression: byte-identical files under different sources, NO declared hashes -> one origin (0.3.0 counted two)
+ok 124 - D13 regression: byte-identical files under different sources, NO declared hashes -> one origin (0.3.0 counted two)
+  ---
+  duration_ms: 15.546986
+  ...
+# Subtest: an observed hash never turns into VERIFIED status: nothing was declared, so nothing was verified
+ok 125 - an observed hash never turns into VERIFIED status: nothing was declared, so nothing was verified
+  ---
+  duration_ms: 2.552597
+  ...
+# Subtest: no evidence directory -> no hashing, no change: identical claim results to 0.3.0 on 120 generated cases
+ok 126 - no evidence directory -> no hashing, no change: identical claim results to 0.3.0 on 120 generated cases
+  ---
+  duration_ms: 339.273134
+  ...
+# Subtest: re-encoded copy (one byte differs) is NOT linked: the tool reports no relationship it cannot verify
+ok 127 - re-encoded copy (one byte differs) is NOT linked: the tool reports no relationship it cannot verify
+  ---
+  duration_ms: 1.205036
+  ...
+# Subtest: empty files are hashed but never used to link artifacts
+ok 128 - empty files are hashed but never used to link artifacts
+  ---
+  duration_ms: 1.369856
+  ...
+# Subtest: a symlink cannot create (or hide) a link: UNSAFE_PATH, no observed hash, relationship stays unknown
+ok 129 - a symlink cannot create (or hide) a link: UNSAFE_PATH, no observed hash, relationship stays unknown
+  ---
+  duration_ms: 0.98122
+  ...
+# Subtest: a hard link IS the same file and is linked (documented behaviour)
+ok 130 - a hard link IS the same file and is linked (documented behaviour)
+  ---
+  duration_ms: 0.732307
+  ...
+# Subtest: missing files and limit-skipped files produce no observed hash and no link
+ok 131 - missing files and limit-skipped files produce no observed hash and no link
+  ---
+  duration_ms: 1.307517
+  ...
+# Subtest: manipulation: declaring a fake distinct hash for a byte-identical copy cannot split it into a second origin
+ok 132 - manipulation: declaring a fake distinct hash for a byte-identical copy cannot split it into a second origin
+  ---
+  duration_ms: 1.100084
+  ...
+# Subtest: manipulation: declaring the SAME hash for different bytes cannot merge genuine origins (both checked, one mismatches)
+ok 133 - manipulation: declaring the SAME hash for different bytes cannot merge genuine origins (both checked, one mismatches)
+  ---
+  duration_ms: 1.051666
+  ...
+# Subtest: observed byte link across different declared lineages still raises the SHARED_ARTIFACT warning; graph never marks lineage as verified
+ok 134 - observed byte link across different declared lineages still raises the SHARED_ARTIFACT warning; graph never marks lineage as verified
+  ---
+  duration_ms: 0.993382
+  ...
+# Subtest: determinism with files: shuffled case yields an identical report (except input hash)
+ok 135 - determinism with files: shuffled case yields an identical report (except input hash)
+  ---
+  duration_ms: 3.88042
+  ...
+# Subtest: classify() is the engine rule: engine status equals classify(origin counts) on generated cases
+ok 136 - classify() is the engine rule: engine status equals classify(origin counts) on generated cases
+  ---
+  duration_ms: 189.120373
+  ...
+# Subtest: ADD_INDEPENDENT_ORIGINS: executing "all k support" and "one contradicts" in the engine yields exactly the predicted status
+ok 137 - ADD_INDEPENDENT_ORIGINS: executing "all k support" and "one contradicts" in the engine yields exactly the predicted status
+  ---
+  duration_ms: 433.392441
+  ...
+# Subtest: REASSESS_CONTRADICTIONS: removing every contradicting link in the engine yields the predicted status
+ok 138 - REASSESS_CONTRADICTIONS: removing every contradicting link in the engine yields the predicted status
+  ---
+  duration_ms: 361.423532
+  ...
+# Subtest: ROBUSTNESS: dropping the evidence of `fragility` support origins (strongest first) makes a supported claim lose "supported"
+ok 139 - ROBUSTNESS: dropping the evidence of `fragility` support origins (strongest first) makes a supported claim lose "supported"
+  ---
+  duration_ms: 209.226549
+  ...
+# Subtest: planner never fabricates: all scenarios hypothetical, quoted ids exist, smallestChange is the minimal decision-changing step
+ok 140 - planner never fabricates: all scenarios hypothetical, quoted ids exist, smallestChange is the minimal decision-changing step
+  ---
+  duration_ms: 112.091298
+  ...
+# Subtest: single source gives insufficient support
+ok 141 - single source gives insufficient support
+  ---
+  duration_ms: 8.908632
+  ...
+# Subtest: two independent sources are supported
+ok 142 - two independent sources are supported
+  ---
+  duration_ms: 1.315661
+  ...
+# Subtest: duplicate evidence by hash is excluded and flagged
+ok 143 - duplicate evidence by hash is excluded and flagged
+  ---
+  duration_ms: 2.367407
+  ...
+# Subtest: duplicate by source+description is flagged
+ok 144 - duplicate by source+description is flagged
+  ---
+  duration_ms: 1.006749
+  ...
+# Subtest: derived source does not add independence
+ok 145 - derived source does not add independence
+  ---
+  duration_ms: 1.10182
+  ...
+# Subtest: transitive derivation and shared originGroup collapse origins
+ok 146 - transitive derivation and shared originGroup collapse origins
+  ---
+  duration_ms: 1.806846
+  ...
+# Subtest: conflicting claims are flagged
+ok 147 - conflicting claims are flagged
+  ---
+  duration_ms: 1.299886
+  ...
+# Subtest: contradicted-only and no-evidence statuses
+ok 148 - contradicted-only and no-evidence statuses
+  ---
+  duration_ms: 1.802228
+  ...
+# Subtest: explanations avoid guilt / authenticity verdicts
+ok 149 - explanations avoid guilt / authenticity verdicts
+  ---
+  duration_ms: 13.72943
+  ...
+# Subtest: malformed inputs are rejected
+ok 150 - malformed inputs are rejected
+  ---
+  duration_ms: 5.765027
+  ...
+# Subtest: duplicate ids, bad ids, control chars, NaN-like strength rejected
+ok 151 - duplicate ids, bad ids, control chars, NaN-like strength rejected
+  ---
+  duration_ms: 0.434106
+  ...
+# Subtest: forbidden keys (prototype pollution) rejected
+ok 152 - forbidden keys (prototype pollution) rejected
+  ---
+  duration_ms: 0.447501
+  ...
+# Subtest: derivation cycles rejected
+ok 153 - derivation cycles rejected
+  ---
+  duration_ms: 0.449443
+  ...
+# Subtest: limit: input bytes
+ok 154 - limit: input bytes
+  ---
+  duration_ms: 1.061838
+  ...
+# Subtest: limit: item counts, string length, derivation depth
+ok 155 - limit: item counts, string length, derivation depth
+  ---
+  duration_ms: 0.707937
+  ...
+# Subtest: limit: issue list is capped
+ok 156 - limit: issue list is capped
+  ---
+  duration_ms: 0.927397
+  ...
+# Subtest: report is deterministic and byte-identical across key order
+ok 157 - report is deterministic and byte-identical across key order
+  ---
+  duration_ms: 10.61792
+  ...
+# Subtest: sample case yields expected statuses
+ok 158 - sample case yields expected statuses
+  ---
+  duration_ms: 2.643192
+  ...
+# Subtest: output encoding escapes markup characters
+ok 159 - output encoding escapes markup characters
+  ---
+  duration_ms: 1.005402
+  ...
+# Subtest: D1: a duplicate artifact cited for a DIFFERENT claim must not lose that link
+ok 160 - D1: a duplicate artifact cited for a DIFFERENT claim must not lose that link
+  ---
+  duration_ms: 8.784553
+  ...
+# Subtest: D2: a duplicate artifact carrying CONTRADICTING stance for the same claim must surface as a conflict, not vanish
+ok 161 - D2: a duplicate artifact carrying CONTRADICTING stance for the same claim must surface as a conflict, not vanish
+  ---
+  duration_ms: 1.457132
+  ...
+# Subtest: D3: outcome must not depend on which duplicate has the lexicographically smaller id (relabeling invariance)
+ok 162 - D3: outcome must not depend on which duplicate has the lexicographically smaller id (relabeling invariance)
+  ---
+  duration_ms: 2.364581
+  ...
+# Subtest: D4: originGroup must not hide a declared derivation
+ok 163 - D4: originGroup must not hide a declared derivation
+  ---
+  duration_ms: 1.30813
+  ...
+# Subtest: D5: a source derived from two roots is not independent of either of its parents
+ok 164 - D5: a source derived from two roots is not independent of either of its parents
+  ---
+  duration_ms: 1.141393
+  ...
+# Subtest: D6: overlapping partial derivations chain into one component (r1+r2 vs r2+r3 vs r3)
+ok 165 - D6: overlapping partial derivations chain into one component (r1+r2 vs r2+r3 vs r3)
+  ---
+  duration_ms: 2.055354
+  ...
+# Subtest: D7: a derived copy must not raise the strength of its upstream origin (score inflation by self-assigned strength)
+ok 166 - D7: a derived copy must not raise the strength of its upstream origin (score inflation by self-assigned strength)
+  ---
+  duration_ms: 4.406219
+  ...
+# Subtest: D7b: when only derived evidence exists (original not in case) its own strength is used and reported as uncapped
+ok 167 - D7b: when only derived evidence exists (original not in case) its own strength is used and reported as uncapped
+  ---
+  duration_ms: 0.815776
+  ...
+# Subtest: D8: adding more derived copies (any strength) to a derived-only cluster must not raise its score
+ok 168 - D8: adding more derived copies (any strength) to a derived-only cluster must not raise its score
+  ---
+  duration_ms: 2.064576
+  ...
+# Subtest: D9: a source that does NOT cite this claim must not merge the independent origins that do (locality)
+ok 169 - D9: a source that does NOT cite this claim must not merge the independent origins that do (locality)
+  ---
+  duration_ms: 1.163342
+  ...
+# Subtest: D10: corroboration denial — one cited derivative of both origins must not erase genuine independence
+ok 170 - D10: corroboration denial — one cited derivative of both origins must not erase genuine independence
+  ---
+  duration_ms: 1.450107
+  ...
+# Subtest: D11: a copy derived from a source that shares an artifact with another source must not launder an extra origin
+ok 171 - D11: a copy derived from a source that shares an artifact with another source must not launder an extra origin
+  ---
+  duration_ms: 2.38968
+  ...
+# Subtest: D12: shared artifact across different declared lineages is SUSPECTED, never silently independent: decision abstains
+ok 172 - D12: shared artifact across different declared lineages is SUSPECTED, never silently independent: decision abstains
+  ---
+  duration_ms: 4.681142
+  ...
+# Subtest: schema file is versioned and consistent with DEFAULT_LIMITS
+ok 173 - schema file is versioned and consistent with DEFAULT_LIMITS
+  ---
+  duration_ms: 1.534463
+  ...
+# Subtest: every object in the schema rejects unsupported properties
+ok 174 - every object in the schema rejects unsupported properties
+  ---
+  duration_ms: 0.433776
+  ...
+# Subtest: valid base case passes schema
+ok 175 - valid base case passes schema
+  ---
+  duration_ms: 1.625868
+  ...
+# Subtest: unsupported properties are rejected with exact paths
+ok 176 - unsupported properties are rejected with exact paths
+  ---
+  duration_ms: 0.849071
+  ...
+# Subtest: required fields and types produce path-specific messages
+ok 177 - required fields and types produce path-specific messages
+  ---
+  duration_ms: 0.361675
+  ...
+# Subtest: schema rejects unsafe identifiers
+ok 178 - schema rejects unsafe identifiers
+  ---
+  duration_ms: 0.736482
+  ...
+# Subtest: schema rejects out-of-range strength and bad stance/hash
+ok 179 - schema rejects out-of-range strength and bad stance/hash
+  ---
+  duration_ms: 0.387337
+  ...
+# Subtest: validateSchema refuses schemas using unsupported keywords (strictness of the validator itself)
+ok 180 - validateSchema refuses schemas using unsupported keywords (strictness of the validator itself)
+  ---
+  duration_ms: 0.67437
+  ...
+# Subtest: schema issues and semantic issues are merged, one per path, within cap
+ok 181 - schema issues and semantic issues are merged, one per path, within cap
+  ---
+  duration_ms: 1.575417
+  ...
+# Subtest: T1 no network or process-spawning capability in src/ (static check; not proof of absence)
+ok 182 - T1 no network or process-spawning capability in src/ (static check; not proof of absence)
+  ---
+  duration_ms: 3.523263
+  ...
+# Subtest: T2 hostile text in every free-text field is JSON-escaped in reports and sanitised in text output
+ok 183 - T2 hostile text in every free-text field is JSON-escaped in reports and sanitised in text output
+  ---
+  duration_ms: 10.025285
+  ...
+# Subtest: T3 report fields from untrusted input cannot inject new keys or alter structure (no prototype keys, ids are plain data)
+ok 184 - T3 report fields from untrusted input cannot inject new keys or alter structure (no prototype keys, ids are plain data)
+  ---
+  duration_ms: 1.814018
+  ...
+# Subtest: T4 maximum-size valid case analyzes within a generous time bound and bounded report size
+ok 185 - T4 maximum-size valid case analyzes within a generous time bound and bounded report size
+  ---
+  duration_ms: 788.400791
+  ...
+# Subtest: T5 worst-case derivation graph (wide + deep within limits) stays fast
+ok 186 - T5 worst-case derivation graph (wide + deep within limits) stays fast
+  ---
+  duration_ms: 61.357669
+  ...
+# Subtest: T6 verification results never claim VERIFIED unless integrity ran and hashes matched (no path from case data to VERIFIED)
+ok 187 - T6 verification results never claim VERIFIED unless integrity ran and hashes matched (no path from case data to VERIFIED)
+  ---
+  duration_ms: 2.405823
+  ...
+# Subtest: T7 serialization is canonical: same case always yields same bytes (tamper-evident via inputSha256)
+ok 188 - T7 serialization is canonical: same case always yields same bytes (tamper-evident via inputSha256)
+  ---
+  duration_ms: 1.787189
+  ...
+# Subtest: T1b no network, process-spawning or eval capability in either application (apps/**; static check)
+ok 189 - T1b no network, process-spawning or eval capability in either application (apps/**; static check)
+  ---
+  duration_ms: 2.66295
+  ...
+# Subtest: viewer source uses no dangerous DOM, eval or network APIs
+ok 190 - viewer source uses no dangerous DOM, eval or network APIs
+  ---
+  duration_ms: 2.614857
+  ...
+# Subtest: CSP: default-src none, no network, and the inline script/style hashes match the inlined content exactly
+ok 191 - CSP: default-src none, no network, and the inline script/style hashes match the inlined content exactly
+  ---
+  duration_ms: 24.432401
+  ...
+# Subtest: committed viewer/showcase.html is byte-identical to a fresh deterministic build
+ok 192 - committed viewer/showcase.html is byte-identical to a fresh deterministic build
+  ---
+  duration_ms: 24.05548
+  ...
+# Subtest: showcase content: scenario A collapses 8 items to 1 origin with verified byte links; scenario B supports, abstains and contradicts
+ok 193 - showcase content: scenario A collapses 8 items to 1 origin with verified byte links; scenario B supports, abstains and contradicts
+  ---
+  duration_ms: 7.272464
+  ...
+# Subtest: hostile labels stay inside the JSON data block (escaped); only expected script elements exist
+ok 194 - hostile labels stay inside the JSON data block (escaped); only expected script elements exist
+  ---
+  duration_ms: 1.918809
+  ...
+# Subtest: CLI: --format html writes once (never overwrites); --compare requires html
+ok 195 - CLI: --format html writes once (never overwrites); --compare requires html
+  ---
+  duration_ms: 413.11259
+  ...
+1..195
+# tests 195
+# suites 0
+# pass 195
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3648.174597

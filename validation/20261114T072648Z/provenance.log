@@ -1,0 +1,418 @@
+TAP version 13
+# Subtest: A1 misleading provenance: ten copies, each claiming to be an original BUT declaring the same originGroup, are ONE origin
+ok 1 - A1 misleading provenance: ten copies, each claiming to be an original BUT declaring the same originGroup, are ONE origin
+  ---
+  duration_ms: 9.519355
+  type: 'test'
+  ...
+# Subtest: A2 many derived copies from one origin never reach the threshold, whatever their number or strength
+ok 2 - A2 many derived copies from one origin never reach the threshold, whatever their number or strength
+  ---
+  duration_ms: 6.99776
+  type: 'test'
+  ...
+# Subtest: A3 copies of copies via a diamond (a->b, a->c, b+c->d) are one origin
+ok 3 - A3 copies of copies via a diamond (a->b, a->c, b+c->d) are one origin
+  ---
+  duration_ms: 1.030585
+  type: 'test'
+  ...
+# Subtest: A4 a "bridge" source derived from two independent origins adds no origin of its own and cannot fake a third
+ok 4 - A4 a "bridge" source derived from two independent origins adds no origin of its own and cannot fake a third
+  ---
+  duration_ms: 1.604266
+  type: 'test'
+  ...
+# Subtest: A5 the same file under two different source names (relabeled laundering) is one origin; claim stays insufficient
+ok 5 - A5 the same file under two different source names (relabeled laundering) is one origin; claim stays insufficient
+  ---
+  duration_ms: 1.58281
+  type: 'test'
+  ...
+# Subtest: A6 contradiction laundering: supporting a claim twice does not outvote a contradiction; status remains conflicting
+ok 6 - A6 contradiction laundering: supporting a claim twice does not outvote a contradiction; status remains conflicting
+  ---
+  duration_ms: 1.300398
+  type: 'test'
+  ...
+# Subtest: A7 hiding a contradiction behind a duplicate: identical artifact marked both ways still conflicts
+ok 7 - A7 hiding a contradiction behind a duplicate: identical artifact marked both ways still conflicts
+  ---
+  duration_ms: 1.321468
+  type: 'test'
+  ...
+# Subtest: A8 missing evidence is never silently "supported"
+ok 8 - A8 missing evidence is never silently "supported"
+  ---
+  duration_ms: 0.48208
+  type: 'test'
+  ...
+# Subtest: A9 strength gaming: 1000 weak-but-independent claims of origin do not exceed what noisy-OR gives, and stay bounded in [0,1]
+ok 9 - A9 strength gaming: 1000 weak-but-independent claims of origin do not exceed what noisy-OR gives, and stay bounded in [0,1]
+  ---
+  duration_ms: 145.935831
+  type: 'test'
+  ...
+# Subtest: A10 cycles and self-derivation are rejected before analysis, with the path in the message
+ok 10 - A10 cycles and self-derivation are rejected before analysis, with the path in the message
+  ---
+  duration_ms: 1.741354
+  type: 'test'
+  ...
+# Subtest: A11 analysis refuses to run on an unvalidated cyclic graph instead of looping or overflowing
+ok 11 - A11 analysis refuses to run on an unvalidated cyclic graph instead of looping or overflowing
+  ---
+  duration_ms: 0.438774
+  type: 'test'
+  ...
+# Subtest: A12 originGroup name collisions with source ids cannot merge unrelated origins
+ok 12 - A12 originGroup name collisions with source ids cannot merge unrelated origins
+  ---
+  duration_ms: 0.832656
+  type: 'test'
+  ...
+# Subtest: A13 plausible-looking but ordinary case still reaches SUPPORTED (no over-blocking)
+ok 13 - A13 plausible-looking but ordinary case still reaches SUPPORTED (no over-blocking)
+  ---
+  duration_ms: 0.731646
+  type: 'test'
+  ...
+# Subtest: no evidence: NO_LINKED_EVIDENCE finding and an acquisition recommendation
+ok 14 - no evidence: NO_LINKED_EVIDENCE finding and an acquisition recommendation
+  ---
+  duration_ms: 7.647217
+  type: 'test'
+  ...
+# Subtest: single origin: BELOW_INDEPENDENCE_THRESHOLD; copies add FALSE_CORROBORATION with the exact numbers
+ok 15 - single origin: BELOW_INDEPENDENCE_THRESHOLD; copies add FALSE_CORROBORATION with the exact numbers
+  ---
+  duration_ms: 3.577915
+  type: 'test'
+  ...
+# Subtest: genuine corroboration has no false-corroboration finding, but still flags unverified provenance
+ok 16 - genuine corroboration has no false-corroboration finding, but still flags unverified provenance
+  ---
+  duration_ms: 1.515437
+  type: 'test'
+  ...
+# Subtest: conflict across origins and self-contradicting origin are both reported
+ok 17 - conflict across origins and self-contradicting origin are both reported
+  ---
+  duration_ms: 1.509966
+  type: 'test'
+  ...
+# Subtest: contradicted-only claim is explained
+ok 18 - contradicted-only claim is explained
+  ---
+  duration_ms: 1.397728
+  type: 'test'
+  ...
+# Subtest: every recommendation is heuristic, ranked 1..n by the documented priority, and states what it would NOT prove
+ok 19 - every recommendation is heuristic, ranked 1..n by the documented priority, and states what it would NOT prove
+  ---
+  duration_ms: 100.66074
+  type: 'test'
+  ...
+# Subtest: recommendations never fabricate: every quoted identifier exists in the case, and no recommendation claims a result
+ok 20 - recommendations never fabricate: every quoted identifier exists in the case, and no recommendation claims a result
+  ---
+  duration_ms: 80.230314
+  type: 'test'
+  ...
+# Subtest: findings reference only evidence ids that exist; reports never claim verification when none ran
+ok 21 - findings reference only evidence ids that exist; reports never claim verification when none ran
+  ---
+  duration_ms: 1.333624
+  type: 'test'
+  ...
+# Subtest: independence is never presented as verified
+ok 22 - independence is never presented as verified
+  ---
+  duration_ms: 1.179238
+  type: 'test'
+  ...
+# Subtest: heuristic warnings flag possible undeclared dependence but never change scores
+ok 23 - heuristic warnings flag possible undeclared dependence but never change scores
+  ---
+  duration_ms: 0.924573
+  type: 'test'
+  ...
+# Subtest: text rendering: contains verdict labels, caveats, and no raw control characters
+ok 24 - text rendering: contains verdict labels, caveats, and no raw control characters
+  ---
+  duration_ms: 2.383435
+  type: 'test'
+  ...
+# Subtest: text rendering sanitises hostile characters even if validation were bypassed
+ok 25 - text rendering sanitises hostile characters even if validation were bypassed
+  ---
+  duration_ms: 0.845614
+  type: 'test'
+  ...
+# Subtest: trust block separates declared facts from verified facts and never reports verified provenance/independence
+ok 26 - trust block separates declared facts from verified facts and never reports verified provenance/independence
+  ---
+  duration_ms: 0.894863
+  type: 'test'
+  ...
+# Subtest: M1: reordering every array in the case yields an identical report (except the input-order-sensitive hash)
+ok 27 - M1: reordering every array in the case yields an identical report (except the input-order-sensitive hash)
+  ---
+  duration_ms: 301.922515
+  type: 'test'
+  ...
+# Subtest: M2: JSON formatting (pretty, minified, key order) yields byte-identical reports
+ok 28 - M2: JSON formatting (pretty, minified, key order) yields byte-identical reports
+  ---
+  duration_ms: 185.160087
+  type: 'test'
+  ...
+# Subtest: M3: relabeling ids (bijection that scrambles sort order) preserves statuses, scores and origin counts
+ok 29 - M3: relabeling ids (bijection that scrambles sort order) preserves statuses, scores and origin counts
+  ---
+  duration_ms: 147.060426
+  type: 'test'
+  ...
+# Subtest: M4: duplicating an evidence item (new id; same hash, or same source+description with different case/whitespace) never changes any claim result
+ok 30 - M4: duplicating an evidence item (new id; same hash, or same source+description with different case/whitespace) never changes any claim result
+  ---
+  duration_ms: 183.834451
+  type: 'test'
+  ...
+# Subtest: M5: a derived copy (strength 1.0) never lowers origins, adds at most one, and adds none / raises no score when an existing supporter's roots are covered by it
+ok 31 - M5: a derived copy (strength 1.0) never lowers origins, adds at most one, and adds none / raises no score when an existing supporter's roots are covered by it
+  ---
+  duration_ms: 126.940113
+  type: 'test'
+  ...
+# Subtest: M10: monotonicity — adding ANY supporting item (random source, random strength) never lowers a claim's independent support origins
+ok 32 - M10: monotonicity — adding ANY supporting item (random source, random strength) never lowers a claim's independent support origins
+  ---
+  duration_ms: 118.498842
+  type: 'test'
+  ...
+# Subtest: M6: monotonicity — adding a contradicting item never changes supportScore; raising a strength never lowers it
+ok 33 - M6: monotonicity — adding a contradicting item never changes supportScore; raising a strength never lowers it
+  ---
+  duration_ms: 180.516569
+  type: 'test'
+  ...
+# Subtest: M7: unrelated claims/evidence cannot change another claim's result
+ok 34 - M7: unrelated claims/evidence cannot change another claim's result
+  ---
+  duration_ms: 66.413045
+  type: 'test'
+  ...
+# Subtest: M8: inserting extra hops into a derivation chain does not change origin counts or scores
+ok 35 - M8: inserting extra hops into a derivation chain does not change origin counts or scores
+  ---
+  duration_ms: 2.015699
+  type: 'test'
+  ...
+# Subtest: M9: report serialization of the same case is stable across 20 repeated runs
+ok 36 - M9: report serialization of the same case is stable across 20 repeated runs
+  ---
+  duration_ms: 25.821392
+  type: 'test'
+  ...
+# Subtest: single source gives insufficient support
+ok 37 - single source gives insufficient support
+  ---
+  duration_ms: 9.164881
+  type: 'test'
+  ...
+# Subtest: two independent sources are supported
+ok 38 - two independent sources are supported
+  ---
+  duration_ms: 1.205141
+  type: 'test'
+  ...
+# Subtest: duplicate evidence by hash is excluded and flagged
+ok 39 - duplicate evidence by hash is excluded and flagged
+  ---
+  duration_ms: 2.543288
+  type: 'test'
+  ...
+# Subtest: duplicate by source+description is flagged
+ok 40 - duplicate by source+description is flagged
+  ---
+  duration_ms: 1.099815
+  type: 'test'
+  ...
+# Subtest: derived source does not add independence
+ok 41 - derived source does not add independence
+  ---
+  duration_ms: 1.749811
+  type: 'test'
+  ...
+# Subtest: transitive derivation and shared originGroup collapse origins
+ok 42 - transitive derivation and shared originGroup collapse origins
+  ---
+  duration_ms: 1.413637
+  type: 'test'
+  ...
+# Subtest: conflicting claims are flagged
+ok 43 - conflicting claims are flagged
+  ---
+  duration_ms: 0.958855
+  type: 'test'
+  ...
+# Subtest: contradicted-only and no-evidence statuses
+ok 44 - contradicted-only and no-evidence statuses
+  ---
+  duration_ms: 1.358571
+  type: 'test'
+  ...
+# Subtest: explanations avoid guilt / authenticity verdicts
+ok 45 - explanations avoid guilt / authenticity verdicts
+  ---
+  duration_ms: 1.973309
+  type: 'test'
+  ...
+# Subtest: malformed inputs are rejected
+ok 46 - malformed inputs are rejected
+  ---
+  duration_ms: 3.123301
+  type: 'test'
+  ...
+# Subtest: duplicate ids, bad ids, control chars, NaN-like strength rejected
+ok 47 - duplicate ids, bad ids, control chars, NaN-like strength rejected
+  ---
+  duration_ms: 0.502566
+  type: 'test'
+  ...
+# Subtest: forbidden keys (prototype pollution) rejected
+ok 48 - forbidden keys (prototype pollution) rejected
+  ---
+  duration_ms: 0.344014
+  type: 'test'
+  ...
+# Subtest: derivation cycles rejected
+ok 49 - derivation cycles rejected
+  ---
+  duration_ms: 0.305675
+  type: 'test'
+  ...
+# Subtest: limit: input bytes
+ok 50 - limit: input bytes
+  ---
+  duration_ms: 0.92168
+  type: 'test'
+  ...
+# Subtest: limit: item counts, string length, derivation depth
+ok 51 - limit: item counts, string length, derivation depth
+  ---
+  duration_ms: 0.663523
+  type: 'test'
+  ...
+# Subtest: limit: issue list is capped
+ok 52 - limit: issue list is capped
+  ---
+  duration_ms: 0.774955
+  type: 'test'
+  ...
+# Subtest: report is deterministic and byte-identical across key order
+ok 53 - report is deterministic and byte-identical across key order
+  ---
+  duration_ms: 6.726247
+  type: 'test'
+  ...
+# Subtest: sample case yields expected statuses
+ok 54 - sample case yields expected statuses
+  ---
+  duration_ms: 2.541293
+  type: 'test'
+  ...
+# Subtest: output encoding escapes markup characters
+ok 55 - output encoding escapes markup characters
+  ---
+  duration_ms: 0.910217
+  type: 'test'
+  ...
+# Subtest: D1: a duplicate artifact cited for a DIFFERENT claim must not lose that link
+ok 56 - D1: a duplicate artifact cited for a DIFFERENT claim must not lose that link
+  ---
+  duration_ms: 7.56222
+  type: 'test'
+  ...
+# Subtest: D2: a duplicate artifact carrying CONTRADICTING stance for the same claim must surface as a conflict, not vanish
+ok 57 - D2: a duplicate artifact carrying CONTRADICTING stance for the same claim must surface as a conflict, not vanish
+  ---
+  duration_ms: 1.789101
+  type: 'test'
+  ...
+# Subtest: D3: outcome must not depend on which duplicate has the lexicographically smaller id (relabeling invariance)
+ok 58 - D3: outcome must not depend on which duplicate has the lexicographically smaller id (relabeling invariance)
+  ---
+  duration_ms: 1.964685
+  type: 'test'
+  ...
+# Subtest: D4: originGroup must not hide a declared derivation
+ok 59 - D4: originGroup must not hide a declared derivation
+  ---
+  duration_ms: 0.986475
+  type: 'test'
+  ...
+# Subtest: D5: a source derived from two roots is not independent of either of its parents
+ok 60 - D5: a source derived from two roots is not independent of either of its parents
+  ---
+  duration_ms: 0.880631
+  type: 'test'
+  ...
+# Subtest: D6: overlapping partial derivations chain into one component (r1+r2 vs r2+r3 vs r3)
+ok 61 - D6: overlapping partial derivations chain into one component (r1+r2 vs r2+r3 vs r3)
+  ---
+  duration_ms: 0.86576
+  type: 'test'
+  ...
+# Subtest: D7: a derived copy must not raise the strength of its upstream origin (score inflation by self-assigned strength)
+ok 62 - D7: a derived copy must not raise the strength of its upstream origin (score inflation by self-assigned strength)
+  ---
+  duration_ms: 1.681733
+  type: 'test'
+  ...
+# Subtest: D7b: when only derived evidence exists (original not in case) its own strength is used and reported as uncapped
+ok 63 - D7b: when only derived evidence exists (original not in case) its own strength is used and reported as uncapped
+  ---
+  duration_ms: 0.472444
+  type: 'test'
+  ...
+# Subtest: D8: adding more derived copies (any strength) to a derived-only cluster must not raise its score
+ok 64 - D8: adding more derived copies (any strength) to a derived-only cluster must not raise its score
+  ---
+  duration_ms: 2.256377
+  type: 'test'
+  ...
+# Subtest: D9: a source that does NOT cite this claim must not merge the independent origins that do (locality)
+ok 65 - D9: a source that does NOT cite this claim must not merge the independent origins that do (locality)
+  ---
+  duration_ms: 0.864502
+  type: 'test'
+  ...
+# Subtest: D10: corroboration denial — one cited derivative of both origins must not erase genuine independence
+ok 66 - D10: corroboration denial — one cited derivative of both origins must not erase genuine independence
+  ---
+  duration_ms: 0.766097
+  type: 'test'
+  ...
+# Subtest: D11: a copy derived from a source that shares an artifact with another source must not launder an extra origin
+ok 67 - D11: a copy derived from a source that shares an artifact with another source must not launder an extra origin
+  ---
+  duration_ms: 1.229447
+  type: 'test'
+  ...
+# Subtest: D12: shared artifact across different declared lineages is SUSPECTED, never silently independent: decision abstains
+ok 68 - D12: shared artifact across different declared lineages is SUSPECTED, never silently independent: decision abstains
+  ---
+  duration_ms: 1.337094
+  type: 'test'
+  ...
+1..68
+# tests 68
+# suites 0
+# pass 68
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1447.005827
