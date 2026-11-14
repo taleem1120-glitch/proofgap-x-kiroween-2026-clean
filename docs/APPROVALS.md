@@ -7,10 +7,19 @@ State when this was written: code at PR #6 head; repository **private**; **no li
 ---
 
 ## A. Licensing: Apache-2.0
-**Proposal (not in the repository):** `/projects/sandbox/license-proposal/`
-- `LICENSE`: unmodified Apache-2.0 text, 202 lines. Word-for-word identical (1,581 words) to the SPDX licence-list copy.
-- `NOTICE`: `Copyright 2026` followed by the owner's full legal name, supplied in Phase 11. It is kept **only in the proposal folder**, not in the repository, until A1 is approved.
-- `package.json.patch`: `"license": "UNLICENSED"` → `"Apache-2.0"`.
+**Final reviewed change (Phase 12; not in the repository):** `/projects/sandbox/license-proposal/apache-2.0.patch`, 267 lines, SHA-256 prefix `4a381f26`. It applies to PR #7's head and changes 5 files:
+- `LICENSE`: unmodified Apache-2.0 text, 202 lines, appendix included. Word-for-word identical (1,581 words) to the SPDX licence-list copy, re-checked in Phase 12.
+- `NOTICE`: two lines, `ProofGap X` and `Copyright 2026` followed by the owner's full legal name. Phase 12 dropped a redundant third sentence.
+- `package.json`: `"license": "Apache-2.0"`, and `NOTICE` added to `files`. npm packs `LICENSE` automatically but not `NOTICE`, and Apache-2.0 §4(d) requires `NOTICE` to be redistributed.
+- `package-lock.json`: root `license` field regenerated.
+- `README.md`: a "Licence" section; the "no OSI licence chosen" limitation removed.
+
+**Verified with the patch applied** (throwaway worktree of PR #7 head `de01ebf`, Phase 12):
+- 195/195 tests on Node 20.20.2, 22.23.4 and 24.22.1.
+- `npm pack --dry-run` includes `LICENSE` and `NOTICE`.
+- Both applications' exports are unchanged: ProofGap X showcase report `c1c272a7…`, ProofGap Cite report `da3cccb0…`.
+
+**Privacy note:** once the repository is public, the owner's full legal name will be public in `NOTICE`, `README.md` and the git history. That is normal for a copyright notice, but it cannot be withdrawn later without rewriting history.
 
 **Compatibility review (technical, not legal):**
 | Item | Finding |
@@ -29,7 +38,7 @@ State when this was written: code at PR #6 head; repository **private**; **no li
 - [x] A2. Copyright holder supplied by the owner (Phase 11): full legal name, year 2026. The owner confirms, to the best of his knowledge, his right to license the code. No legal verification has been done.
 - [ ] A3. Confirm there are no other contributors or rights holders.
 
-**Then the agent will:** copy `LICENSE` and `NOTICE` to the repository root, apply the `package.json` change, regenerate `package-lock.json`, add a README licence section, run `npm test`, and commit to the PR #6 branch so the licence lands together with the code. **Rollback:** revert that commit.
+**Exact approval needed:** *"Approve commit of apache-2.0.patch (SHA-256 4a381f26…) to feature/phase11-dual-application"*, together with A1 and A3. **Then the agent will:** `git apply` the patch on PR #7's branch, run the full suite, and commit and push with `[skip ci]`. The licence then lands with the code when the stack is merged. **Rollback:** revert that commit; the licence is not active on GitHub until it reaches `main`.
 
 ---
 
@@ -52,20 +61,44 @@ The GitHub setting "Keep my email addresses private" does not change existing co
 ---
 
 ## C. Merging the PR stack
-**Facts (Phase 9 check):**
-- All six PRs are open and `mergeable=clean`.
-- The stack is linear: main ← #1 (phase1) ← #2 (phase2) ← #3 (phase3) ← #4 (phase5) ← #5 (phase6) ← #6 (phase7). There is no phase4 branch.
+**Facts (Phase 12 check):**
+- All **seven** PRs are open and `mergeable=clean`.
+- The stack is linear: main ← #1 (phase1) ← #2 (phase2) ← #3 (phase3) ← #4 (phase5) ← #5 (phase6) ← #6 (phase7) ← **#7 (phase11, top)**. There is no phase4 or phase10 branch.
 - Each head descends from its base, and `main` has 0 commits outside the stack.
-- A local `--no-ff` simulation of all six merges had no conflicts and ended at a tree identical to PR #6's head (Phase 8; PR #6 changed since then only by docs commits).
+- **Simulations (local, nothing pushed):** both (a) seven sequential `--no-ff` merges and (b) one merge of #7 into `main` had **no conflicts**, and both ended at a tree **identical** to PR #7's head. 195/195 tests passed on the simulated merged `main`.
+- **What enters `main`:** 15 commits, all with `users.noreply.github.com` author emails. The personal email is only on `4a45e30`, which is already on `main`.
+- **Combined diff `main..#7`:** 223 files, +68,578 / −2 lines (1 modified file, `README.md`; 222 added). By volume:
+
+  | Area | Lines | Files |
+  |---|---|---|
+  | `validation/` records | 45,300 | 85 |
+  | `bench/results` | 8,156 | 8 |
+  | `apps/` | 3,261 | 15 |
+  | `bench/legacy` snapshots | 2,923 | 32 |
+  | `viewer/` | 2,723 | 3 |
+  | `test/` | 2,176 | 21 |
+  | `src/` | 1,427 | 17 |
+
+  Code and tests are about 9,600 lines; the rest is evidence, snapshots and generated showcases.
 
 **Preconditions:** A done, or explicitly waived. B decided, because B2 must happen before merging.
 
 Choose one:
 - [ ] C1. **Recommended:** retarget the **top** PR of the stack (PR #7, Phase 11, if accepted; otherwise #6) to `main` and merge it once with **"Create a merge commit"**. All lower PRs then show as merged.
-- [ ] C2. Merge #1 → #6 strictly in order, each with **"Create a merge commit"**, retargeting the next PR to `main` after each merge. Auto-delete of branches is off, so GitHub won't retarget them.
+- [ ] C2. Merge #1 → #7 strictly in order, each with **"Create a merge commit"**, retargeting the next PR to `main` after each merge. Auto-delete of branches is off, so GitHub won't retarget them.
 - **Never** squash or rebase any PR in this stack.
 
-**Verify afterwards:** `git clone` `main`, then `npm ci && npm test` (expect 159/159).
+**Merge risks:**
+- **Squash or rebase** of any PR rewrites commits and breaks the rest of the stack. Use "Create a merge commit" only.
+- **Merging only part of the stack** (for example #1 alone) leaves `main` without the licence and without app 2. Prefer C1.
+- **The PR #7 diff is large mostly because of `validation/` records.** Review `src/`, `apps/`, `test/` and `viewer/` first. The records are reproducible with `npm run validate:local`, but keeping them is the owner's choice; removing them later only changes future history.
+- **CI will not run on merge** while billing is blocked. The local suite is the only check.
+- **No branch protection** is configured that could be checked (the API returned 403); merging needs no other approval.
+
+**Verify afterwards:**
+1. `git clone` `main`, then `npm ci && npm test`: expect **195/195**.
+2. `rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite && git status --porcelain`: expect no changes, which proves the showcases still match the engine.
+3. Confirm GitHub shows `LICENSE` as Apache-2.0 (only if A was applied before the merge).
 
 ---
 

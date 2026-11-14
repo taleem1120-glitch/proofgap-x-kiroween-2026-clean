@@ -220,3 +220,17 @@ Remote CI: **BLOCKED_BY_BILLING**. Official 2026 rules: **verification pending**
 | P11-A9 | No overflow 320–1400 px (both showcases) | VERIFIED after fix (FAILED first: 363 px at 320 px) | session evidence |
 | P11-A10 | Latency/memory, Cite | VERIFIED (one machine, one pass) | held-out median 2.23 ms/note with hashing; 200-claim/500-reference note 65.4 ms, heap +15.4 MB |
 | P11-A11 | Licence, public repo, merge, Pages, video | **NOT DONE (owner)** | `docs/APPROVALS.md` |
+
+---
+
+# Phase 12 Acceptance Evidence (licence and integration verification; no code change)
+
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P12-A1 | LICENSE accurate and complete | VERIFIED | 202 lines with appendix; word-for-word equal to the SPDX text (re-checked) |
+| P12-A2 | NOTICE accurate; redistributed with the package | VERIFIED (in patch) | 2-line NOTICE; `NOTICE` added to `package.json` `files`; `npm pack --dry-run` lists LICENSE and NOTICE |
+| P12-A3 | Third-party rights / compatibility | VERIFIED (technical, not legal) | 0 dependencies; no third-party markers in code incl. `apps/`; new commits 0 secrets, 0 personal emails |
+| P12-A4 | Licence change does not break anything | VERIFIED | patch applied to PR #7 head in a throwaway worktree: 195/195 on Node 20/22/24; both app exports unchanged |
+| P12-A5 | Licence committed | **NOT DONE: awaiting explicit approval of the final patch** | `docs/APPROVALS.md` §A |
+| P12-A6 | Integration of PRs #1–#7 | VERIFIED (simulated) | linear stack; sequential and single-merge simulations conflict-free with trees identical to #7; 195/195 on simulated `main` |
+| P12-A7 | Merge, visibility, Pages, video, submission | NOT DONE (owner) | `docs/APPROVALS.md` |
