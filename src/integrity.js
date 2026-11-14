@@ -10,7 +10,8 @@ import { join, sep } from 'node:path';
  *  MISMATCH     file found safely but its SHA-256 differs from the declared hash
  *  MISSING      path is syntactically safe but no such file exists
  *  UNSAFE_PATH  path or file type rejected (traversal, absolute, symlink, non-regular file, escapes root, ...)
- *  NOT_CHECKED  no check was performed (not requested, no hash/file declared, or a resource limit was hit)
+ *  NOT_CHECKED  no declared hash was checked (not requested, no hash/file declared, or a resource limit was hit).
+ *               If a file was read anyway, `observedSha256` carries the hash the tool computed.
  *
  * VERIFIED only means "these bytes match the declared hash". It says nothing about
  * authenticity, provenance, independence, or truth.
@@ -132,7 +133,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
         h.update(buf.subarray(0, r));
       }
       totalBytes += n;
-      return { status: 'HASHED', computed: h.digest('hex') };
+      return { status: 'HASHED', computed: h.digest('hex'), size: n };
     } catch (e) {
       if (e.code === 'ELOOP') return { status: 'UNSAFE_PATH', reason: 'symlink' };
       if (e.code === 'ENOENT') return { status: 'MISSING', reason: 'file_not_found' };
@@ -141,13 +142,17 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
     } finally { if (fd !== undefined) closeSync(fd); }
   };
 
+  // observedSha256 = SHA-256 the tool itself computed from the local file (a verified fact about bytes).
+  // It is recorded even when no hash was declared (status then stays NOT_CHECKED: nothing declared to verify).
+  // observedEmpty marks zero-byte files, which carry no content and are never used to link artifacts.
+  const observed = (o) => ({ observedSha256: o.computed, ...(o.size === 0 ? { observedEmpty: true } : {}) });
   for (const e of [...evidence].sort((a, b) => (a.id < b.id ? -1 : 1))) {
-    if (!e.sha256) { results.push(entry(e, 'NOT_CHECKED', 'no_declared_hash')); continue; }
-    if (e.file === undefined) { results.push(entry(e, 'NOT_CHECKED', 'no_file_declared')); continue; }
+    if (e.file === undefined) { results.push(entry(e, 'NOT_CHECKED', e.sha256 ? 'no_file_declared' : 'no_declared_hash')); continue; }
     const o = checkFile(e.file);
-    if (o.status === 'HASHED') {
-      results.push(o.computed === e.sha256 ? entry(e, 'VERIFIED') : entry(e, 'MISMATCH', 'sha256_differs', { computedSha256: o.computed }));
-    } else results.push(entry(e, o.status, o.reason));
+    if (o.status !== 'HASHED') { results.push(entry(e, o.status, o.reason)); continue; }
+    if (!e.sha256) results.push(entry(e, 'NOT_CHECKED', 'no_declared_hash', observed(o)));
+    else if (o.computed === e.sha256) results.push(entry(e, 'VERIFIED', null, observed(o)));
+    else results.push(entry(e, 'MISMATCH', 'sha256_differs', { computedSha256: o.computed, ...observed(o) }));
   }
   return { mode: 'local_directory', counts: count(results), limits: { ...limits }, usage: { filesRead, totalBytes }, results };
 }

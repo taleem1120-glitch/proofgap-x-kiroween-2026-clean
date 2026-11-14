@@ -7,6 +7,7 @@ export const SPLITS = Object.freeze({
   dev: { firstSeed: 1, count: 200 },          // used while developing; may be inspected and tuned against
   heldout: { firstSeed: 100_001, count: 200 }, // Phase 3 held-out; evaluated once in Phase 3. Re-used in Phase 5 => no longer pristine
   heldout2: { firstSeed: 200_001, count: 200 }, // Phase 5 fresh held-out; evaluated ONCE after the Phase 5 code freeze
+  heldout3: { firstSeed: 300_001, count: 200 }, // Phase 6 fresh held-out for the file-backed benchmark; evaluated ONCE after the Phase 6 freeze
 });
 
 const H = (n) => n.toString(16).padStart(64, '0');

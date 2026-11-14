@@ -10,7 +10,7 @@ A committed copy of `viewer/showcase.html` is already in the repo and is tested 
 | | Scenario A "Eight documents agree" (`examples/showcase/deceptive.json`) | Scenario B "Three independent systems" (`examples/showcase/independent.json`) |
 |---|---|---|
 | Claim `door-0214` | 8 supporting items → **1 independent origin** → INSUFFICIENT, flagged FALSE CORROBORATION | 4 items → **3 origins** (CCTV clip is a declared copy of the recorder) → SUPPORTED under declared assumptions |
-| Why | screenshots, forum post, article, PDF all derive from the badge export; the "anonymous tip" and "shared drive" images are byte-identical to screenshot 1 (**verified** against local files) | badge system, CCTV recorder and HVAC log have no declared link (graph shows them as "unknown", i.e. assumed, not established) |
+| Why | screenshots, forum post, article, PDF all derive from the badge export; the "anonymous tip" image declares the same hash as screenshot 1, and the "shared drive" image declares **no hash at all**. The tool hashes both files itself and finds them byte-identical (**verified**, node label "HASHED LOCALLY"). Engine 0.3.0, which only checked declared hashes, called this claim SUPPORTED with 2 origins | badge system, CCTV recorder and HVAC log have no declared link (graph shows them as "unknown", i.e. assumed, not established) |
 | Abstention | — | `alarm-off`: two "independent" contractor reports have the same name and identical text → hard status SUPPORTED, **decision ABSTAINS** |
 | Counterfactual plan | smallest change: **1** item from an origin outside the badge lineage; if it supports → SUPPORTED, if it contradicts → CONFLICTING, if none → stays INSUFFICIENT | `door-0214` robustness: loses SUPPORTED only if **2** of 3 origins collapse |
 | Export | "Export report JSON" downloads the exact embedded, reproducible report | same |
@@ -22,7 +22,7 @@ npm run demo   # examples/demo: VERIFIED / MISMATCH (excluded) / MISSING / NOT_C
 
 ## Sub-three-minute presentation outline (only working features)
 1. **0:00–0:20 Problem.** "Eight documents agree" is often one document echoed eight times. Counting documents creates false corroboration.
-2. **0:20–1:05 Scenario A (left panel).** Show "8 supporting items collapse to 1 independent origin", the reasons list, the graph: derivation chain, green **verified** byte-identity arcs between the tip image, the shared-drive image and screenshot 1.
+2. **0:20–1:05 Scenario A (left panel).** Show "8 supporting items collapse to 1 independent origin", the reasons list, and the graph: the derivation chain and green **verified** byte-identity arcs. Hover the shared-drive arc: "found by hashing local files; not declared by the case author".
 3. **1:05–1:45 Scenario B (right panel).** Same claim, genuinely independent systems → SUPPORTED, with "unknown" independence stated honestly. Then `alarm-off`: the engine **abstains** because two "independent" reports look like one.
 4. **1:45–2:20 Counterfactual plan.** Open the plan table: the smallest additional evidence and how the verdict would change under each hypothetical outcome; note "hypothetical only, nothing is claimed to exist".
 5. **2:20–2:45 Trust.** Offline (CSP blocks all network), escaped untrusted labels, reproducible export, local SHA-256 verification with symlink/traversal protection; `npm test`.

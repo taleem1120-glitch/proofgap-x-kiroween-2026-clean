@@ -6,5 +6,6 @@
 
 - Phase 5: the agent used the **Playwright Power** (a Kiro Power backed by a Playwright MCP server) to load `viewer/showcase.html` and an XSS test page in headless Chromium, read console/CSP messages and network requests, test keyboard order and responsive widths, and take screenshots (saved under the session artifacts folder, not committed). This found two real viewer defects (missing glyphs rendering as boxes; 28 px horizontal overflow on a 390 px screen) that were then fixed and re-checked.
 - Phase 5: no sub-agents, hooks, steering, custom agents or Kiro spec workflow were used.
+- Phase 6: the agent used the Playwright Power again to click "Export report JSON" in both showcase panels; the downloaded files were byte-identical to CLI output. It also re-checked graph labels and responsive widths. No sub-agents, hooks, steering, custom agents or spec workflow were used.
 
 Update this file only with things that actually happened.

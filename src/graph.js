@@ -2,8 +2,8 @@
  * Evidence Independence Graph (machine-readable; rendered by the local viewer).
  *
  * Every edge carries a `basis`:
- *   verified  – checked by this tool against local bytes (only: two evidence files whose
- *               declared hashes are equal AND both were VERIFIED, i.e. byte-identical files)
+ *   verified  – checked by this tool against local bytes (only: two evidence files the tool hashed
+ *               itself with identical non-empty bytes; with or without a declared hash)
  *   declared  – stated by the case author (derivedFrom, originGroup, held_by, supports/contradicts, equal declared hashes)
  *   suspected – heuristic cue only (same source name, identical description); never changes scores
  *   unknown   – no declared relationship between two origins that both bear on a claim; the policy
@@ -37,8 +37,12 @@ export function buildGraph({ c, classes, roots, integrityByEvidence, warnings, c
   for (const k of classes) {
     const [first, ...rest] = [...k.members].sort();
     for (const m of rest) {
-      const bothVerified = k.basis === 'sha256' && integrityByEvidence.get(first)?.status === 'VERIFIED' && integrityByEvidence.get(m)?.status === 'VERIFIED';
-      add(`evidence:${m}`, `evidence:${first}`, k.basis === 'sha256' ? 'same_bytes' : 'same_source_and_description', bothVerified ? 'verified' : 'declared');
+      // verified only if the tool hashed BOTH files itself and got the same non-empty bytes
+      const o1 = integrityByEvidence.get(first), o2 = integrityByEvidence.get(m);
+      const bothObserved = k.basis === 'sha256' && o1?.observedSha256 && !o1.observedEmpty && o1.observedSha256 === o2?.observedSha256;
+      const declaredBoth = Boolean(o1?.declaredSha256 && o2?.declaredSha256);
+      add(`evidence:${m}`, `evidence:${first}`, k.basis === 'sha256' ? 'same_bytes' : 'same_source_and_description', bothObserved ? 'verified' : 'declared',
+        bothObserved && !declaredBoth ? { discoveredBy: 'local_hashing' } : {});
     }
   }
   for (const w of warnings) {
@@ -55,7 +59,7 @@ export function buildGraph({ c, classes, roots, integrityByEvidence, warnings, c
       add(`origin:${uniq[i]}`, `origin:${uniq[j]}`, 'independence_not_established', 'unknown', { claimId: cl.claimId });
     }
   }
-  edges.sort((a, b) => cmp(JSON.stringify([a.basis, a.relation, a.from, a.to, a.claimId ?? "", a.strength ?? -1, a.cue ?? ""]), JSON.stringify([b.basis, b.relation, b.from, b.to, b.claimId ?? "", b.strength ?? -1, b.cue ?? ""])));
+  edges.sort((a, b) => cmp(JSON.stringify([a.basis, a.relation, a.from, a.to, a.claimId ?? "", a.strength ?? -1, a.cue ?? "", a.discoveredBy ?? ""]), JSON.stringify([b.basis, b.relation, b.from, b.to, b.claimId ?? "", b.strength ?? -1, b.cue ?? "", b.discoveredBy ?? ""])));
   const basisCounts = { verified: 0, declared: 0, suspected: 0, unknown: 0 };
   for (const e of edges) basisCounts[e.basis]++;
   return { nodes, edges, basisCounts };

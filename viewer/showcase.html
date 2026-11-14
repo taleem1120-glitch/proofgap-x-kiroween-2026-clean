@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-J/DaSZaBjemuTPbs6GqbT9Dzy1pU/cHaWs1naeIAuy0='; style-src 'sha256-bzpQCK/H3SjSiLIE31WD/5j0+Ly1jGqZJLfNs4bjkoM='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-u37t7ZoHWK67oEusWPRyHQ5bDA7tFQ3boaHgSyq5trg='; style-src 'sha256-bzpQCK/H3SjSiLIE31WD/5j0+Ly1jGqZJLfNs4bjkoM='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X report viewer</title>
 <style>:root {
@@ -101,7 +101,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
 <footer>ProofGap X prototype · synthetic example data · not forensic software · not independently validated.</footer>
 <script type="application/json" class="pgx-report" id="pgx-report-0">
 {
-  "analysisVersion": "0.3.0",
+  "analysisVersion": "0.4.0",
   "artifacts": [
     {
       "basis": "sha256",
@@ -126,7 +126,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
         "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
         "Strength values are author-assigned judgments, not measurements.",
         "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
-        "4 of 8 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+        "3 of 8 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
       ],
       "claimId": "door-0214",
       "contradictScore": 0,
@@ -230,9 +230,10 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
             "A3",
             "A4",
             "A5",
-            "A6"
+            "A6",
+            "A8"
           ],
-          "message": "Evidence \"A3\", \"A4\", \"A5\", \"A6\" has no declared SHA-256, so its integrity cannot be checked.",
+          "message": "Evidence \"A3\", \"A4\", \"A5\", \"A6\", \"A8\" has no declared SHA-256, so its integrity cannot be checked.",
           "origins": [],
           "severity": "info"
         }
@@ -704,6 +705,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       },
       {
         "basis": "verified",
+        "discoveredBy": "local_hashing",
         "from": "evidence:A8",
         "relation": "same_bytes",
         "to": "evidence:A2"
@@ -865,10 +867,10 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
         "type": "evidence"
       },
       {
-        "hasDeclaredHash": true,
+        "hasDeclaredHash": false,
         "id": "evidence:A8",
-        "integrity": "VERIFIED",
-        "label": "Image found on shared drive",
+        "integrity": "NOT_CHECKED",
+        "label": "Image found on shared drive (no hash recorded by the case author)",
         "ref": "A8",
         "type": "evidence"
       },
@@ -911,14 +913,14 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       }
     ]
   },
-  "inputSha256": "9162823cdef157ee6f8d6d4c7ceb383deb1d6c8773e915fffce183ae92c54931",
+  "inputSha256": "653f7b33b2e31c222849313b9521a669a78f9ddd5838ebc4d299b8b0b6fd2b53",
   "integrity": {
     "counts": {
       "MISMATCH": 0,
       "MISSING": 0,
-      "NOT_CHECKED": 4,
+      "NOT_CHECKED": 5,
       "UNSAFE_PATH": 0,
-      "VERIFIED": 4
+      "VERIFIED": 3
     },
     "limits": {
       "maxFileBytes": 52428800,
@@ -934,6 +936,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
         "declaredSha256": "a970068724c3a4bb59e2962a9cafea47e3f2cd2b80333c47fe7d52dc72693baf",
         "evidenceId": "A1",
         "file": "badge-export.csv",
+        "observedSha256": "a970068724c3a4bb59e2962a9cafea47e3f2cd2b80333c47fe7d52dc72693baf",
         "status": "VERIFIED",
         "verified": true
       },
@@ -941,6 +944,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
         "declaredSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
         "evidenceId": "A2",
         "file": "shot-1.txt",
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
         "status": "VERIFIED",
         "verified": true
       },
@@ -980,15 +984,18 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
         "declaredSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
         "evidenceId": "A7",
         "file": "tip-image.txt",
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
         "status": "VERIFIED",
         "verified": true
       },
       {
-        "declaredSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "declaredSha256": null,
         "evidenceId": "A8",
         "file": "drive-image.txt",
-        "status": "VERIFIED",
-        "verified": true
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
       }
     ],
     "usage": {
@@ -1003,7 +1010,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     "abstention": "decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately",
     "duplicates": "identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)",
     "independence": "declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another’s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN",
-    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring; all other states leave scoring unchanged but are reported",
+    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes",
     "minIndependentOrigins": 2,
     "scoring": "noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)"
   },
@@ -1032,7 +1039,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     "independentlyVerified": {
       "independence": 0,
       "provenance": 0,
-      "sha256Matches": 4
+      "sha256Matches": 3
     },
     "note": "Only SHA-256 byte equality against local files can be verified by this tool. Provenance and independence are never verified."
   },
@@ -1068,7 +1075,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
 </script>
 <script type="application/json" class="pgx-report" id="pgx-report-1">
 {
-  "analysisVersion": "0.3.0",
+  "analysisVersion": "0.4.0",
   "artifacts": [],
   "caseId": "SHOW-B-INDEPENDENT",
   "claims": [
@@ -2094,7 +2101,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     "abstention": "decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately",
     "duplicates": "identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)",
     "independence": "declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another’s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN",
-    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring; all other states leave scoring unchanged but are reported",
+    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes",
     "minIndependentOrigins": 2,
     "scoring": "noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)"
   },
@@ -2167,7 +2174,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     no_evidence: ['No evidence', 'bad'],
   };
   var BASIS_HELP = {
-    verified: 'checked against local bytes by this tool',
+    verified: 'bytes hashed by this tool and identical (says nothing about who created them)',
     declared: 'stated by the case author, not verified',
     suspected: 'heuristic cue only; never changes scores',
     unknown: 'no declared link; independence assumed by policy, not established',
@@ -2192,6 +2199,8 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
   // ---------- independence graph (deterministic layered layout) ----------
   function graphView(report, uid) {
     var g = report.graph;
+    var observedOnly = {};
+    report.integrity.results.forEach(function (x) { if (!x.declaredSha256 && x.observedSha256 && !x.observedEmpty) observedOnly[x.evidenceId] = true; });
     var cols = { source: [], evidence: [], claim: [] };
     g.nodes.forEach(function (n) { if (cols[n.type]) cols[n.type].push(n); });
     // sources: originals first, then by number of roots (deeper derivations later), then id
@@ -2225,7 +2234,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       var pa = { d: d, class: cls };
       if (e.relation === 'derived_from' || e.relation === 'held_by') pa['marker-end'] = 'url(#' + uid + '-arrow-' + (e.basis === 'suspected' || e.basis === 'verified' ? e.basis : 'declared') + ')';
       var p = svg('path', pa);
-      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '')]));
+      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
     });
     g.nodes.forEach(function (n) {
@@ -2235,7 +2244,8 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
       grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
-      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(n.type === 'evidence' ? n.integrity : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' '), 22)]));
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
       nodeLayer.appendChild(grp);
     });
     var wrap = el('figure', { class: 'graphwrap' }, [root]);
@@ -2246,7 +2256,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     // text alternative
     var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
-    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
+    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
     var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
     return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
@@ -2301,12 +2311,17 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
 
   function integrityCard(r) {
     var i = r.integrity;
-    var rows = i.results.filter(function (x) { return x.declaredSha256; });
+    var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
     var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
       el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
-    rows.forEach(function (x) { tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [x.reason || (x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)' : '')])])); });
-    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256.'])]));
+    rows.forEach(function (x) {
+      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
+        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+        : (x.reason || '');
+      tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
+    });
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
     return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);

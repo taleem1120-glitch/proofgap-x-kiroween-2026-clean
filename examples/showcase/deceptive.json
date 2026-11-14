@@ -161,8 +161,7 @@
     {
       "id": "A8",
       "sourceId": "shared-drive",
-      "description": "Image found on shared drive",
-      "sha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+      "description": "Image found on shared drive (no hash recorded by the case author)",
       "links": [
         {
           "claimId": "door-0214",

@@ -1,5 +1,41 @@
 # ProofGap X — Benchmark
 
+## Phase 6 (engine 0.4.0): verified byte identity from local files
+
+### Root cause of "37/88" (Phase 5, heldout2)
+- **Metric.** "37/88" is the *heuristic-warning recall* on claims whose ground truth has an **undeclared** shared origin. The same 37 claims are the abstentions, so the decision's false-positive rate on that slice is 51/88. Denominator: 88 claims, made up of 51 `undeclared_copy` and 37 `undeclared_copy_with_cues`.
+- **Failure mode.** All 37 caught claims are `undeclared_copy_with_cues` (same source name or identical description). **All 51 missed claims are `undeclared_copy`**, which by construction carries no cue.
+- **What case data alone can show.** On heldout2, each of those 51 claims has exactly the same structural signature as 78 `genuine_independent` claims: same item and source counts, no derivation, no group, no hash, distinct names, distinct descriptions. The split is 26 vs 31 with 3 items and 25 vs 47 with 2 items. Only the generator's naming words differ, and a fair detector must not use them. **From case JSON alone these claims are indistinguishable.** Any rule that flagged them would flag genuine corroboration equally often. The Phase 5 result is a limit of the information available, not a tunable defect.
+- **What can be verified instead.** When the evidence files are available, the bytes can be checked. 0.3.0 compared files only against *declared* hashes, so a copy whose hash the author never recorded stayed "unknown". 0.4.0 hashes every safely readable non-empty file under `--evidence-dir` and treats identical bytes as one artifact. The relationship basis is **verified for the bytes only**. That the holders share an origin is the same policy inference already applied to declared hashes, and the SHARED_ARTIFACT warning still fires.
+
+### File-backed benchmark (`bench/files.js`, `bench/run-files.js`)
+- Same generator and seeds as the case-data benchmark; no RNG call was added. Each evidence item gets one local file. Items that declare a synthetic `sha256` get no file, because their fake digests would only produce MISMATCH.
+- Each undeclared copy gets a copy mode chosen deterministically from `sha256(caseId|claimId)`:
+  - **byte_identical:** one attachment forwarded through two channels.
+  - **re-encoded:** the same text plus an item-specific suffix, so the bytes differ.
+  The roughly 50/50 mix is **arbitrary**, so aggregate numbers depend on it. Read the per-mode columns.
+- Before and after run on **identical materialized cases**, both with `--evidence-dir`: 0.3.0 from `bench/legacy/v0.3.0` (a verbatim git snapshot of `d8698a5`) and the current 0.4.0.
+- Splits: **dev** (seeds 1–200) was used during development. **heldout3** (seeds 300001–300200) was generated and evaluated **once**, after the engine freeze. heldout2 was not reused.
+- Sanity check: on dev, the 0.3.0 file-backed undeclared FPR (57/95) equals the Phase 5 case-data-only dev figure. Materializing files therefore does not change 0.3.0 outcomes.
+
+| Split / engine | Declared FPR | Declared recall | Undeclared byte-identical: falsely asserted | Undeclared re-encoded: falsely asserted | Undeclared FPR (decision) | Precision (all) | FPR (all) |
+|---|---|---|---|---|---|---|---|
+| dev · 0.3.0 (before) | 0/465 | 327/327 | 27/47 | 30/48 | 57/95 | 327/384 | 57/560 |
+| dev · 0.4.0 (after) | 0/465 | 327/327 | 0/47 | 30/48 | 30/95 | 327/357 | 30/560 |
+| heldout3 · 0.3.0 (before) | 0/479 | 315/315 | 32/43 | 24/47 | 56/90 | 315/371 | 56/569 |
+| heldout3 · 0.4.0 (after) | 0/479 | 315/315 | 0/43 | 24/47 | 24/90 | 315/339 | 24/569 |
+
+New verified (local-hashing) links: dev 47 claims, heldout3 43 claims; of these, on truly corroborated claims: 0 and 0. Median time per case on heldout3 (hashing + analysis): 0.3.0 0.54 ms, 0.4.0 0.76 ms (machine dependent, one pass).
+
+### What this does and does not show
+- **Shows the mechanism works:** byte-identical undeclared copies are no longer asserted as corroboration (heldout3: 32/43 before, 0/43 after). Declared scenarios are unchanged (FPR 0/479 and recall 315/315 for both engines). Without `--evidence-dir`, results are identical to 0.3.0 (tested on 120 generated cases).
+- **Does not show real-world detection rates.** The data is synthetic and the copy-mode mix is arbitrary.
+- **Over-merging is not measured.** In this generator, independent sources never share byte-identical files. In real cases they can (a public PDF, a logo, a template), and 0.4.0 would then **over-merge**. That is a conservative error that lowers recall, and this benchmark cannot measure it.
+- **Re-encoded, cropped or transcribed copies remain undetectable.** On heldout3, 24/47 are still falsely asserted. The ones that are caught were caught by the Phase 5 cues, not by hashing.
+
+---
+
+## Phase 5 record (engine 0.3.0, case data only; still reproducible and unchanged)
 **Read this first.** Synthetic benchmark written by the same engineer who wrote the tool. The "declared-provenance" scenarios encode the same independence model the tool implements, so a perfect score there is a **consistency check against the specification, not evidence of real-world accuracy**. No claim of superior accuracy on real investigations is made or supported.
 
 ## Phase 5 (current: engine 0.3.0, `bench/results/phase5-run1.json`)

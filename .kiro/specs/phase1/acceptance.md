@@ -162,3 +162,24 @@ Disjoint groups sum to 147. File-integrity subset 14/14. Status: VERIFIED.
 
 ## Benchmark (heldout2, fresh, 885 claims) — VERIFIED as measured, synthetic only
 Declared: current FPR 0/485, recall 312/312; 0.2.0 recall 263/312; 0.1.0 FPR 63/485; B3 FPR 0/485, recall 249/312. Undeclared: status FPR 88/88 (all detectors), decision FPR 51/88. Warnings: precision 37/37, recall 37/88, FPR 0/797. Abstentions: 37, all on truly uncorroborated claims. Scaling (1000/5000/500): ~300 ms, report 8.9 MB (larger than 0.2.0's 5.2 MB because of graph + plans).
+
+---
+
+# Phase 6 Acceptance Evidence (analysis 0.4.0)
+
+Remote CI: **BLOCKED_BY_BILLING**. Environment: Node v22.23.4, Linux x64. Local record: `validation/<id>/` at the Phase 6 commit.
+
+| ID | Criterion | Status | Evidence |
+|---|---|---|---|
+| P6-A1 | 37/88 decomposed exactly; no-cue undeclared copies indistinguishable from genuine independence in case data | VERIFIED | `bench/results/phase5-run1.json` byScenario; structural-signature count (26/31, 25/47) |
+| P6-A2 | Byte-identical files under different sources, no declared hash, become one origin; 0.3.0 counted two | VERIFIED | `observed.test.js` D13 (asserts 0.3.0 behaviour and current behaviour) |
+| P6-A3 | Observed hashes never yield VERIFIED status or count as declared-hash matches | VERIFIED | `observed.test.js` |
+| P6-A4 | No `--evidence-dir` means results identical to 0.3.0 | VERIFIED (120 generated cases) | `observed.test.js` |
+| P6-A5 | No link from symlinks, missing, empty or limit-skipped files; fake hashes cannot split or merge | VERIFIED | `observed.test.js` |
+| P6-A6 | Re-encoded copies detected | **FAILED (known limit)** | heldout3: 24/47 still asserted |
+| P6-A7 | Declared scenarios unchanged with files | VERIFIED | heldout3: FPR 0/479, recall 315/315 for both engines |
+| P6-A8 | Undeclared byte-identical copies not asserted | VERIFIED (synthetic) | heldout3: 32/43 before, 0/43 after |
+| P6-A9 | Over-merging on independent sources that share common files | NOT TESTED | the generator never creates such files |
+| P6-A10 | Showcase export equals engine output | VERIFIED | Playwright download SHA-256 equals CLI output for both panels |
+| P6-A11 | Viewer label and edge note for observed-only hashes; no overflow at 390/1400 px; no console errors | VERIFIED (headless Chromium) | session evidence |
+| P6-A12 | Licence / public repo | **NOT MET (owner)** | `docs/COMPETITION.md` |

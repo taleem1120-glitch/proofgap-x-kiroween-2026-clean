@@ -13,7 +13,7 @@
     no_evidence: ['No evidence', 'bad'],
   };
   var BASIS_HELP = {
-    verified: 'checked against local bytes by this tool',
+    verified: 'bytes hashed by this tool and identical (says nothing about who created them)',
     declared: 'stated by the case author, not verified',
     suspected: 'heuristic cue only; never changes scores',
     unknown: 'no declared link; independence assumed by policy, not established',
@@ -38,6 +38,8 @@
   // ---------- independence graph (deterministic layered layout) ----------
   function graphView(report, uid) {
     var g = report.graph;
+    var observedOnly = {};
+    report.integrity.results.forEach(function (x) { if (!x.declaredSha256 && x.observedSha256 && !x.observedEmpty) observedOnly[x.evidenceId] = true; });
     var cols = { source: [], evidence: [], claim: [] };
     g.nodes.forEach(function (n) { if (cols[n.type]) cols[n.type].push(n); });
     // sources: originals first, then by number of roots (deeper derivations later), then id
@@ -71,7 +73,7 @@
       var pa = { d: d, class: cls };
       if (e.relation === 'derived_from' || e.relation === 'held_by') pa['marker-end'] = 'url(#' + uid + '-arrow-' + (e.basis === 'suspected' || e.basis === 'verified' ? e.basis : 'declared') + ')';
       var p = svg('path', pa);
-      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '')]));
+      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
     });
     g.nodes.forEach(function (n) {
@@ -81,7 +83,8 @@
       grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
       grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
-      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(n.type === 'evidence' ? n.integrity : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' '), 22)]));
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
       nodeLayer.appendChild(grp);
     });
     var wrap = el('figure', { class: 'graphwrap' }, [root]);
@@ -92,7 +95,7 @@
     // text alternative
     var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
-    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
+    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
     var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
     return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
@@ -147,12 +150,17 @@
 
   function integrityCard(r) {
     var i = r.integrity;
-    var rows = i.results.filter(function (x) { return x.declaredSha256; });
+    var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
     var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
       el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
-    rows.forEach(function (x) { tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [x.reason || (x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)' : '')])])); });
-    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256.'])]));
+    rows.forEach(function (x) {
+      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
+        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+        : (x.reason || '');
+      tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
+    });
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
     return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);

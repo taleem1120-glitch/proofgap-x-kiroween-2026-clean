@@ -158,3 +158,25 @@ Branch `feature/phase5-competition-grade` (from `feature/phase3-evidence-intelli
 4. Undeclared dependence without cues (37/88 caught on heldout2): evaluate stronger, still deterministic cues with measured precision.
 5. Screen-reader and cross-browser checks of the viewer; better graph layout for large cases.
 6. External review of `integrity.js`, the viewer CSP and the independence definition.
+
+---
+
+# Phase 6 — verified provenance signal and delivery gates (analysis 0.4.0)
+
+Branch `feature/phase6-verified-provenance` (from `feature/phase5-competition-grade`; PRs #1–#4 open, unmerged).
+
+- [x] P6-1 Root cause of 37/88 (heldout2): warning recall on undeclared-origin claims. 37 = all `undeclared_copy_with_cues`; 0/51 `undeclared_copy`. Those 51 are structurally identical to 78 `genuine_independent` claims, so they are undetectable from case data alone (see `docs/BENCHMARK.md`).
+- [x] P6-2 One focused improvement: `integrity.js` records `observedSha256` (and `observedEmpty`) for every safely read file, including files without a declared hash (status stays NOT_CHECKED). `analyze.js` uses observed bytes as artifact identity when verification ran. `graph.js` marks `same_bytes` as verified only when the tool hashed both files, with `discoveredBy: local_hashing` when they were not both declared. Analysis version is now 0.4.0 and the policy text is updated.
+- [x] P6-3 Tests: `test/observed.test.js` (12: D13 regression against the 0.3.0 snapshot, no-evidence-dir equivalence on 120 cases, re-encoded / empty / symlink / hard link / missing / limit / fake-hash manipulation, determinism).
+- [x] P6-4 File-backed benchmark (`bench/files.js`, `bench/run-files.js`, `bench/legacy/v0.3.0` snapshot): dev used in development; heldout3 evaluated once after freeze.
+- [x] P6-5 Showcase: A8 no longer declares a hash (the link must come from bytes). Viewer shows "HASHED LOCALLY" and "found by hashing local files" (viewer-only change, made after the engine freeze). Export bytes verified equal to CLI output.
+- [x] P6-6 Delivery-gate audit and category assessment in `docs/COMPETITION.md`; licence recommendation only.
+
+Test change in Phase 6: one expectation in my **new** `observed.test.js` was wrong. It assumed a missing file is reported MISSING even after the file-count limit; the engine (since Phase 3) touches no more files once the limit is hit. I split the test; the invariant (no observed hash means no link) is unchanged. No earlier test was modified.
+
+## Remaining (prioritised)
+1. Owner: licence (recommend Apache-2.0) and public visibility. These block submission.
+2. Owner: confirm the official 2026 category text. If Skeleton Crew, approve building a second distinct application on the same core.
+3. Record the video. Resolve CI billing.
+4. Near-duplicate detection (re-encoded copies) only with a verifiable, measured method; not attempted.
+5. Measure over-merging on real or realistic data containing shared public files.

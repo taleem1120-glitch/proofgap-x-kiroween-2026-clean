@@ -20,8 +20,9 @@ export function renderText(r) {
   const i = r.integrity;
   o.push(`Integrity verification: ${i.mode === 'not_requested' ? 'NOT REQUESTED (declared hashes are UNVERIFIED)' : 'local directory'}`);
   o.push('  ' + Object.entries(i.counts).map(([k, v]) => `${k}=${v}`).join('  '));
-  for (const e of i.results.filter((x) => x.declaredSha256)) {
-    o.push(`  - ${clean(e.evidenceId)}: ${e.status}${e.reason ? ` (${e.reason})` : ''}${e.verified ? '' : ' — hash is declared only, not verified'}`);
+  for (const e of i.results.filter((x) => x.declaredSha256 || x.observedSha256)) {
+    const tail = e.verified ? '' : !e.declaredSha256 ? ' — no declared hash; bytes hashed locally (nothing to verify against)' : ' — hash is declared only, not verified';
+    o.push(`  - ${clean(e.evidenceId)}: ${e.status}${e.reason ? ` (${e.reason})` : ''}${tail}`);
   }
   o.push('');
   for (const c of r.claims) {

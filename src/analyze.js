@@ -7,14 +7,14 @@ import { classify } from './classify.js';
 import { analyzeGaps, buildAssumptions } from './gaps.js';
 import { integrityNotRequested } from './integrity.js';
 
-export const ANALYSIS_VERSION = '0.3.0';
+export const ANALYSIS_VERSION = '0.4.0';
 export const POLICY = Object.freeze({
   minIndependentOrigins: 2,
   scoring: 'noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)',
   independence: 'declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another\u2019s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN',
   abstention: 'decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately',
   duplicates: 'identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)',
-  integrity: 'when local verification is requested, MISMATCH evidence is excluded from scoring; all other states leave scoring unchanged but are reported',
+  integrity: 'when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes',
 });
 
 export { resolveRoots as resolveOrigins };
@@ -40,9 +40,12 @@ export function analyzeCase(c, opts = {}) {
   const classByKey = new Map();
   for (const e of [...c.evidence].sort(byId)) {
     if (verificationRan && integrityByEvidence.get(e.id)?.status === 'MISMATCH') { excludedByIntegrity.push(e.id); continue; }
-    const key = e.sha256 ? `sha256:${e.sha256}` : `src:${e.sourceId}|${norm(e.description)}`;
+    // Identity of an artifact: bytes the tool hashed itself (verified) > declared sha256 > same source + description.
+    const ir = verificationRan ? integrityByEvidence.get(e.id) : null;
+    const seen = ir?.observedSha256 && !ir.observedEmpty ? ir.observedSha256 : null;
+    const key = seen ? `sha256:${seen}` : e.sha256 ? `sha256:${e.sha256}` : `src:${e.sourceId}|${norm(e.description)}`;
     let k = classByKey.get(key);
-    if (!k) { k = { canonical: e.id, basis: e.sha256 ? 'sha256' : 'source+description', members: [], sources: new Set(), links: new Map() }; classByKey.set(key, k); }
+    if (!k) { k = { canonical: e.id, basis: key.startsWith('sha256:') ? 'sha256' : 'source+description', members: [], sources: new Set(), links: new Map() }; classByKey.set(key, k); }
     k.members.push(e.id); k.sources.add(e.sourceId);
     for (const l of e.links) {
       const lk = `${l.claimId}\u0000${l.stance}`;
