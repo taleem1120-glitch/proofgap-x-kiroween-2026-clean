@@ -19,7 +19,8 @@ try {
     const cue=detectSharedPassage(a.text,b.text);
     if(cue.review)warnings.push({
       refs:[a.id,b.id].sort(),
-      basis:'shared_passage_unverified_review_only',
+      basis:cue.basis,
+      incomplete:cue.incomplete===true,
       longestRunTokens:cue.longestRunTokens,
       alert:'may_be_quotation_template_or_reuse; origin_not_proven'
     });
