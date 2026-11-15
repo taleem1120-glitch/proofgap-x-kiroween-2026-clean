@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 const paths = [
-  'LICENSE','NOTICE','README.md','package.json','package-lock.json',
+  'index.html','LICENSE','NOTICE','README.md','package.json','package-lock.json',
   '.kiro/KIRO_USAGE.md','.kiro/steering/proofgap-x.md',
   '.kiro/specs/proofgap-x/requirements.md','.kiro/specs/proofgap-x/design.md',
   '.kiro/specs/proofgap-x/tasks.md','.kiro/specs/proofgap-x/acceptance.md',
