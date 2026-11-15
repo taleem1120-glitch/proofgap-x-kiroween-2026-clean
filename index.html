@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X — Two Applications, One Evidence Core</title>
 <style>
@@ -16,30 +16,31 @@ article{background:#1c2734;border:1px solid #52677b;padding:24px;border-radius:1
 article h2{margin:0 0 12px}a{color:#b3e4ff;text-underline-offset:4px}
 a:focus-visible{outline:3px solid #ffd37d;outline-offset:5px}
 .action{display:inline-block;margin:12px 0;padding:12px 16px;border:1px solid #8acaf1;border-radius:8px;font-weight:700}
-footer{border-top:1px solid #536170;margin-top:32px;padding-top:20px}
+select{background:#1c2734;color:#f1f5fa;border:1px solid #8acaf1;border-radius:8px;padding:10px;font:inherit;max-width:100%}header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}html[dir=rtl] article,html[dir=rtl] p{text-align:start}footer{border-top:1px solid #536170;margin-top:32px;padding-top:20px}
 </style>
 </head>
 <body>
 <main>
-<small>Kiroween 2026 • Skeleton Crew candidate • Open-source prototype</small>
+<header><small>Kiroween 2026 • Skeleton Crew candidate • Open-source prototype</small><label><span data-i18n="language">Choose language</span> <select id="language" aria-label="Language"><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="fa">فارسی</option><option value="hi">हिन्दी</option><option value="zh">中文</option></select></label></header>
 <h1>ProofGap X</h1>
-<p><strong>One reusable evidence core. Two distinct applications.</strong> Counts of documents can be misleading when many copies rely on one original source. Explore explainable dependence, abstentions and the evidence needed to change a finding.</p>
+<p><strong data-i18n="tagline">One reusable evidence core. Two distinct applications.</strong> <span data-i18n="intro">Counts of documents can be misleading when many copies rely on one original source. Explore explainable dependence, abstentions and the evidence needed to change a finding.</span></p>
 <div class="grid">
 <article>
 <h2>01 · ProofGap X</h2>
-<p>Review a fictional investigation. Compare eight supporting items that collapse to one declared origin against genuinely separate declared sources. Explore integrity indicators and counterfactual gaps.</p>
-<a class="action" href="viewer/showcase.html">Open investigation demo</a>
+<p data-i18n="caseDescription">Review a fictional investigation. Compare eight supporting items that collapse to one declared origin against genuinely separate declared sources. Explore integrity indicators and counterfactual gaps.</p>
+<a class="action" href="viewer/showcase.html" data-i18n="openCase">Open investigation demo</a>
 </article>
 <article>
 <h2>02 · ProofGap Cite</h2>
-<p>Audit a fictional research note: multiple citations echo one press release, a citation loop, unresolved origins and independently supported statements.</p>
-<a class="action" href="apps/proofgap-cite/showcase.html">Open citation demo</a>
+<p data-i18n="citeDescription">Audit a fictional research note: multiple citations echo one press release, a citation loop, unresolved origins and independently supported statements.</p>
+<a class="action" href="apps/proofgap-cite/showcase.html" data-i18n="openCite">Open citation demo</a>
 </article>
 </div>
-<h2>For judges and reviewers</h2>
-<p>Both demonstrations are self-contained HTML, run offline, use invented data, and require no account. Review the <a href="docs/JUDGES_QUICKSTART_2026.md">testing instructions</a> and <a href=".kiro/KIRO_USAGE.md">factual Kiro usage log</a>.</p>
-<p><strong>Scope:</strong> This is a research prototype, not a certified forensic acquisition suite. Locally matched hashes verify file bytes only; declared provenance and source authenticity are not independently verified. Text-copy warnings remain experimental and advisory. No real-world superiority or commercial valuation is claimed.</p>
+<h2 data-i18n="judges">For judges and reviewers</h2>
+<p><span data-i18n="judgeNote">Both demos work offline with invented data. Read the testing instructions and the factual Kiro log.</span> <a data-i18n="tests" href="docs/JUDGES_QUICKSTART_2026.md">Testing instructions</a> · <a data-i18n="kiro" href=".kiro/KIRO_USAGE.md">Kiro usage log</a>.</p>
+<p><strong>Scope / النطاق:</strong> <span data-i18n="caveat">Research prototype only. Matching file hashes do not establish authenticity or truth.</span></p>
 <footer><small>ProofGap X · Apache-2.0 · Copyright 2026 · No external requests or telemetry from this page</small></footer>
 </main>
+<script src="assets/lang.js" defer></script>
 </body>
 </html>
