@@ -1,0 +1,98 @@
+
+== dev: 200 cases, 887 claims, 327 truly corroborated ==
+  -- all
+  B0_item_count                  precision 41.7% [38.3–45.1] (327/785)        recall 100.0% [98.8–100.0] (327/327)      FPR 81.8% [78.4–84.8] (458/560)
+  B1_distinct_sources            precision 44.5% [40.9–48.1] (327/735)        recall 100.0% [98.8–100.0] (327/327)      FPR 72.9% [69.0–76.4] (408/560)
+  B2_dedupe_hash_then_sources    precision 48.9% [45.1–52.7] (327/669)        recall 100.0% [98.8–100.0] (327/327)      FPR 61.1% [57.0–65.0] (342/560)
+  B3_originals_only              precision 73.8% [69.0–78.0] (267/362)        recall 81.7% [77.1–85.5] (267/327)        FPR 17.0% [14.1–20.3] (95/560)
+  P_proofgap_0_1_0               precision 65.5% [61.3–69.6] (327/499)        recall 100.0% [98.8–100.0] (327/327)      FPR 30.7% [27.0–34.7] (172/560)
+  P_proofgap_0_2_0               precision 74.2% [69.5–78.4] (273/368)        recall 83.5% [79.1–87.1] (273/327)        FPR 17.0% [14.1–20.3] (95/560)
+  P_proofgap_current             precision 77.5% [73.3–81.2] (327/422)        recall 100.0% [98.8–100.0] (327/327)      FPR 17.0% [14.1–20.3] (95/560)
+  P_proofgap_current_decision    precision 85.2% [81.3–88.4] (327/384)        recall 100.0% [98.8–100.0] (327/327)      FPR 10.2% [7.9–13.0] (57/560)
+  -- declaredOnly
+  B0_item_count                  precision 47.4% [43.7–51.1] (327/690)        recall 100.0% [98.8–100.0] (327/327)      FPR 78.1% [74.1–81.6] (363/465)
+  B1_distinct_sources            precision 51.1% [47.2–54.9] (327/640)        recall 100.0% [98.8–100.0] (327/327)      FPR 67.3% [62.9–71.4] (313/465)
+  B2_dedupe_hash_then_sources    precision 57.0% [52.9–61.0] (327/574)        recall 100.0% [98.8–100.0] (327/327)      FPR 53.1% [48.6–57.6] (247/465)
+  B3_originals_only              precision 100.0% [98.6–100.0] (267/267)      recall 81.7% [77.1–85.5] (267/327)        FPR 0.0% [0.0–0.8] (0/465)
+  P_proofgap_0_1_0               precision 80.9% [76.8–84.5] (327/404)        recall 100.0% [98.8–100.0] (327/327)      FPR 16.6% [13.5–20.2] (77/465)
+  P_proofgap_0_2_0               precision 100.0% [98.6–100.0] (273/273)      recall 83.5% [79.1–87.1] (273/327)        FPR 0.0% [0.0–0.8] (0/465)
+  P_proofgap_current             precision 100.0% [98.8–100.0] (327/327)      recall 100.0% [98.8–100.0] (327/327)      FPR 0.0% [0.0–0.8] (0/465)
+  P_proofgap_current_decision    precision 100.0% [98.8–100.0] (327/327)      recall 100.0% [98.8–100.0] (327/327)      FPR 0.0% [0.0–0.8] (0/465)
+  -- undeclaredOnly
+  B0_item_count                  precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  B1_distinct_sources            precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  B2_dedupe_hash_then_sources    precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  B3_originals_only              precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  P_proofgap_0_1_0               precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  P_proofgap_0_2_0               precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  P_proofgap_current             precision 0.0% [0.0–3.9] (0/95)              recall n/a                                FPR 100.0% [96.1–100.0] (95/95)
+  P_proofgap_current_decision    precision 0.0% [0.0–6.3] (0/57)              recall n/a                                FPR 60.0% [49.9–69.3] (57/95)
+  warnings (hidden-dependence cue): precision 100.0% [90.8–100.0] (38/38) recall 40.0% [30.7–50.1] (38/95) FPR 0.0% [0.0–0.5] (0/792)
+  abstention: {"statusSupported":422,"abstained":38,"abstainedWhenTrulyUncorroborated":38,"abstainedWhenTrulyCorroborated":0}
+  latency/case (ms): median 0.562 p95 1.110 max 5.481
+
+== heldout: 200 cases, 887 claims, 296 truly corroborated ==
+  -- all
+  B0_item_count                  precision 38.0% [34.7–41.5] (296/779)        recall 100.0% [98.7–100.0] (296/296)      FPR 81.7% [78.4–84.6] (483/591)
+  B1_distinct_sources            precision 40.3% [36.8–43.9] (296/734)        recall 100.0% [98.7–100.0] (296/296)      FPR 74.1% [70.4–77.5] (438/591)
+  B2_dedupe_hash_then_sources    precision 46.1% [42.3–50.0] (296/642)        recall 100.0% [98.7–100.0] (296/296)      FPR 58.5% [54.5–62.4] (346/591)
+  B3_originals_only              precision 72.5% [67.4–77.0] (242/334)        recall 81.8% [77.0–85.7] (242/296)        FPR 15.6% [12.9–18.7] (92/591)
+  P_proofgap_0_1_0               precision 64.5% [60.0–68.7] (296/459)        recall 100.0% [98.7–100.0] (296/296)      FPR 27.6% [24.1–31.3] (163/591)
+  P_proofgap_0_2_0               precision 72.5% [67.5–77.0] (243/335)        recall 82.1% [77.3–86.0] (243/296)        FPR 15.6% [12.9–18.7] (92/591)
+  P_proofgap_current             precision 76.3% [71.8–80.3] (296/388)        recall 100.0% [98.7–100.0] (296/296)      FPR 15.6% [12.9–18.7] (92/591)
+  P_proofgap_current_decision    precision 85.3% [81.2–88.6] (296/347)        recall 100.0% [98.7–100.0] (296/296)      FPR 8.6% [6.6–11.2] (51/591)
+  -- declaredOnly
+  B0_item_count                  precision 43.1% [39.4–46.8] (296/687)        recall 100.0% [98.7–100.0] (296/296)      FPR 78.4% [74.5–81.7] (391/499)
+  B1_distinct_sources            precision 46.1% [42.3–50.0] (296/642)        recall 100.0% [98.7–100.0] (296/296)      FPR 69.3% [65.2–73.2] (346/499)
+  B2_dedupe_hash_then_sources    precision 53.8% [49.6–57.9] (296/550)        recall 100.0% [98.7–100.0] (296/296)      FPR 50.9% [46.5–55.3] (254/499)
+  B3_originals_only              precision 100.0% [98.4–100.0] (242/242)      recall 81.8% [77.0–85.7] (242/296)        FPR 0.0% [0.0–0.8] (0/499)
+  P_proofgap_0_1_0               precision 80.7% [76.3–84.4] (296/367)        recall 100.0% [98.7–100.0] (296/296)      FPR 14.2% [11.4–17.6] (71/499)
+  P_proofgap_0_2_0               precision 100.0% [98.4–100.0] (243/243)      recall 82.1% [77.3–86.0] (243/296)        FPR 0.0% [0.0–0.8] (0/499)
+  P_proofgap_current             precision 100.0% [98.7–100.0] (296/296)      recall 100.0% [98.7–100.0] (296/296)      FPR 0.0% [0.0–0.8] (0/499)
+  P_proofgap_current_decision    precision 100.0% [98.7–100.0] (296/296)      recall 100.0% [98.7–100.0] (296/296)      FPR 0.0% [0.0–0.8] (0/499)
+  -- undeclaredOnly
+  B0_item_count                  precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  B1_distinct_sources            precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  B2_dedupe_hash_then_sources    precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  B3_originals_only              precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  P_proofgap_0_1_0               precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  P_proofgap_0_2_0               precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  P_proofgap_current             precision 0.0% [0.0–4.0] (0/92)              recall n/a                                FPR 100.0% [96.0–100.0] (92/92)
+  P_proofgap_current_decision    precision 0.0% [0.0–7.0] (0/51)              recall n/a                                FPR 55.4% [45.3–65.2] (51/92)
+  warnings (hidden-dependence cue): precision 100.0% [91.4–100.0] (41/41) recall 44.6% [34.8–54.7] (41/92) FPR 0.0% [0.0–0.5] (0/795)
+  abstention: {"statusSupported":388,"abstained":41,"abstainedWhenTrulyUncorroborated":41,"abstainedWhenTrulyCorroborated":0}
+  latency/case (ms): median 0.455 p95 0.899 max 1.798
+
+== heldout2: 200 cases, 885 claims, 312 truly corroborated ==
+  -- all
+  B0_item_count                  precision 40.1% [36.7–43.5] (312/779)        recall 100.0% [98.8–100.0] (312/312)      FPR 81.5% [78.1–84.5] (467/573)
+  B1_distinct_sources            precision 42.9% [39.3–46.5] (312/728)        recall 100.0% [98.8–100.0] (312/312)      FPR 72.6% [68.8–76.1] (416/573)
+  B2_dedupe_hash_then_sources    precision 47.4% [43.6–51.2] (312/658)        recall 100.0% [98.8–100.0] (312/312)      FPR 60.4% [56.3–64.3] (346/573)
+  B3_originals_only              precision 73.9% [68.9–78.3] (249/337)        recall 79.8% [75.0–83.9] (249/312)        FPR 15.4% [12.6–18.5] (88/573)
+  P_proofgap_0_1_0               precision 67.4% [63.0–71.5] (312/463)        recall 100.0% [98.8–100.0] (312/312)      FPR 26.4% [22.9–30.1] (151/573)
+  P_proofgap_0_2_0               precision 74.9% [70.1–79.2] (263/351)        recall 84.3% [79.8–87.9] (263/312)        FPR 15.4% [12.6–18.5] (88/573)
+  P_proofgap_current             precision 78.0% [73.7–81.8] (312/400)        recall 100.0% [98.8–100.0] (312/312)      FPR 15.4% [12.6–18.5] (88/573)
+  P_proofgap_current_decision    precision 86.0% [82.0–89.1] (312/363)        recall 100.0% [98.8–100.0] (312/312)      FPR 8.9% [6.8–11.5] (51/573)
+  -- declaredOnly
+  B0_item_count                  precision 45.2% [41.5–48.9] (312/691)        recall 100.0% [98.8–100.0] (312/312)      FPR 78.1% [74.3–81.6] (379/485)
+  B1_distinct_sources            precision 48.8% [44.9–52.6] (312/640)        recall 100.0% [98.8–100.0] (312/312)      FPR 67.6% [63.3–71.6] (328/485)
+  B2_dedupe_hash_then_sources    precision 54.7% [50.6–58.8] (312/570)        recall 100.0% [98.8–100.0] (312/312)      FPR 53.2% [48.7–57.6] (258/485)
+  B3_originals_only              precision 100.0% [98.5–100.0] (249/249)      recall 79.8% [75.0–83.9] (249/312)        FPR 0.0% [0.0–0.8] (0/485)
+  P_proofgap_0_1_0               precision 83.2% [79.1–86.6] (312/375)        recall 100.0% [98.8–100.0] (312/312)      FPR 13.0% [10.3–16.3] (63/485)
+  P_proofgap_0_2_0               precision 100.0% [98.6–100.0] (263/263)      recall 84.3% [79.8–87.9] (263/312)        FPR 0.0% [0.0–0.8] (0/485)
+  P_proofgap_current             precision 100.0% [98.8–100.0] (312/312)      recall 100.0% [98.8–100.0] (312/312)      FPR 0.0% [0.0–0.8] (0/485)
+  P_proofgap_current_decision    precision 100.0% [98.8–100.0] (312/312)      recall 100.0% [98.8–100.0] (312/312)      FPR 0.0% [0.0–0.8] (0/485)
+  -- undeclaredOnly
+  B0_item_count                  precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  B1_distinct_sources            precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  B2_dedupe_hash_then_sources    precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  B3_originals_only              precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  P_proofgap_0_1_0               precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  P_proofgap_0_2_0               precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  P_proofgap_current             precision 0.0% [0.0–4.2] (0/88)              recall n/a                                FPR 100.0% [95.8–100.0] (88/88)
+  P_proofgap_current_decision    precision 0.0% [0.0–7.0] (0/51)              recall n/a                                FPR 58.0% [47.5–67.7] (51/88)
+  warnings (hidden-dependence cue): precision 100.0% [90.6–100.0] (37/37) recall 42.0% [32.3–52.5] (37/88) FPR 0.0% [0.0–0.5] (0/797)
+  abstention: {"statusSupported":400,"abstained":37,"abstainedWhenTrulyUncorroborated":37,"abstainedWhenTrulyCorroborated":0}
+  latency/case (ms): median 0.416 p95 0.694 max 2.317
+
+scaling: {"input":{"sources":1000,"evidence":5000,"claims":500},"inputBytes":651671,"reportBytes":8923842,"wallMs":314.3614870000001,"heapUsedDeltaMB":64.71173858642578,"rssMB":177.546875,"gcExposed":true}

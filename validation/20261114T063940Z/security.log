@@ -1,0 +1,412 @@
+TAP version 13
+# Subtest: CLI: valid input writes report to stdout, exit 0
+ok 1 - CLI: valid input writes report to stdout, exit 0
+  ---
+  duration_ms: 75.434479
+  type: 'test'
+  ...
+# Subtest: CLI: usage errors exit 2 and do nothing
+ok 2 - CLI: usage errors exit 2 and do nothing
+  ---
+  duration_ms: 416.872853
+  type: 'test'
+  ...
+# Subtest: CLI: invalid case exits 1 with path-specific errors, no stack trace, and creates no output file
+ok 3 - CLI: invalid case exits 1 with path-specific errors, no stack trace, and creates no output file
+  ---
+  duration_ms: 69.984224
+  type: 'test'
+  ...
+# Subtest: CLI: malformed JSON, empty file, binary garbage all exit 1 safely
+ok 4 - CLI: malformed JSON, empty file, binary garbage all exit 1 safely
+  ---
+  duration_ms: 152.925228
+  type: 'test'
+  ...
+# Subtest: CLI: oversized file rejected without being parsed
+ok 5 - CLI: oversized file rejected without being parsed
+  ---
+  duration_ms: 56.512079
+  type: 'test'
+  ...
+# Subtest: CLI: missing file, directory, and special file exit 1 without leaking stack
+ok 6 - CLI: missing file, directory, and special file exit 1 without leaking stack
+  ---
+  duration_ms: 193.235371
+  type: 'test'
+  ...
+# Subtest: CLI: never overwrites an existing output file (regular file, same as input, symlink, dangling symlink, dir)
+ok 7 - CLI: never overwrites an existing output file (regular file, same as input, symlink, dangling symlink, dir)
+  ---
+  duration_ms: 263.732386
+  type: 'test'
+  ...
+# Subtest: CLI: writes a new output file once, with owner-only permissions, and repeat run is refused
+ok 8 - CLI: writes a new output file once, with owner-only permissions, and repeat run is refused
+  ---
+  duration_ms: 104.437505
+  type: 'test'
+  ...
+# Subtest: CLI: output into a missing directory fails cleanly
+ok 9 - CLI: output into a missing directory fails cleanly
+  ---
+  duration_ms: 52.577933
+  type: 'test'
+  ...
+# Subtest: CLI: cleanup check - temp dir contains only expected files
+ok 10 - CLI: cleanup check - temp dir contains only expected files
+  ---
+  duration_ms: 1.382121
+  type: 'test'
+  ...
+# Subtest: property: generated valid cases validate, analyze deterministically, and satisfy invariants (200 seeds)
+ok 11 - property: generated valid cases validate, analyze deterministically, and satisfy invariants (200 seeds)
+  ---
+  duration_ms: 708.326374
+  type: 'test'
+  ...
+# Subtest: property: random mutations of a valid case either validate (and then analyze safely) or fail with CaseValidationError only
+ok 12 - property: random mutations of a valid case either validate (and then analyze safely) or fail with CaseValidationError only
+  ---
+  duration_ms: 51.392279
+  type: 'test'
+  ...
+# Subtest: fuzz: arbitrary garbage text only ever yields CaseValidationError
+ok 13 - fuzz: arbitrary garbage text only ever yields CaseValidationError
+  ---
+  duration_ms: 5.398265
+  type: 'test'
+  ...
+# Subtest: fuzz: truncating a valid document at every 7th byte never crashes
+ok 14 - fuzz: truncating a valid document at every 7th byte never crashes
+  ---
+  duration_ms: 4.479325
+  type: 'test'
+  ...
+# Subtest: malformed JSON: deep nesting does not crash or hang
+ok 15 - malformed JSON: deep nesting does not crash or hang
+  ---
+  duration_ms: 88.646588
+  type: 'test'
+  ...
+# Subtest: oversized values are rejected at each limit boundary
+ok 16 - oversized values are rejected at each limit boundary
+  ---
+  duration_ms: 39.182442
+  type: 'test'
+  ...
+# Subtest: error flood: many invalid items cannot produce unbounded issue lists
+ok 17 - error flood: many invalid items cannot produce unbounded issue lists
+  ---
+  duration_ms: 3.933666
+  type: 'test'
+  ...
+# Subtest: prototype pollution: forbidden keys at any depth are rejected and Object.prototype stays clean
+ok 18 - prototype pollution: forbidden keys at any depth are rejected and Object.prototype stays clean
+  ---
+  duration_ms: 1.034535
+  type: 'test'
+  ...
+# Subtest: duplicate identifiers (sources, claims, evidence) are rejected at the right path
+ok 19 - duplicate identifiers (sources, claims, evidence) are rejected at the right path
+  ---
+  duration_ms: 0.751609
+  type: 'test'
+  ...
+# Subtest: invalid provenance references are rejected
+ok 20 - invalid provenance references are rejected
+  ---
+  duration_ms: 0.578486
+  type: 'test'
+  ...
+# Subtest: property: validation accepts a case iff the derivation graph is acyclic (random edge sets, independent oracle)
+ok 21 - property: validation accepts a case iff the derivation graph is acyclic (random edge sets, independent oracle)
+  ---
+  duration_ms: 11.762495
+  type: 'test'
+  ...
+# Subtest: excessive derivation depth: chain at the limit is accepted, one beyond is rejected; no stack overflow on huge chains
+ok 22 - excessive derivation depth: chain at the limit is accepted, one beyond is rejected; no stack overflow on huge chains
+  ---
+  duration_ms: 4.605957
+  type: 'test'
+  ...
+# Subtest: wide fan-in derivation graphs stay within time bounds (no exponential blow-up)
+ok 23 - wide fan-in derivation graphs stay within time bounds (no exponential blow-up)
+  ---
+  duration_ms: 5.419284
+  type: 'test'
+  ...
+# Subtest: Unicode edge cases
+ok 24 - Unicode edge cases
+  ---
+  duration_ms: 2.729883
+  type: 'test'
+  ...
+# Subtest: numeric edge cases in strength
+ok 25 - numeric edge cases in strength
+  ---
+  duration_ms: 0.752903
+  type: 'test'
+  ...
+# Subtest: exactly five distinct states exist
+ok 26 - exactly five distinct states exist
+  ---
+  duration_ms: 1.557779
+  type: 'test'
+  ...
+# Subtest: VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+ok 27 - VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+  ---
+  duration_ms: 4.269721
+  type: 'test'
+  ...
+# Subtest: unverified hashes are never presented as verified when verification was not requested
+ok 28 - unverified hashes are never presented as verified when verification was not requested
+  ---
+  duration_ms: 0.417885
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+ok 29 - UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+  ---
+  duration_ms: 0.813117
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+ok 30 - UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+  ---
+  duration_ms: 0.623556
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: directories and non-regular files are not read
+ok 31 - UNSAFE_PATH: directories and non-regular files are not read
+  ---
+  duration_ms: 5.300024
+  type: 'test'
+  ...
+# Subtest: limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+ok 32 - limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+  ---
+  duration_ms: 0.772306
+  type: 'test'
+  ...
+# Subtest: a file cited by several evidence items is read once (count/bytes limits not double-spent)
+ok 33 - a file cited by several evidence items is read once (count/bytes limits not double-spent)
+  ---
+  duration_ms: 0.349519
+  type: 'test'
+  ...
+# Subtest: a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+ok 34 - a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+  ---
+  duration_ms: 15.452759
+  type: 'test'
+  ...
+# Subtest: bad configuration fails loudly; reports never contain the absolute evidence directory
+ok 35 - bad configuration fails loudly; reports never contain the absolute evidence directory
+  ---
+  duration_ms: 1.102165
+  type: 'test'
+  ...
+# Subtest: hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+ok 36 - hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+  ---
+  duration_ms: 0.338478
+  type: 'test'
+  ...
+# Subtest: integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+ok 37 - integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+  ---
+  duration_ms: 8.300685
+  type: 'test'
+  ...
+# Subtest: schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+ok 38 - schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+  ---
+  duration_ms: 0.318208
+  type: 'test'
+  ...
+# Subtest: CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+ok 39 - CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+  ---
+  duration_ms: 493.9767
+  type: 'test'
+  ...
+# Subtest: D13 regression: byte-identical files under different sources, NO declared hashes -> one origin (0.3.0 counted two)
+ok 40 - D13 regression: byte-identical files under different sources, NO declared hashes -> one origin (0.3.0 counted two)
+  ---
+  duration_ms: 12.228029
+  type: 'test'
+  ...
+# Subtest: an observed hash never turns into VERIFIED status: nothing was declared, so nothing was verified
+ok 41 - an observed hash never turns into VERIFIED status: nothing was declared, so nothing was verified
+  ---
+  duration_ms: 1.987356
+  type: 'test'
+  ...
+# Subtest: no evidence directory -> no hashing, no change: identical claim results to 0.3.0 on 120 generated cases
+ok 42 - no evidence directory -> no hashing, no change: identical claim results to 0.3.0 on 120 generated cases
+  ---
+  duration_ms: 212.817509
+  type: 'test'
+  ...
+# Subtest: re-encoded copy (one byte differs) is NOT linked: the tool reports no relationship it cannot verify
+ok 43 - re-encoded copy (one byte differs) is NOT linked: the tool reports no relationship it cannot verify
+  ---
+  duration_ms: 7.869436
+  type: 'test'
+  ...
+# Subtest: empty files are hashed but never used to link artifacts
+ok 44 - empty files are hashed but never used to link artifacts
+  ---
+  duration_ms: 1.103264
+  type: 'test'
+  ...
+# Subtest: a symlink cannot create (or hide) a link: UNSAFE_PATH, no observed hash, relationship stays unknown
+ok 45 - a symlink cannot create (or hide) a link: UNSAFE_PATH, no observed hash, relationship stays unknown
+  ---
+  duration_ms: 0.991467
+  type: 'test'
+  ...
+# Subtest: a hard link IS the same file and is linked (documented behaviour)
+ok 46 - a hard link IS the same file and is linked (documented behaviour)
+  ---
+  duration_ms: 0.899449
+  type: 'test'
+  ...
+# Subtest: missing files and limit-skipped files produce no observed hash and no link
+ok 47 - missing files and limit-skipped files produce no observed hash and no link
+  ---
+  duration_ms: 2.039674
+  type: 'test'
+  ...
+# Subtest: manipulation: declaring a fake distinct hash for a byte-identical copy cannot split it into a second origin
+ok 48 - manipulation: declaring a fake distinct hash for a byte-identical copy cannot split it into a second origin
+  ---
+  duration_ms: 1.23163
+  type: 'test'
+  ...
+# Subtest: manipulation: declaring the SAME hash for different bytes cannot merge genuine origins (both checked, one mismatches)
+ok 49 - manipulation: declaring the SAME hash for different bytes cannot merge genuine origins (both checked, one mismatches)
+  ---
+  duration_ms: 0.969153
+  type: 'test'
+  ...
+# Subtest: observed byte link across different declared lineages still raises the SHARED_ARTIFACT warning; graph never marks lineage as verified
+ok 50 - observed byte link across different declared lineages still raises the SHARED_ARTIFACT warning; graph never marks lineage as verified
+  ---
+  duration_ms: 0.843222
+  type: 'test'
+  ...
+# Subtest: determinism with files: shuffled case yields an identical report (except input hash)
+ok 51 - determinism with files: shuffled case yields an identical report (except input hash)
+  ---
+  duration_ms: 2.892176
+  type: 'test'
+  ...
+# Subtest: schema file is versioned and consistent with DEFAULT_LIMITS
+ok 52 - schema file is versioned and consistent with DEFAULT_LIMITS
+  ---
+  duration_ms: 0.954675
+  type: 'test'
+  ...
+# Subtest: every object in the schema rejects unsupported properties
+ok 53 - every object in the schema rejects unsupported properties
+  ---
+  duration_ms: 0.306289
+  type: 'test'
+  ...
+# Subtest: valid base case passes schema
+ok 54 - valid base case passes schema
+  ---
+  duration_ms: 1.460849
+  type: 'test'
+  ...
+# Subtest: unsupported properties are rejected with exact paths
+ok 55 - unsupported properties are rejected with exact paths
+  ---
+  duration_ms: 0.538957
+  type: 'test'
+  ...
+# Subtest: required fields and types produce path-specific messages
+ok 56 - required fields and types produce path-specific messages
+  ---
+  duration_ms: 0.353811
+  type: 'test'
+  ...
+# Subtest: schema rejects unsafe identifiers
+ok 57 - schema rejects unsafe identifiers
+  ---
+  duration_ms: 0.42167
+  type: 'test'
+  ...
+# Subtest: schema rejects out-of-range strength and bad stance/hash
+ok 58 - schema rejects out-of-range strength and bad stance/hash
+  ---
+  duration_ms: 0.244954
+  type: 'test'
+  ...
+# Subtest: validateSchema refuses schemas using unsupported keywords (strictness of the validator itself)
+ok 59 - validateSchema refuses schemas using unsupported keywords (strictness of the validator itself)
+  ---
+  duration_ms: 0.325597
+  type: 'test'
+  ...
+# Subtest: schema issues and semantic issues are merged, one per path, within cap
+ok 60 - schema issues and semantic issues are merged, one per path, within cap
+  ---
+  duration_ms: 0.997752
+  type: 'test'
+  ...
+# Subtest: T1 no network or process-spawning capability in src/ (static check; not proof of absence)
+ok 61 - T1 no network or process-spawning capability in src/ (static check; not proof of absence)
+  ---
+  duration_ms: 5.23919
+  type: 'test'
+  ...
+# Subtest: T2 hostile text in every free-text field is JSON-escaped in reports and sanitised in text output
+ok 62 - T2 hostile text in every free-text field is JSON-escaped in reports and sanitised in text output
+  ---
+  duration_ms: 7.297014
+  type: 'test'
+  ...
+# Subtest: T3 report fields from untrusted input cannot inject new keys or alter structure (no prototype keys, ids are plain data)
+ok 63 - T3 report fields from untrusted input cannot inject new keys or alter structure (no prototype keys, ids are plain data)
+  ---
+  duration_ms: 1.142118
+  type: 'test'
+  ...
+# Subtest: T4 maximum-size valid case analyzes within a generous time bound and bounded report size
+ok 64 - T4 maximum-size valid case analyzes within a generous time bound and bounded report size
+  ---
+  duration_ms: 511.775465
+  type: 'test'
+  ...
+# Subtest: T5 worst-case derivation graph (wide + deep within limits) stays fast
+ok 65 - T5 worst-case derivation graph (wide + deep within limits) stays fast
+  ---
+  duration_ms: 57.494111
+  type: 'test'
+  ...
+# Subtest: T6 verification results never claim VERIFIED unless integrity ran and hashes matched (no path from case data to VERIFIED)
+ok 66 - T6 verification results never claim VERIFIED unless integrity ran and hashes matched (no path from case data to VERIFIED)
+  ---
+  duration_ms: 1.84397
+  type: 'test'
+  ...
+# Subtest: T7 serialization is canonical: same case always yields same bytes (tamper-evident via inputSha256)
+ok 67 - T7 serialization is canonical: same case always yields same bytes (tamper-evident via inputSha256)
+  ---
+  duration_ms: 1.375924
+  type: 'test'
+  ...
+1..67
+# tests 67
+# suites 0
+# pass 67
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1466.475065

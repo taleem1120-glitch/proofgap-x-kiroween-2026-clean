@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "SHOW-A-ECHO",
+  "title": "Scenario A \u2014 'Eight documents agree' (synthetic, fictional)",
+  "sources": [
+    {
+      "id": "badge-export",
+      "name": "Door badge system export (original)"
+    },
+    {
+      "id": "screenshot-1",
+      "name": "Screenshot of the badge export",
+      "derivedFrom": [
+        "badge-export"
+      ]
+    },
+    {
+      "id": "screenshot-2",
+      "name": "Second screenshot, cropped",
+      "derivedFrom": [
+        "badge-export"
+      ]
+    },
+    {
+      "id": "forum-post",
+      "name": "Forum post quoting screenshot 1",
+      "derivedFrom": [
+        "screenshot-1"
+      ]
+    },
+    {
+      "id": "news-article",
+      "name": "News article citing the forum post",
+      "derivedFrom": [
+        "forum-post"
+      ]
+    },
+    {
+      "id": "summary-pdf",
+      "name": "Internal summary PDF",
+      "derivedFrom": [
+        "screenshot-2",
+        "news-article"
+      ]
+    },
+    {
+      "id": "tip-inbox",
+      "name": "Anonymous tip inbox"
+    },
+    {
+      "id": "shared-drive",
+      "name": "Shared team drive"
+    }
+  ],
+  "claims": [
+    {
+      "id": "door-0214",
+      "statement": "The server-room door was opened at 02:14 on 31 Oct."
+    },
+    {
+      "id": "two-people",
+      "statement": "Two people entered together."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "A1",
+      "sourceId": "badge-export",
+      "description": "Badge log row 02:14:07 door SR-1",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.7
+        }
+      ],
+      "file": "badge-export.csv",
+      "sha256": "a970068724c3a4bb59e2962a9cafea47e3f2cd2b80333c47fe7d52dc72693baf"
+    },
+    {
+      "id": "A2",
+      "sourceId": "screenshot-1",
+      "description": "Screenshot showing badge row",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.9
+        }
+      ],
+      "file": "shot-1.txt",
+      "sha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629"
+    },
+    {
+      "id": "A3",
+      "sourceId": "screenshot-2",
+      "description": "Cropped screenshot of badge row",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.9
+        }
+      ]
+    },
+    {
+      "id": "A4",
+      "sourceId": "forum-post",
+      "description": "Forum post: door opened 02:14",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.8
+        }
+      ]
+    },
+    {
+      "id": "A5",
+      "sourceId": "news-article",
+      "description": "Article paragraph on the 02:14 entry",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.9
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "sourceId": "summary-pdf",
+      "description": "Summary PDF page 2",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 1
+        },
+        {
+          "claimId": "two-people",
+          "stance": "supports",
+          "strength": 0.6
+        }
+      ]
+    },
+    {
+      "id": "A7",
+      "sourceId": "tip-inbox",
+      "description": "Tip attachment image",
+      "sha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.8
+        }
+      ],
+      "file": "tip-image.txt"
+    },
+    {
+      "id": "A8",
+      "sourceId": "shared-drive",
+      "description": "Image found on shared drive (no hash recorded by the case author)",
+      "links": [
+        {
+          "claimId": "door-0214",
+          "stance": "supports",
+          "strength": 0.8
+        }
+      ],
+      "file": "drive-image.txt"
+    }
+  ]
+}

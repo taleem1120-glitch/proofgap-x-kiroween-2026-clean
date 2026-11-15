@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: exactly five distinct states exist
+ok 1 - exactly five distinct states exist
+  ---
+  duration_ms: 1.040564
+  type: 'test'
+  ...
+# Subtest: VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+ok 2 - VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly
+  ---
+  duration_ms: 1.494346
+  type: 'test'
+  ...
+# Subtest: unverified hashes are never presented as verified when verification was not requested
+ok 3 - unverified hashes are never presented as verified when verification was not requested
+  ---
+  duration_ms: 0.215877
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+ok 4 - UNSAFE_PATH: traversal, absolute, backslash, dot segments, odd characters, depth, length
+  ---
+  duration_ms: 0.494803
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+ok 5 - UNSAFE_PATH: symlinks to outside, to inside, to directories, dangling, and symlinked intermediate dirs
+  ---
+  duration_ms: 0.373446
+  type: 'test'
+  ...
+# Subtest: UNSAFE_PATH: directories and non-regular files are not read
+ok 6 - UNSAFE_PATH: directories and non-regular files are not read
+  ---
+  duration_ms: 4.599651
+  type: 'test'
+  ...
+# Subtest: limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+ok 7 - limits: file count, per-file size, total bytes produce NOT_CHECKED with a reason (never VERIFIED)
+  ---
+  duration_ms: 0.836023
+  type: 'test'
+  ...
+# Subtest: a file cited by several evidence items is read once (count/bytes limits not double-spent)
+ok 8 - a file cited by several evidence items is read once (count/bytes limits not double-spent)
+  ---
+  duration_ms: 0.323424
+  type: 'test'
+  ...
+# Subtest: a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+ok 9 - a large file within limits is hashed in chunks correctly; one over the limit is not read to completion
+  ---
+  duration_ms: 14.350488
+  type: 'test'
+  ...
+# Subtest: bad configuration fails loudly; reports never contain the absolute evidence directory
+ok 10 - bad configuration fails loudly; reports never contain the absolute evidence directory
+  ---
+  duration_ms: 0.865377
+  type: 'test'
+  ...
+# Subtest: hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+ok 11 - hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)
+  ---
+  duration_ms: 0.207157
+  type: 'test'
+  ...
+# Subtest: integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+ok 12 - integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic
+  ---
+  duration_ms: 4.749671
+  type: 'test'
+  ...
+# Subtest: schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+ok 13 - schema: `file` is optional text; control chars rejected; unsafe-but-printable paths are accepted by schema so integrity can report UNSAFE_PATH
+  ---
+  duration_ms: 0.284618
+  type: 'test'
+  ...
+# Subtest: CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+ok 14 - CLI: --evidence-dir verification, --format text, bad dir exits 1, usage errors exit 2
+  ---
+  duration_ms: 372.977533
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 471.35348

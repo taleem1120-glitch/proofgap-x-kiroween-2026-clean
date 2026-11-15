@@ -1,0 +1,208 @@
+TAP version 13
+# Subtest: two independent primaries -> independently_corroborated; copies of them add no origin
+ok 1 - two independent primaries -> independently_corroborated; copies of them add no origin
+  ---
+  duration_ms: 8.743783
+  type: 'test'
+  ...
+# Subtest: press-release echo: many secondaries citing one primary -> single_origin with exact missing item
+ok 2 - press-release echo: many secondaries citing one primary -> single_origin with exact missing item
+  ---
+  duration_ms: 2.09939
+  type: 'test'
+  ...
+# Subtest: circular reporting is a finding, not invalid input (unlike app 1, where cycles are rejected)
+ok 3 - circular reporting is a finding, not invalid input (unlike app 1, where cycles are rejected)
+  ---
+  duration_ms: 2.609668
+  type: 'test'
+  ...
+# Subtest: self-citation and 3-cycles are detected; a cycle plus a separate primary still cannot reach two primary origins
+ok 4 - self-citation and 3-cycles are detected; a cycle plus a separate primary still cannot reach two primary origins
+  ---
+  duration_ms: 1.894956
+  type: 'test'
+  ...
+# Subtest: unknown provenance: separate URLs and outlets never count as independence
+ok 5 - unknown provenance: separate URLs and outlets never count as independence
+  ---
+  duration_ms: 1.404425
+  type: 'test'
+  ...
+# Subtest: a primary that declares an upstream is treated as derived, not original
+ok 6 - a primary that declares an upstream is treated as derived, not original
+  ---
+  duration_ms: 1.128923
+  type: 'test'
+  ...
+# Subtest: unsupported, contradicted and conflicting claims
+ok 7 - unsupported, contradicted and conflicting claims
+  ---
+  duration_ms: 1.977636
+  type: 'test'
+  ...
+# Subtest: same URL (after tracking-parameter and www normalisation) on two "primary" refs -> abstain, never corroborated
+ok 8 - same URL (after tracking-parameter and www normalisation) on two "primary" refs -> abstain, never corroborated
+  ---
+  duration_ms: 1.148639
+  type: 'test'
+  ...
+# Subtest: same DOI on two refs -> abstain; a DOI is never trusted as identity either
+ok 9 - same DOI on two refs -> abstain; a DOI is never trusted as identity either
+  ---
+  duration_ms: 1.512486
+  type: 'test'
+  ...
+# Subtest: identical titles from different outlets trigger the core cue and abstain
+ok 10 - identical titles from different outlets trigger the core cue and abstain
+  ---
+  duration_ms: 1.757413
+  type: 'test'
+  ...
+# Subtest: byte-identical saved copies under different outlets and URLs are one source (verified); without files the tool does not guess
+ok 11 - byte-identical saved copies under different outlets and URLs are one source (verified); without files the tool does not guess
+  ---
+  duration_ms: 4.470857
+  type: 'test'
+  ...
+# Subtest: different bytes, empty files and symlinks never create a "same source" link
+ok 12 - different bytes, empty files and symlinks never create a "same source" link
+  ---
+  duration_ms: 4.314587
+  type: 'test'
+  ...
+# Subtest: saved paths that escape the sources folder are UNSAFE_PATH and never read
+ok 13 - saved paths that escape the sources folder are UNSAFE_PATH and never read
+  ---
+  duration_ms: 0.975062
+  type: 'test'
+  ...
+# Subtest: citation tokens inside fenced code blocks are ignored (cannot inject claims or citations)
+ok 14 - citation tokens inside fenced code blocks are ignored (cannot inject claims or citations)
+  ---
+  duration_ms: 0.133459
+  type: 'test'
+  ...
+# Subtest: order of references and claims does not change verdicts (metamorphic)
+ok 15 - order of references and claims does not change verdicts (metamorphic)
+  ---
+  duration_ms: 2.578303
+  type: 'test'
+  ...
+# Subtest: domain validation errors carry line numbers
+ok 16 - domain validation errors carry line numbers
+  ---
+  duration_ms: 0.672111
+  type: 'test'
+  ...
+# Subtest: resource limits: bytes, claims, references, citations per claim, line length
+ok 17 - resource limits: bytes, claims, references, citations per claim, line length
+  ---
+  duration_ms: 0.318818
+  type: 'test'
+  ...
+# Subtest: a lineage deeper than the core limit is reported as a note issue, not a crash
+ok 18 - a lineage deeper than the core limit is reported as a note issue, not a crash
+  ---
+  duration_ms: 1.543833
+  type: 'test'
+  ...
+# Subtest: unused references are reported as note findings
+ok 19 - unused references are reported as note findings
+  ---
+  duration_ms: 0.980916
+  type: 'test'
+  ...
+# Subtest: example note: one claim per verdict, exactly as documented
+ok 20 - example note: one claim per verdict, exactly as documented
+  ---
+  duration_ms: 4.620045
+  type: 'test'
+  ...
+# Subtest: reports are deterministic and the committed Cite showcase equals a fresh build
+ok 21 - reports are deterministic and the committed Cite showcase equals a fresh build
+  ---
+  duration_ms: 16.851503
+  type: 'test'
+  ...
+# Subtest: HTML: hostile labels and claims stay inside the escaped JSON block; Cite header is used
+ok 22 - HTML: hostile labels and claims stay inside the escaped JSON block; Cite header is used
+  ---
+  duration_ms: 2.093386
+  type: 'test'
+  ...
+# Subtest: lint output names file:line and verdict; control characters are neutralised
+ok 23 - lint output names file:line and verdict; control characters are neutralised
+  ---
+  duration_ms: 1.652643
+  type: 'test'
+  ...
+# Subtest: CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with line numbers, never overwrites
+ok 24 - CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with line numbers, never overwrites
+  ---
+  duration_ms: 684.269944
+  type: 'test'
+  ...
+# Subtest: a self-citing "primary" is not an original source (only path where the primary-with-upstream guard matters)
+ok 25 - a self-citing "primary" is not an original source (only path where the primary-with-upstream guard matters)
+  ---
+  duration_ms: 1.017969
+  type: 'test'
+  ...
+# Subtest: core exposes a semver API version and the documented surface
+ok 26 - core exposes a semver API version and the documented surface
+  ---
+  duration_ms: 0.830559
+  type: 'test'
+  ...
+# Subtest: applications import nothing from the engine except src/core.js (and their own files)
+ok 27 - applications import nothing from the engine except src/core.js (and their own files)
+  ---
+  duration_ms: 1.66877
+  type: 'test'
+  ...
+# Subtest: the two applications live in separate folders and do not import each other
+ok 28 - the two applications live in separate folders and do not import each other
+  ---
+  duration_ms: 1.183162
+  type: 'test'
+  ...
+# Subtest: core.analyze with the default profile is byte-identical to the engine (60 generated cases)
+ok 29 - core.analyze with the default profile is byte-identical to the engine (60 generated cases)
+  ---
+  duration_ms: 156.800413
+  type: 'test'
+  ...
+# Subtest: a profile changes wording only: classification, scores, graph, plans unchanged; application id recorded
+ok 30 - a profile changes wording only: classification, scores, graph, plans unchanged; application id recorded
+  ---
+  duration_ms: 123.262551
+  type: 'test'
+  ...
+# Subtest: analyze() rejects ambiguous input and malformed profiles
+ok 31 - analyze() rejects ambiguous input and malformed profiles
+  ---
+  duration_ms: 0.696528
+  type: 'test'
+  ...
+# Subtest: renderHtml: the default header is unchanged; a custom header is escaped as text
+ok 32 - renderHtml: the default header is unchanged; a custom header is escaped as text
+  ---
+  duration_ms: 3.168071
+  type: 'test'
+  ...
+# Subtest: app 1 CLI shim and app folder produce identical bytes
+ok 33 - app 1 CLI shim and app folder produce identical bytes
+  ---
+  duration_ms: 114.711035
+  type: 'test'
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 838.312691

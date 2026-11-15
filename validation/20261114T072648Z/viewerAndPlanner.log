@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: edge bases: same_bytes is "verified" only when both files were VERIFIED, else "declared"; heuristics are "suspected"
+ok 1 - edge bases: same_bytes is "verified" only when both files were VERIFIED, else "declared"; heuristics are "suspected"
+  ---
+  duration_ms: 10.818158
+  type: 'test'
+  ...
+# Subtest: graph integrity on random cases: only 4 bases, every edge endpoint is a node, counts add up, deterministic
+ok 2 - graph integrity on random cases: only 4 bases, every edge endpoint is a node, counts add up, deterministic
+  ---
+  duration_ms: 133.468469
+  type: 'test'
+  ...
+# Subtest: unknown edges: every pair of distinct origins bearing on a claim is marked independence_not_established
+ok 3 - unknown edges: every pair of distinct origins bearing on a claim is marked independence_not_established
+  ---
+  duration_ms: 0.718942
+  type: 'test'
+  ...
+# Subtest: classify() is the engine rule: engine status equals classify(origin counts) on generated cases
+ok 4 - classify() is the engine rule: engine status equals classify(origin counts) on generated cases
+  ---
+  duration_ms: 98.809493
+  type: 'test'
+  ...
+# Subtest: ADD_INDEPENDENT_ORIGINS: executing "all k support" and "one contradicts" in the engine yields exactly the predicted status
+ok 5 - ADD_INDEPENDENT_ORIGINS: executing "all k support" and "one contradicts" in the engine yields exactly the predicted status
+  ---
+  duration_ms: 127.916657
+  type: 'test'
+  ...
+# Subtest: REASSESS_CONTRADICTIONS: removing every contradicting link in the engine yields the predicted status
+ok 6 - REASSESS_CONTRADICTIONS: removing every contradicting link in the engine yields the predicted status
+  ---
+  duration_ms: 178.249232
+  type: 'test'
+  ...
+# Subtest: ROBUSTNESS: dropping the evidence of `fragility` support origins (strongest first) makes a supported claim lose "supported"
+ok 7 - ROBUSTNESS: dropping the evidence of `fragility` support origins (strongest first) makes a supported claim lose "supported"
+  ---
+  duration_ms: 100.535232
+  type: 'test'
+  ...
+# Subtest: planner never fabricates: all scenarios hypothetical, quoted ids exist, smallestChange is the minimal decision-changing step
+ok 8 - planner never fabricates: all scenarios hypothetical, quoted ids exist, smallestChange is the minimal decision-changing step
+  ---
+  duration_ms: 53.83402
+  type: 'test'
+  ...
+# Subtest: viewer source uses no dangerous DOM, eval or network APIs
+ok 9 - viewer source uses no dangerous DOM, eval or network APIs
+  ---
+  duration_ms: 1.290951
+  type: 'test'
+  ...
+# Subtest: CSP: default-src none, no network, and the inline script/style hashes match the inlined content exactly
+ok 10 - CSP: default-src none, no network, and the inline script/style hashes match the inlined content exactly
+  ---
+  duration_ms: 14.466517
+  type: 'test'
+  ...
+# Subtest: committed viewer/showcase.html is byte-identical to a fresh deterministic build
+ok 11 - committed viewer/showcase.html is byte-identical to a fresh deterministic build
+  ---
+  duration_ms: 10.751773
+  type: 'test'
+  ...
+# Subtest: showcase content: scenario A collapses 8 items to 1 origin with verified byte links; scenario B supports, abstains and contradicts
+ok 12 - showcase content: scenario A collapses 8 items to 1 origin with verified byte links; scenario B supports, abstains and contradicts
+  ---
+  duration_ms: 6.674842
+  type: 'test'
+  ...
+# Subtest: hostile labels stay inside the JSON data block (escaped); only expected script elements exist
+ok 13 - hostile labels stay inside the JSON data block (escaped); only expected script elements exist
+  ---
+  duration_ms: 1.413615
+  type: 'test'
+  ...
+# Subtest: CLI: --format html writes once (never overwrites); --compare requires html
+ok 14 - CLI: --format html writes once (never overwrites); --compare requires html
+  ---
+  duration_ms: 227.921945
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 645.314932

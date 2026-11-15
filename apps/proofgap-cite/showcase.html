@@ -1,0 +1,2623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-k9zmfc/BnavybzhhIqhkQwM3lXUBl/mamY/+/arrD4U='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>ProofGap Cite report viewer</title>
+<style>:root {
+  --bg: #0f1115; --panel: #171a21; --card: #1d212a; --ink: #e8e6e3; --muted: #a9b0bc; --line: #3a4150;
+  --ok: #4cc38a; --warn: #f0b429; --bad: #ff6b6b; --accent: #c792ea; --verified: #4cc38a; --declared: #9aa4b5; --suspected: #f0b429; --unknown: #6f7a8c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+a { color: var(--accent); }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #000; padding: 6px; z-index: 10; }
+.top { padding: 16px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #1a1430, var(--bg)); }
+.top h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: .02em; }
+.top p { margin: 4px 0; color: var(--muted); max-width: 70rem; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
+label.file { border: 1px dashed var(--line); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+input[type=file] { color: var(--muted); }
+#status { color: var(--muted); }
+main { padding: 16px; }
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .grid.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-width: 0; }
+.phead h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.meta { color: var(--muted); font-size: .85rem; margin: 4px 0; overflow-wrap: anywhere; }
+.disclaimer { font-size: .85rem; border-left: 3px solid var(--warn); padding-left: 8px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: .85rem; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1px solid; white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+.badge.ok { color: var(--ok); border-color: var(--ok); } .badge.warn { color: var(--warn); border-color: var(--warn); } .badge.bad { color: var(--bad); border-color: var(--bad); }
+.badge.ok::before { content: "+ "; } .badge.warn::before { content: "? "; } .badge.bad::before { content: "x "; }
+button.export { background: #2a2f3b; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit; }
+button.export:hover, button.export:focus-visible { border-color: var(--accent); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-top: 12px; min-width: 0; overflow-wrap: anywhere; }
+.card h3 { margin: 0 0 8px; font-size: 1rem; color: var(--accent); }
+.claim { border-top: 1px solid var(--line); padding: 10px 0; }
+.claim:first-of-type { border-top: 0; }
+.claimhead { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between; }
+.claimhead h4 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+.collapse { font-size: 1.05rem; margin: 6px 0; }
+.collapse .n { font-weight: 800; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.collapse .items { color: var(--muted); } .collapse .origins { color: var(--ink); }
+.flag { color: var(--bad); font-weight: 700; font-size: .85rem; letter-spacing: .04em; }
+.why { margin: 4px 0 8px 18px; padding: 0; color: var(--muted); font-size: .9rem; }
+details { margin: 6px 0; } summary { cursor: pointer; color: var(--ink); font-weight: 600; font-size: .92rem; }
+summary:focus-visible, .node:focus-visible, button:focus-visible, label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cluster { border-left: 3px solid var(--ok); padding: 2px 8px; margin: 6px 0; font-size: .88rem; overflow-wrap: anywhere; }
+.cluster.contra { border-left-color: var(--bad); }
+.cluster ul { margin: 2px 0 2px 16px; padding: 0; color: var(--muted); }
+h5 { margin: 8px 0 4px; font-size: .9rem; }
+.findings { list-style: none; padding: 0; margin: 0; font-size: .88rem; }
+.findings li { margin: 3px 0; overflow-wrap: anywhere; }
+.sev { display: inline-block; min-width: 4.5em; text-transform: uppercase; font-size: .72rem; font-weight: 700; }
+.sev-high .sev { color: var(--bad); } .sev-medium .sev { color: var(--warn); } .sev-low .sev, .sev-info .sev { color: var(--muted); }
+.missing { border-left: 3px solid var(--warn); padding: 2px 10px; margin: 6px 0; }
+.missing h5 { margin: 2px 0; color: var(--warn); }
+.missing ul { margin: 2px 0 2px 16px; padding: 0; }
+.note { color: var(--muted); font-size: .82rem; font-style: italic; }
+table { border-collapse: collapse; width: 100%; font-size: .84rem; margin: 6px 0; }
+caption { text-align: left; color: var(--muted); padding: 4px 0; caption-side: top; overflow-wrap: anywhere; }
+th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+tr.changes td:nth-child(2) { color: var(--ok); font-weight: 600; }
+.int-VERIFIED td:nth-child(2) { color: var(--verified); } .int-MISMATCH td:nth-child(2), .int-UNSAFE_PATH td:nth-child(2) { color: var(--bad); }
+.int-MISSING td:nth-child(2), .int-NOT_CHECKED td:nth-child(2) { color: var(--warn); }
+.wouldnot { color: var(--warn); }
+.graphwrap { margin: 0; overflow-x: auto; }
+svg.graph { width: 100%; min-width: 560px; height: auto; display: block; }
+.colhead { fill: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.node rect { fill: #252a35; stroke: var(--line); stroke-width: 1.5; }
+.node.source.declared_original rect { stroke: var(--ok); } .node.source.derived rect { stroke: var(--declared); stroke-dasharray: 4 2; } .node.source.grouped rect { stroke: var(--warn); }
+.node.evidence.int-VERIFIED rect { stroke: var(--verified); stroke-width: 2.5; } .node.evidence.int-MISMATCH rect { stroke: var(--bad); stroke-width: 2.5; }
+.node.claim rect { fill: #2a2140; stroke: var(--accent); }
+.node.claim.dec-supported_by_independent_origins rect { stroke: var(--ok); } .node.claim.dec-insufficient_support rect, .node.claim.dec-contradicted rect, .node.claim.dec-no_evidence rect { stroke: var(--bad); }
+.node.claim.dec-abstain_possible_undeclared_dependence rect, .node.claim.dec-conflicting rect { stroke: var(--warn); }
+.nid { fill: var(--ink); font-size: 11px; font-weight: 700; } .nlabel { fill: var(--muted); font-size: 9.5px; }
+.edge { fill: none; stroke-width: 1.4; opacity: .85; }
+.edge.declared { stroke: var(--declared); } .edge.verified { stroke: var(--verified); stroke-width: 2.6; }
+.edge.suspected { stroke: var(--suspected); stroke-dasharray: 6 4; stroke-width: 2; } .edge.unknown { stroke: var(--unknown); stroke-dasharray: 2 3; }
+.edge.rel-contradicts { stroke: var(--bad); stroke-dasharray: 3 2; } .edge.rel-held_by { opacity: .45; }
+.arrow.declared { fill: var(--declared); } .arrow.verified { fill: var(--verified); } .arrow.suspected { fill: var(--suspected); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .8rem; color: var(--muted); margin-top: 6px; }
+.sw { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px; }
+.sw.verified { border-color: var(--verified); border-top-width: 3px; } .sw.declared { border-color: var(--declared); }
+.sw.suspected { border-color: var(--suspected); border-top-style: dashed; } .sw.unknown { border-color: var(--unknown); border-top-style: dotted; }
+footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff; color: #000; } .panel, .card { background: #fff; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#reports">Skip to reports</a>
+<header class="top">
+<h1>ProofGap Cite — citation lineage &amp; false corroboration</h1>
+<p>Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
+<p>Shows how many genuinely independent origins stand behind each cited claim in a research or news note, under the lineage the note declares. It does not judge truth or reliability.</p>
+<div class="controls"><label class="file">Open 1–2 report JSON files: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
+</header>
+<main id="reports" class="grid" tabindex="-1"></main>
+<footer>ProofGap Cite prototype · built on the ProofGap core · synthetic example data · not independently validated.</footer>
+<script type="application/json" class="pgx-report" id="pgx-report-0">
+{
+  "analysisVersion": "0.4.0",
+  "application": "proofgap-cite",
+  "artifacts": [
+    {
+      "basis": "sha256",
+      "canonical": "doc.dp",
+      "members": [
+        "doc.dp",
+        "doc.nb"
+      ],
+      "sources": [
+        "dp",
+        "nb"
+      ]
+    }
+  ],
+  "caseId": "water-note.md",
+  "cite": {
+    "citeVersion": "0.1.0",
+    "coreApiVersion": "1.0.0",
+    "cycles": [
+      [
+        "fo",
+        "wk"
+      ]
+    ],
+    "identifierGroups": [
+      {
+        "identifier": "url:wire.example/story/5521",
+        "refs": [
+          "wa",
+          "wb"
+        ]
+      }
+    ],
+    "note": {
+      "claims": 6,
+      "name": "water-note.md",
+      "references": 15,
+      "title": "Draft: Riverton's water crisis (synthetic example, all names fictional)"
+    },
+    "noteFindings": [],
+    "policy": "independently_corroborated requires \u003e= 2 independent support origins (core), each tracing to a reference declared kind=primary with no declared upstream, and no cue linking them. Citation counts, URLs and DOIs never establish independence.",
+    "references": [
+      {
+        "cites": [
+          "mt"
+        ],
+        "doi": null,
+        "id": "ag",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "NewsHub aggregator summary",
+        "line": 21,
+        "saved": "ag-summary.txt",
+        "url": "https://newshub.example/a/88"
+      },
+      {
+        "cites": [
+          "dp"
+        ],
+        "doi": null,
+        "id": "cv",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Valley Courier \"Riverton budget jump\"",
+        "line": 23,
+        "saved": null,
+        "url": "https://valleycourier.example/riverton"
+      },
+      {
+        "cites": [
+          "pr"
+        ],
+        "doi": null,
+        "id": "dp",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Daily Planet \"Water budget soars 40%\"",
+        "line": 19,
+        "saved": "dp-budget.txt",
+        "url": "https://dailyplanet.example/water-budget"
+      },
+      {
+        "cites": [
+          "wk"
+        ],
+        "doi": null,
+        "id": "fo",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Community forum thread \"They knew\"",
+        "line": 27,
+        "saved": null,
+        "url": "https://forum.example/t/991"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "gov",
+        "kind": "primary",
+        "kindDeclared": true,
+        "label": "State Water Agency reservoir dataset, August 2026",
+        "line": 24,
+        "saved": "gov-reservoir.csv",
+        "url": "https://water.state.example/data/riverton-aug"
+      },
+      {
+        "cites": [
+          "dp"
+        ],
+        "doi": null,
+        "id": "mt",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Metro Times \"City water spending up 40 percent\"",
+        "line": 20,
+        "saved": null,
+        "url": "https://metrotimes.example/news/4471"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "nb",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Neighborhood Bulletin blog \"Our water bill\"",
+        "line": 22,
+        "saved": "nb-budget.txt",
+        "url": "https://bulletin.example/2026/water"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "op",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Opinion column \"The pipeline fix\"",
+        "line": 29,
+        "saved": null,
+        "url": "https://dailyplanet.example/opinion/pipeline"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "pod",
+        "kind": "unknown",
+        "kindDeclared": false,
+        "label": "Local podcast episode 12 transcript",
+        "line": 30,
+        "saved": null,
+        "url": "https://pod.example/ep12"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "pr",
+        "kind": "primary",
+        "kindDeclared": true,
+        "label": "Riverton City Hall press release \"Budget 2026\"",
+        "line": 18,
+        "saved": "pr-budget.txt",
+        "url": "https://riverton.example/press/budget-2026"
+      },
+      {
+        "cites": [
+          "gov"
+        ],
+        "doi": null,
+        "id": "tv",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Channel 9 evening report",
+        "line": 26,
+        "saved": null,
+        "url": "https://ch9.example/reservoir"
+      },
+      {
+        "cites": [],
+        "doi": "10.5555/riverton.2026.17",
+        "id": "uni",
+        "kind": "primary",
+        "kindDeclared": true,
+        "label": "Riverton University gauge study",
+        "line": 25,
+        "saved": "uni-gauges.txt",
+        "url": null
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "wa",
+        "kind": "primary",
+        "kindDeclared": true,
+        "label": "Wire service report \"Utility director resigns\"",
+        "line": 31,
+        "saved": null,
+        "url": "https://wire.example/story/5521?utm_source=feed"
+      },
+      {
+        "cites": [],
+        "doi": null,
+        "id": "wb",
+        "kind": "primary",
+        "kindDeclared": true,
+        "label": "Wire service report, regional edition",
+        "line": 32,
+        "saved": null,
+        "url": "https://www.wire.example/story/5521/"
+      },
+      {
+        "cites": [
+          "fo"
+        ],
+        "doi": null,
+        "id": "wk",
+        "kind": "secondary",
+        "kindDeclared": true,
+        "label": "Wiki-style page \"Riverton water crisis\"",
+        "line": 28,
+        "saved": null,
+        "url": "https://wiki.example/Riverton_water"
+      }
+    ]
+  },
+  "claims": [
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 6 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "citeEvidence": {
+        "citations": 6,
+        "independentOrigins": 1,
+        "primaryRootedOrigins": 1
+      },
+      "claimId": "c1",
+      "contradictScore": 0,
+      "coreDecision": "insufficient_support",
+      "corroboration": {
+        "apparentExcess": 5,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.ag",
+                "doc.cv",
+                "doc.dp",
+                "doc.mt",
+                "doc.nb",
+                "doc.pr"
+              ],
+              "origin": "source:pr",
+              "reasons": [
+                "Source \"ag\" is declared as derived from \"mt\" (transitively from \"dp\", \"mt\", \"pr\"), so it cannot independently corroborate its upstream.",
+                "Source \"cv\" is declared as derived from \"dp\" (transitively from \"dp\", \"pr\"), so it cannot independently corroborate its upstream.",
+                "Source \"dp\" is declared as derived from \"pr\", so it cannot independently corroborate its upstream.",
+                "Source \"mt\" is declared as derived from \"dp\" (transitively from \"dp\", \"pr\"), so it cannot independently corroborate its upstream.",
+                "Source \"nb\" is declared as an original source (no declared parents).",
+                "Source \"pr\" is declared as an original source (no declared parents).",
+                "Evidence \"doc.dp\", \"doc.nb\" is the same artifact (sha256); sources \"dp\", \"nb\" are therefore treated as one origin.",
+                "6 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "ag",
+                "cv",
+                "dp",
+                "mt",
+                "nb",
+                "pr"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": true,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 1,
+        "supportingEvidenceItems": 6
+      },
+      "decision": "single_origin",
+      "explanation": [
+        "6 supporting citation(s) → 1 independent origin(s), 1 tracing to a declared primary source. Verdict: single origin (every citation traces to one origin).",
+        "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "SAVED_COPY_IDENTICAL",
+          "evidence": [
+            "doc.dp",
+            "doc.nb"
+          ],
+          "message": "The saved files of [^dp], [^nb] are byte-identical (verified by hashing the local files); they count as one source, whatever their outlets or URLs.",
+          "origins": [],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "evidence": [
+            "doc.ag",
+            "doc.cv",
+            "doc.dp",
+            "doc.mt",
+            "doc.nb",
+            "doc.pr"
+          ],
+          "message": "Support comes from 1 independent origin(s); policy requires at least 2.",
+          "origins": [
+            "source:pr"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "FALSE_CORROBORATION",
+          "evidence": [
+            "doc.ag",
+            "doc.cv",
+            "doc.dp",
+            "doc.mt",
+            "doc.nb",
+            "doc.pr"
+          ],
+          "message": "6 supporting evidence items collapse to 1 independent origin(s); the extra items are duplicates or derivatives and add no independent corroboration.",
+          "origins": [
+            "source:pr"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "doc.ag",
+            "doc.cv",
+            "doc.dp",
+            "doc.mt",
+            "doc.nb",
+            "doc.pr"
+          ],
+          "message": "Evidence \"doc.ag\", \"doc.cv\", \"doc.dp\", \"doc.mt\", \"doc.nb\", \"doc.pr\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "doc.ag",
+            "doc.cv",
+            "doc.dp",
+            "doc.mt",
+            "doc.nb",
+            "doc.pr"
+          ],
+          "origin": "source:pr",
+          "sourceIds": [
+            "ag",
+            "cv",
+            "dp",
+            "mt",
+            "nb",
+            "pr"
+          ],
+          "strength": 0.5
+        }
+      ],
+      "line": 6,
+      "missing": [
+        "A second primary source that does not derive from [^pr]."
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "all 1 support the claim",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "at least one contradicts the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "absence of further evidence is not evidence against the claim",
+                "outcome": "none can be found",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              }
+            ],
+            "requirement": "1 additional item(s), each from an origin that is not derived from, grouped with, or byte-identical to any existing origin of this claim (\"source:pr\")."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Trace the derived or duplicated items back to their upstream original(s) (\"source:pr\") and compare each copy against its original.",
+          "addresses": [
+            "FALSE_CORROBORATION"
+          ],
+          "basis": "heuristic",
+          "code": "FALSE_CORROBORATION",
+          "rank": 1,
+          "wouldNotShow": "That the original is accurate, or that the copies independently corroborate it.",
+          "wouldShow": "Whether the copies faithfully reproduce the original, and what the original itself contains."
+        },
+        {
+          "action": "Obtain evidence for this claim from an origin that is not \"source:pr\", not derived from them, and not in their origin groups.",
+          "addresses": [
+            "BELOW_INDEPENDENCE_THRESHOLD"
+          ],
+          "basis": "heuristic",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "rank": 2,
+          "wouldNotShow": "That the claim is true, or that the new origin is independent beyond what its declared provenance states.",
+          "wouldShow": "Whether a second, separately declared origin also supports the claim."
+        }
+      ],
+      "statement": "Riverton's water budget rose 40% in 2026.",
+      "status": "insufficient_support",
+      "supportScore": 0.5
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 3 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "citeEvidence": {
+        "citations": 3,
+        "independentOrigins": 2,
+        "primaryRootedOrigins": 2
+      },
+      "claimId": "c2",
+      "contradictScore": 0,
+      "coreDecision": "supported_by_independent_origins",
+      "corroboration": {
+        "apparentExcess": 1,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.gov",
+                "doc.tv"
+              ],
+              "origin": "source:gov",
+              "reasons": [
+                "Source \"gov\" is declared as an original source (no declared parents).",
+                "Source \"tv\" is declared as derived from \"gov\", so it cannot independently corroborate its upstream.",
+                "2 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "gov",
+                "tv"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.uni"
+              ],
+              "origin": "source:uni",
+              "reasons": [
+                "Source \"uni\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "uni"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": true,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 2,
+        "supportingEvidenceItems": 3
+      },
+      "decision": "independently_corroborated",
+      "explanation": [
+        "3 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Verdict: independently corroborated (two or more independent origins that each trace to a declared primary source).",
+        "Supported by 2 independent origins (combined score 0.75).",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "FALSE_CORROBORATION",
+          "evidence": [
+            "doc.gov",
+            "doc.tv",
+            "doc.uni"
+          ],
+          "message": "3 supporting evidence items collapse to 2 independent origin(s); the extra items are duplicates or derivatives and add no independent corroboration.",
+          "origins": [
+            "source:gov",
+            "source:uni"
+          ],
+          "severity": "medium"
+        },
+        {
+          "basis": "logical",
+          "code": "PROVENANCE_UNVERIFIED",
+          "evidence": [
+            "doc.gov",
+            "doc.tv",
+            "doc.uni"
+          ],
+          "message": "Independence of \"source:gov\", \"source:uni\" rests on DECLARED provenance only; no independent provenance verification was performed.",
+          "origins": [
+            "source:gov",
+            "source:uni"
+          ],
+          "severity": "low"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "doc.gov",
+            "doc.tv",
+            "doc.uni"
+          ],
+          "message": "Evidence \"doc.gov\", \"doc.tv\", \"doc.uni\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "doc.gov",
+            "doc.tv"
+          ],
+          "origin": "source:gov",
+          "sourceIds": [
+            "gov",
+            "tv"
+          ],
+          "strength": 0.5
+        },
+        {
+          "evidenceIds": [
+            "doc.uni"
+          ],
+          "origin": "source:uni",
+          "sourceIds": [
+            "uni"
+          ],
+          "strength": 0.5
+        }
+      ],
+      "line": 7,
+      "missing": [],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ROBUSTNESS"
+        },
+        "steps": [
+          {
+            "id": "ROBUSTNESS",
+            "kind": "stress_test",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "1 origin(s) collapse into others",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "a single independent contradiction is found",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 2
+              }
+            ],
+            "requirement": "Support survives unless 1 of its 2 independent origins are shown to share an undeclared source with another, or fail integrity checks."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Trace the derived or duplicated items back to their upstream original(s) (\"source:gov\", \"source:uni\") and compare each copy against its original.",
+          "addresses": [
+            "FALSE_CORROBORATION"
+          ],
+          "basis": "heuristic",
+          "code": "FALSE_CORROBORATION",
+          "rank": 1,
+          "wouldNotShow": "That the original is accurate, or that the copies independently corroborate it.",
+          "wouldShow": "Whether the copies faithfully reproduce the original, and what the original itself contains."
+        },
+        {
+          "action": "Check custody or acquisition records for the origins \"source:gov\", \"source:uni\" to determine whether any of them copied from another or shares an undeclared upstream.",
+          "addresses": [
+            "PROVENANCE_UNVERIFIED"
+          ],
+          "basis": "heuristic",
+          "code": "PROVENANCE_UNVERIFIED",
+          "rank": 2,
+          "wouldNotShow": "That the evidence is true or complete.",
+          "wouldShow": "Whether the declared independence is credible."
+        }
+      ],
+      "statement": "Reservoir levels fell below 30% in August.",
+      "status": "supported_by_independent_origins",
+      "supportScore": 0.75
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 2 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "citeEvidence": {
+        "citations": 2,
+        "independentOrigins": 1,
+        "primaryRootedOrigins": 0
+      },
+      "claimId": "c3",
+      "contradictScore": 0,
+      "coreDecision": "insufficient_support",
+      "corroboration": {
+        "apparentExcess": 1,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.fo",
+                "doc.wk"
+              ],
+              "origin": "group:cyc.fo",
+              "reasons": [
+                "Source \"fo\" declares shared origin group \"cyc.fo\"; sources in the same group are treated as one origin.",
+                "Source \"wk\" declares shared origin group \"cyc.fo\"; sources in the same group are treated as one origin.",
+                "2 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "fo",
+                "wk"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": true,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 1,
+        "supportingEvidenceItems": 2
+      },
+      "decision": "circular_reporting",
+      "explanation": [
+        "2 supporting citation(s) → 1 independent origin(s), 0 tracing to a declared primary source. Verdict: circular reporting (support comes only from references that cite each other).",
+        "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "CIRCULAR_REPORTING",
+          "evidence": [
+            "doc.fo",
+            "doc.wk"
+          ],
+          "message": "[^fo], [^wk] sit in a citation cycle (fo → wk → fo); no original source is declared inside the loop.",
+          "origins": [],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "evidence": [
+            "doc.fo",
+            "doc.wk"
+          ],
+          "message": "Support comes from 1 independent origin(s); policy requires at least 2.",
+          "origins": [
+            "group:cyc.fo"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "FALSE_CORROBORATION",
+          "evidence": [
+            "doc.fo",
+            "doc.wk"
+          ],
+          "message": "2 supporting evidence items collapse to 1 independent origin(s); the extra items are duplicates or derivatives and add no independent corroboration.",
+          "origins": [
+            "group:cyc.fo"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "doc.fo",
+            "doc.wk"
+          ],
+          "message": "Evidence \"doc.fo\", \"doc.wk\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "doc.fo",
+            "doc.wk"
+          ],
+          "origin": "group:cyc.fo",
+          "sourceIds": [
+            "fo",
+            "wk"
+          ],
+          "strength": 0.5
+        }
+      ],
+      "line": 8,
+      "missing": [
+        "The original source that the circularly citing references rely on (a document, dataset or statement), cited directly."
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "all 1 support the claim",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "at least one contradicts the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "absence of further evidence is not evidence against the claim",
+                "outcome": "none can be found",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              }
+            ],
+            "requirement": "1 additional item(s), each from an origin that is not derived from, grouped with, or byte-identical to any existing origin of this claim (\"group:cyc.fo\")."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Trace the derived or duplicated items back to their upstream original(s) (\"group:cyc.fo\") and compare each copy against its original.",
+          "addresses": [
+            "FALSE_CORROBORATION"
+          ],
+          "basis": "heuristic",
+          "code": "FALSE_CORROBORATION",
+          "rank": 1,
+          "wouldNotShow": "That the original is accurate, or that the copies independently corroborate it.",
+          "wouldShow": "Whether the copies faithfully reproduce the original, and what the original itself contains."
+        },
+        {
+          "action": "Obtain evidence for this claim from an origin that is not \"group:cyc.fo\", not derived from them, and not in their origin groups.",
+          "addresses": [
+            "BELOW_INDEPENDENCE_THRESHOLD"
+          ],
+          "basis": "heuristic",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "rank": 2,
+          "wouldNotShow": "That the claim is true, or that the new origin is independent beyond what its declared provenance states.",
+          "wouldShow": "Whether a second, separately declared origin also supports the claim."
+        }
+      ],
+      "statement": "Officials knew about the shortfall in March.",
+      "status": "insufficient_support",
+      "supportScore": 0.5
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 2 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "citeEvidence": {
+        "citations": 2,
+        "independentOrigins": 2,
+        "primaryRootedOrigins": 0
+      },
+      "claimId": "c4",
+      "contradictScore": 0,
+      "coreDecision": "supported_by_independent_origins",
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.op"
+              ],
+              "origin": "source:op",
+              "reasons": [
+                "Source \"op\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "op"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.pod"
+              ],
+              "origin": "source:pod",
+              "reasons": [
+                "Source \"pod\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "pod"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 2,
+        "supportingEvidenceItems": 2
+      },
+      "decision": "origin_unresolved",
+      "explanation": [
+        "2 supporting citation(s) → 2 independent origin(s), 0 tracing to a declared primary source. Verdict: origin unresolved (separately declared origins, but fewer than two trace to a declared primary source).",
+        "Supported by 2 independent origins (combined score 0.75).",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "ORIGIN_KIND_UNDECLARED",
+          "evidence": [
+            "doc.pod"
+          ],
+          "message": "[^pod] does not declare kind=primary or kind=secondary; whether it is an original source is unknown.",
+          "origins": [],
+          "severity": "medium"
+        },
+        {
+          "basis": "logical",
+          "code": "SECONDARY_WITHOUT_UPSTREAM",
+          "evidence": [
+            "doc.op"
+          ],
+          "message": "[^op] is declared secondary but names no upstream source (cites=), so its origin is unknown.",
+          "origins": [],
+          "severity": "medium"
+        },
+        {
+          "basis": "logical",
+          "code": "PROVENANCE_UNVERIFIED",
+          "evidence": [
+            "doc.op",
+            "doc.pod"
+          ],
+          "message": "Independence of \"source:op\", \"source:pod\" rests on DECLARED provenance only; no independent provenance verification was performed.",
+          "origins": [
+            "source:op",
+            "source:pod"
+          ],
+          "severity": "low"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "doc.op",
+            "doc.pod"
+          ],
+          "message": "Evidence \"doc.op\", \"doc.pod\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "doc.op"
+          ],
+          "origin": "source:op",
+          "sourceIds": [
+            "op"
+          ],
+          "strength": 0.5
+        },
+        {
+          "evidenceIds": [
+            "doc.pod"
+          ],
+          "origin": "source:pod",
+          "sourceIds": [
+            "pod"
+          ],
+          "strength": 0.5
+        }
+      ],
+      "line": 9,
+      "missing": [
+        "For origin(s) [^op], [^pod]: the primary source each relies on (add kind=primary references, or cites= to them). Different URLs or outlets alone do not show independence."
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ROBUSTNESS"
+        },
+        "steps": [
+          {
+            "id": "ROBUSTNESS",
+            "kind": "stress_test",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "1 origin(s) collapse into others",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "a single independent contradiction is found",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 2
+              }
+            ],
+            "requirement": "Support survives unless 1 of its 2 independent origins are shown to share an undeclared source with another, or fail integrity checks."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Check custody or acquisition records for the origins \"source:op\", \"source:pod\" to determine whether any of them copied from another or shares an undeclared upstream.",
+          "addresses": [
+            "PROVENANCE_UNVERIFIED"
+          ],
+          "basis": "heuristic",
+          "code": "PROVENANCE_UNVERIFIED",
+          "rank": 1,
+          "wouldNotShow": "That the evidence is true or complete.",
+          "wouldShow": "Whether the declared independence is credible."
+        }
+      ],
+      "statement": "The new pipeline will cut water losses by half.",
+      "status": "supported_by_independent_origins",
+      "supportScore": 0.75
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 2 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "citeEvidence": {
+        "citations": 2,
+        "independentOrigins": 2,
+        "primaryRootedOrigins": 2
+      },
+      "claimId": "c5",
+      "contradictScore": 0,
+      "coreDecision": "supported_by_independent_origins",
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.wa"
+              ],
+              "origin": "source:wa",
+              "reasons": [
+                "Source \"wa\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "wa"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "doc.wb"
+              ],
+              "origin": "source:wb",
+              "reasons": [
+                "Source \"wb\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "wb"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 2,
+        "supportingEvidenceItems": 2
+      },
+      "decision": "abstain_suspected_shared_origin",
+      "explanation": [
+        "2 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Verdict: abstain suspected shared origin (enough declared primary origins, but a cue (same URL/DOI, same title, shared saved file) suggests they may be one).",
+        "Supported by 2 independent origins (combined score 0.75).",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "heuristic",
+          "code": "SAME_IDENTIFIER_DIFFERENT_LINEAGE",
+          "evidence": [
+            "doc.wa",
+            "doc.wb"
+          ],
+          "message": "[^wa], [^wb] share url wire.example/story/5521 but are declared as separate lineages; they may be the same piece (syndication or reposting).",
+          "origins": [],
+          "severity": "medium"
+        },
+        {
+          "basis": "logical",
+          "code": "PROVENANCE_UNVERIFIED",
+          "evidence": [
+            "doc.wa",
+            "doc.wb"
+          ],
+          "message": "Independence of \"source:wa\", \"source:wb\" rests on DECLARED provenance only; no independent provenance verification was performed.",
+          "origins": [
+            "source:wa",
+            "source:wb"
+          ],
+          "severity": "low"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "doc.wa",
+            "doc.wb"
+          ],
+          "message": "Evidence \"doc.wa\", \"doc.wb\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "doc.wa"
+          ],
+          "origin": "source:wa",
+          "sourceIds": [
+            "wa"
+          ],
+          "strength": 0.5
+        },
+        {
+          "evidenceIds": [
+            "doc.wb"
+          ],
+          "origin": "source:wb",
+          "sourceIds": [
+            "wb"
+          ],
+          "strength": 0.5
+        }
+      ],
+      "line": 10,
+      "missing": [
+        "Confirmation that [^wa], [^wb] are genuinely separate pieces (check bylines, syndication notes, publication history)."
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ROBUSTNESS"
+        },
+        "steps": [
+          {
+            "id": "ROBUSTNESS",
+            "kind": "stress_test",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "1 origin(s) collapse into others",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "a single independent contradiction is found",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 2
+              }
+            ],
+            "requirement": "Support survives unless 1 of its 2 independent origins are shown to share an undeclared source with another, or fail integrity checks."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Check custody or acquisition records for the origins \"source:wa\", \"source:wb\" to determine whether any of them copied from another or shares an undeclared upstream.",
+          "addresses": [
+            "PROVENANCE_UNVERIFIED"
+          ],
+          "basis": "heuristic",
+          "code": "PROVENANCE_UNVERIFIED",
+          "rank": 1,
+          "wouldNotShow": "That the evidence is true or complete.",
+          "wouldShow": "Whether the declared independence is credible."
+        }
+      ],
+      "statement": "Two outlets confirmed the utility director's resignation.",
+      "status": "supported_by_independent_origins",
+      "supportScore": 0.75
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [],
+      "citeEvidence": {
+        "citations": 0,
+        "independentOrigins": 0,
+        "primaryRootedOrigins": 0
+      },
+      "claimId": "c6",
+      "contradictScore": 0,
+      "coreDecision": "no_evidence",
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": []
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 0,
+        "supportingEvidenceItems": 0
+      },
+      "decision": "unsupported",
+      "explanation": [
+        "0 supporting citation(s) → 0 independent origin(s), 0 tracing to a declared primary source. Verdict: unsupported (no citation).",
+        "No effective evidence is linked to this claim.",
+        "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "NO_LINKED_EVIDENCE",
+          "evidence": [],
+          "message": "No effective evidence is linked to this claim.",
+          "origins": [],
+          "severity": "high"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [],
+      "line": 11,
+      "missing": [
+        "At least one citation; to count as independently corroborated, two sources that each trace to a separate primary source."
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 2,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 2,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "all 2 support the claim",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "at least one contradicts the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "absence of further evidence is not evidence against the claim",
+                "outcome": "none can be found",
+                "resultingStatus": "no_evidence",
+                "supportOrigins": 0
+              }
+            ],
+            "requirement": "2 additional item(s), each from an origin that is not derived from, grouped with, or byte-identical to any existing origin of this claim."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Identify and obtain evidence bearing on this claim from at least two origins that do not derive from one another, and record each one's provenance.",
+          "addresses": [
+            "NO_LINKED_EVIDENCE"
+          ],
+          "basis": "heuristic",
+          "code": "NO_LINKED_EVIDENCE",
+          "rank": 1,
+          "wouldNotShow": "That the claim is true, or that the new sources are truly independent (that needs separate provenance verification).",
+          "wouldShow": "Whether any documented support exists and from how many declared origins."
+        }
+      ],
+      "statement": "Water rates will not change in 2027.",
+      "status": "no_evidence",
+      "supportScore": 0
+    }
+  ],
+  "derivedSources": [
+    {
+      "originGroups": [
+        "artifact:doc.dp",
+        "source:nb",
+        "source:pr"
+      ],
+      "sourceId": "ag"
+    },
+    {
+      "originGroups": [
+        "artifact:doc.dp",
+        "source:nb",
+        "source:pr"
+      ],
+      "sourceId": "cv"
+    },
+    {
+      "originGroups": [
+        "artifact:doc.dp",
+        "source:nb",
+        "source:pr"
+      ],
+      "sourceId": "dp"
+    },
+    {
+      "originGroups": [
+        "group:cyc.fo"
+      ],
+      "sourceId": "fo"
+    },
+    {
+      "originGroups": [
+        "artifact:doc.dp",
+        "source:nb",
+        "source:pr"
+      ],
+      "sourceId": "mt"
+    },
+    {
+      "originGroups": [
+        "source:gov"
+      ],
+      "sourceId": "tv"
+    },
+    {
+      "originGroups": [
+        "group:cyc.fo"
+      ],
+      "sourceId": "wk"
+    }
+  ],
+  "disclaimer": "Prototype analysis of DECLARED citation lineage. It does not judge whether a claim is true, whether a source is reliable, or anyone's intent. Kinds, URLs, DOIs and cites= are declarations by the note author; only byte identity of saved files is verified.",
+  "duplicates": [
+    {
+      "basis": "sha256",
+      "duplicateOf": "doc.dp",
+      "evidenceId": "doc.nb"
+    }
+  ],
+  "excludedByIntegrity": [],
+  "graph": {
+    "basisCounts": {
+      "declared": 37,
+      "suspected": 1,
+      "unknown": 3,
+      "verified": 1
+    },
+    "edges": [
+      {
+        "basis": "declared",
+        "from": "source:ag",
+        "relation": "derived_from",
+        "to": "source:mt"
+      },
+      {
+        "basis": "declared",
+        "from": "source:cv",
+        "relation": "derived_from",
+        "to": "source:dp"
+      },
+      {
+        "basis": "declared",
+        "from": "source:dp",
+        "relation": "derived_from",
+        "to": "source:pr"
+      },
+      {
+        "basis": "declared",
+        "from": "source:mt",
+        "relation": "derived_from",
+        "to": "source:dp"
+      },
+      {
+        "basis": "declared",
+        "from": "source:tv",
+        "relation": "derived_from",
+        "to": "source:gov"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.ag",
+        "relation": "held_by",
+        "to": "source:ag"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.cv",
+        "relation": "held_by",
+        "to": "source:cv"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.dp",
+        "relation": "held_by",
+        "to": "source:dp"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.fo",
+        "relation": "held_by",
+        "to": "source:fo"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.gov",
+        "relation": "held_by",
+        "to": "source:gov"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.mt",
+        "relation": "held_by",
+        "to": "source:mt"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.nb",
+        "relation": "held_by",
+        "to": "source:nb"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.op",
+        "relation": "held_by",
+        "to": "source:op"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.pod",
+        "relation": "held_by",
+        "to": "source:pod"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.pr",
+        "relation": "held_by",
+        "to": "source:pr"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.tv",
+        "relation": "held_by",
+        "to": "source:tv"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.uni",
+        "relation": "held_by",
+        "to": "source:uni"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wa",
+        "relation": "held_by",
+        "to": "source:wa"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wb",
+        "relation": "held_by",
+        "to": "source:wb"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wk",
+        "relation": "held_by",
+        "to": "source:wk"
+      },
+      {
+        "basis": "declared",
+        "from": "source:fo",
+        "relation": "member_of_origin_group",
+        "to": "group:cyc.fo"
+      },
+      {
+        "basis": "declared",
+        "from": "source:wk",
+        "relation": "member_of_origin_group",
+        "to": "group:cyc.fo"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.ag",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.cv",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.dp",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.fo",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c3"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.gov",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c2"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.mt",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.nb",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.op",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c4"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.pod",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c4"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.pr",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.tv",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c2"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.uni",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c2"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wa",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c5"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wb",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c5"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:doc.wk",
+        "relation": "supports",
+        "strength": 0.5,
+        "to": "claim:c3"
+      },
+      {
+        "basis": "suspected",
+        "cue": "SHARED_ARTIFACT_ACROSS_LINEAGES",
+        "from": "source:nb",
+        "relation": "possibly_same_origin",
+        "to": "source:dp"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "c2",
+        "from": "origin:source:gov",
+        "relation": "independence_not_established",
+        "to": "origin:source:uni"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "c4",
+        "from": "origin:source:op",
+        "relation": "independence_not_established",
+        "to": "origin:source:pod"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "c5",
+        "from": "origin:source:wa",
+        "relation": "independence_not_established",
+        "to": "origin:source:wb"
+      },
+      {
+        "basis": "verified",
+        "discoveredBy": "local_hashing",
+        "from": "evidence:doc.nb",
+        "relation": "same_bytes",
+        "to": "evidence:doc.dp"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "source:ag",
+        "label": "NewsHub aggregator summary",
+        "ref": "ag",
+        "role": "derived",
+        "roots": [
+          "artifact:doc.dp",
+          "source:nb",
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:cv",
+        "label": "Valley Courier \"Riverton budget jump\"",
+        "ref": "cv",
+        "role": "derived",
+        "roots": [
+          "artifact:doc.dp",
+          "source:nb",
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:dp",
+        "label": "Daily Planet \"Water budget soars 40%\"",
+        "ref": "dp",
+        "role": "derived",
+        "roots": [
+          "artifact:doc.dp",
+          "source:nb",
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:fo",
+        "label": "Community forum thread \"They knew\"",
+        "ref": "fo",
+        "role": "grouped",
+        "roots": [
+          "group:cyc.fo"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:gov",
+        "label": "State Water Agency reservoir dataset, August 2026",
+        "ref": "gov",
+        "role": "declared_original",
+        "roots": [
+          "source:gov"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:mt",
+        "label": "Metro Times \"City water spending up 40 percent\"",
+        "ref": "mt",
+        "role": "derived",
+        "roots": [
+          "artifact:doc.dp",
+          "source:nb",
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:nb",
+        "label": "Neighborhood Bulletin blog \"Our water bill\"",
+        "ref": "nb",
+        "role": "declared_original",
+        "roots": [
+          "artifact:doc.dp",
+          "source:nb",
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:op",
+        "label": "Opinion column \"The pipeline fix\"",
+        "ref": "op",
+        "role": "declared_original",
+        "roots": [
+          "source:op"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:pod",
+        "label": "Local podcast episode 12 transcript",
+        "ref": "pod",
+        "role": "declared_original",
+        "roots": [
+          "source:pod"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:pr",
+        "label": "Riverton City Hall press release \"Budget 2026\"",
+        "ref": "pr",
+        "role": "declared_original",
+        "roots": [
+          "source:pr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:tv",
+        "label": "Channel 9 evening report",
+        "ref": "tv",
+        "role": "derived",
+        "roots": [
+          "source:gov"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:uni",
+        "label": "Riverton University gauge study",
+        "ref": "uni",
+        "role": "declared_original",
+        "roots": [
+          "source:uni"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:wa",
+        "label": "Wire service report \"Utility director resigns\"",
+        "ref": "wa",
+        "role": "declared_original",
+        "roots": [
+          "source:wa"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:wb",
+        "label": "Wire service report, regional edition",
+        "ref": "wb",
+        "role": "declared_original",
+        "roots": [
+          "source:wb"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:wk",
+        "label": "Wiki-style page \"Riverton water crisis\"",
+        "ref": "wk",
+        "role": "grouped",
+        "roots": [
+          "group:cyc.fo"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "group:cyc.fo",
+        "label": "cyc.fo",
+        "ref": "cyc.fo",
+        "type": "origin_group"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.ag",
+        "integrity": "MISSING",
+        "label": "NewsHub aggregator summary",
+        "ref": "doc.ag",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.cv",
+        "integrity": "NOT_CHECKED",
+        "label": "Valley Courier \"Riverton budget jump\"",
+        "ref": "doc.cv",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.dp",
+        "integrity": "NOT_CHECKED",
+        "label": "Daily Planet \"Water budget soars 40%\"",
+        "ref": "doc.dp",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.fo",
+        "integrity": "NOT_CHECKED",
+        "label": "Community forum thread \"They knew\"",
+        "ref": "doc.fo",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.gov",
+        "integrity": "NOT_CHECKED",
+        "label": "State Water Agency reservoir dataset, August 2026",
+        "ref": "doc.gov",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.mt",
+        "integrity": "NOT_CHECKED",
+        "label": "Metro Times \"City water spending up 40 percent\"",
+        "ref": "doc.mt",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.nb",
+        "integrity": "NOT_CHECKED",
+        "label": "Neighborhood Bulletin blog \"Our water bill\"",
+        "ref": "doc.nb",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.op",
+        "integrity": "NOT_CHECKED",
+        "label": "Opinion column \"The pipeline fix\"",
+        "ref": "doc.op",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.pod",
+        "integrity": "NOT_CHECKED",
+        "label": "Local podcast episode 12 transcript",
+        "ref": "doc.pod",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.pr",
+        "integrity": "NOT_CHECKED",
+        "label": "Riverton City Hall press release \"Budget 2026\"",
+        "ref": "doc.pr",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.tv",
+        "integrity": "NOT_CHECKED",
+        "label": "Channel 9 evening report",
+        "ref": "doc.tv",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.uni",
+        "integrity": "NOT_CHECKED",
+        "label": "Riverton University gauge study",
+        "ref": "doc.uni",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.wa",
+        "integrity": "NOT_CHECKED",
+        "label": "Wire service report \"Utility director resigns\"",
+        "ref": "doc.wa",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.wb",
+        "integrity": "NOT_CHECKED",
+        "label": "Wire service report, regional edition",
+        "ref": "doc.wb",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:doc.wk",
+        "integrity": "NOT_CHECKED",
+        "label": "Wiki-style page \"Riverton water crisis\"",
+        "ref": "doc.wk",
+        "type": "evidence"
+      },
+      {
+        "coreDecision": "insufficient_support",
+        "decision": "single_origin",
+        "id": "claim:c1",
+        "label": "Riverton's water budget rose 40% in 2026.",
+        "ref": "c1",
+        "status": "insufficient_support",
+        "type": "claim"
+      },
+      {
+        "coreDecision": "supported_by_independent_origins",
+        "decision": "independently_corroborated",
+        "id": "claim:c2",
+        "label": "Reservoir levels fell below 30% in August.",
+        "ref": "c2",
+        "status": "supported_by_independent_origins",
+        "type": "claim"
+      },
+      {
+        "coreDecision": "insufficient_support",
+        "decision": "circular_reporting",
+        "id": "claim:c3",
+        "label": "Officials knew about the shortfall in March.",
+        "ref": "c3",
+        "status": "insufficient_support",
+        "type": "claim"
+      },
+      {
+        "coreDecision": "supported_by_independent_origins",
+        "decision": "origin_unresolved",
+        "id": "claim:c4",
+        "label": "The new pipeline will cut water losses by half.",
+        "ref": "c4",
+        "status": "supported_by_independent_origins",
+        "type": "claim"
+      },
+      {
+        "coreDecision": "supported_by_independent_origins",
+        "decision": "abstain_suspected_shared_origin",
+        "id": "claim:c5",
+        "label": "Two outlets confirmed the utility director's resignation.",
+        "ref": "c5",
+        "status": "supported_by_independent_origins",
+        "type": "claim"
+      },
+      {
+        "coreDecision": "no_evidence",
+        "decision": "unsupported",
+        "id": "claim:c6",
+        "label": "Water rates will not change in 2027.",
+        "ref": "c6",
+        "status": "no_evidence",
+        "type": "claim"
+      },
+      {
+        "id": "origin:group:cyc.fo",
+        "label": "group:cyc.fo",
+        "ref": "group:cyc.fo",
+        "roots": [
+          "group:cyc.fo"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:gov",
+        "label": "source:gov",
+        "ref": "source:gov",
+        "roots": [
+          "source:gov"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:op",
+        "label": "source:op",
+        "ref": "source:op",
+        "roots": [
+          "source:op"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:pod",
+        "label": "source:pod",
+        "ref": "source:pod",
+        "roots": [
+          "source:pod"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:pr",
+        "label": "source:pr",
+        "ref": "source:pr",
+        "roots": [
+          "source:pr"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:uni",
+        "label": "source:uni",
+        "ref": "source:uni",
+        "roots": [
+          "source:uni"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:wa",
+        "label": "source:wa",
+        "ref": "source:wa",
+        "roots": [
+          "source:wa"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:wb",
+        "label": "source:wb",
+        "ref": "source:wb",
+        "roots": [
+          "source:wb"
+        ],
+        "type": "origin"
+      }
+    ]
+  },
+  "inputSha256": "e85edbf99f040324782c5bb955a61b32297f155557047153e41fe00fb3ba5d50",
+  "integrity": {
+    "counts": {
+      "MISMATCH": 0,
+      "MISSING": 1,
+      "NOT_CHECKED": 14,
+      "UNSAFE_PATH": 0,
+      "VERIFIED": 0
+    },
+    "limits": {
+      "maxFileBytes": 52428800,
+      "maxFiles": 200,
+      "maxMillis": 30000,
+      "maxPathDepth": 8,
+      "maxPathLength": 255,
+      "maxTotalBytes": 268435456
+    },
+    "mode": "local_directory",
+    "results": [
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.ag",
+        "file": "ag-summary.txt",
+        "reason": "file_not_found",
+        "status": "MISSING",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.cv",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.dp",
+        "file": "dp-budget.txt",
+        "observedSha256": "4b80591ff176bccfb953b07e2cfeae93c8074a10228525e8a019e67e854d9620",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.fo",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.gov",
+        "file": "gov-reservoir.csv",
+        "observedSha256": "ae467d1b3c9773c0825cbf1a69d7682cb6cbdd66ca83a1a5fdc6368da465c510",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.mt",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.nb",
+        "file": "nb-budget.txt",
+        "observedSha256": "4b80591ff176bccfb953b07e2cfeae93c8074a10228525e8a019e67e854d9620",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.op",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.pod",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.pr",
+        "file": "pr-budget.txt",
+        "observedSha256": "96bae03b9a6274b942e165937f8d1f69a196132e18a60c93282e68c9e1c22114",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.tv",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.uni",
+        "file": "uni-gauges.txt",
+        "observedSha256": "e7e6e05b3d88272f4205d65a440ad996524a1bcad205af155b478a00643f5e1a",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.wa",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.wb",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "doc.wk",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      }
+    ],
+    "usage": {
+      "filesRead": 5,
+      "totalBytes": 374
+    }
+  },
+  "notes": [
+    "1 duplicate evidence item(s) were merged into their canonical artifact; their links are kept but count once."
+  ],
+  "policy": {
+    "abstention": "decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately",
+    "duplicates": "identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)",
+    "independence": "declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another’s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN",
+    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes",
+    "minIndependentOrigins": 2,
+    "scoring": "noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)"
+  },
+  "schemaVersion": "1.0",
+  "summary": {
+    "claims": 6,
+    "coreDecisionCounts": {
+      "insufficient_support": 2,
+      "no_evidence": 1,
+      "supported_by_independent_origins": 3
+    },
+    "decisionCounts": {
+      "abstain_suspected_shared_origin": 1,
+      "circular_reporting": 1,
+      "independently_corroborated": 1,
+      "origin_unresolved": 1,
+      "single_origin": 1,
+      "unsupported": 1
+    },
+    "effectiveEvidence": 14,
+    "evidence": 15,
+    "statusCounts": {
+      "insufficient_support": 2,
+      "no_evidence": 1,
+      "supported_by_independent_origins": 3
+    }
+  },
+  "title": "Draft: Riverton's water crisis (synthetic example, all names fictional)",
+  "tool": "proofgap-x",
+  "trust": {
+    "declaredOnly": [
+      "derivedFrom",
+      "originGroup",
+      "strength",
+      "stance",
+      "sha256 values whose integrity status is not VERIFIED"
+    ],
+    "independentlyVerified": {
+      "independence": 0,
+      "provenance": 0,
+      "sha256Matches": 0
+    },
+    "note": "Only SHA-256 byte equality against local files can be verified by this tool. Provenance and independence are never verified."
+  },
+  "warnings": [
+    {
+      "basis": "heuristic",
+      "code": "SHARED_ARTIFACT_ACROSS_LINEAGES",
+      "evidenceIds": [
+        "doc.dp",
+        "doc.nb"
+      ],
+      "message": "Evidence \"doc.dp\", \"doc.nb\" is the same artifact held by sources with different declared lineages (\"dp\", \"nb\"); their upstream origins may share an undeclared source.",
+      "rootSets": [
+        [
+          "source:nb"
+        ],
+        [
+          "source:pr"
+        ]
+      ],
+      "sourceIds": [
+        "dp",
+        "nb"
+      ]
+    }
+  ]
+}
+</script>
+<script>// ProofGap X offline report viewer.
+// SECURITY: every untrusted string is inserted with textContent / createTextNode. HTML-string insertion APIs are never used; no eval,
+// no network. Reports are read from embedded JSON data blocks or local files the user picks.
+(function () {
+  'use strict';
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var DECISION = {
+    supported_by_independent_origins: ['Supported (declared assumptions)', 'ok'],
+    abstain_possible_undeclared_dependence: ['Abstains: possible hidden shared source', 'warn'],
+    insufficient_support: ['Insufficient independent support', 'bad'],
+    conflicting: ['Conflicting evidence', 'warn'],
+    contradicted: ['Contradicted', 'bad'],
+    no_evidence: ['No evidence', 'bad'],
+    // ProofGap Cite verdicts
+    independently_corroborated: ['Independently corroborated (declared lineage)', 'ok'],
+    abstain_suspected_shared_origin: ['Abstains: may be the same source', 'warn'],
+    origin_unresolved: ['Origin unresolved', 'warn'],
+    single_origin: ['Single origin', 'bad'],
+    circular_reporting: ['Circular reporting', 'bad'],
+    unsupported: ['Unsupported', 'bad'],
+  };
+  var BASIS_HELP = {
+    verified: 'bytes hashed by this tool and identical (says nothing about who created them)',
+    declared: 'stated by the case author, not verified',
+    suspected: 'heuristic cue only; never changes scores',
+    unknown: 'no declared link; independence assumed by policy, not established',
+  };
+
+  function el(tag, attrs, children) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { if (attrs[k] !== undefined && attrs[k] !== null) n.setAttribute(k, String(attrs[k])); });
+    (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function svg(tag, attrs, children) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, String(attrs[k])); });
+    (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [d[0]]); }
+  function ids(xs) { return xs.map(function (x) { return x; }).join(', '); }
+  function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '\u2026' : s; }
+
+  // ---------- independence graph (deterministic layered layout) ----------
+  function graphView(report, uid) {
+    var g = report.graph;
+    var observedOnly = {};
+    report.integrity.results.forEach(function (x) { if (!x.declaredSha256 && x.observedSha256 && !x.observedEmpty) observedOnly[x.evidenceId] = true; });
+    var cols = { source: [], evidence: [], claim: [] };
+    g.nodes.forEach(function (n) { if (cols[n.type]) cols[n.type].push(n); });
+    // sources: originals first, then by number of roots (deeper derivations later), then id
+    cols.source.sort(function (a, b) { var ra = a.role === 'declared_original' ? 0 : 1, rb = b.role === 'declared_original' ? 0 : 1; return ra - rb || a.roots.length - b.roots.length || (a.ref < b.ref ? -1 : 1); });
+    var X = { source: 120, evidence: 400, claim: 680 }, rowH = 46, top = 40;
+    var pos = {};
+    var rows = Math.max(cols.source.length, cols.evidence.length, cols.claim.length);
+    ['source', 'evidence', 'claim'].forEach(function (t) {
+      var list = cols[t], offset = top + ((rows - list.length) * rowH) / 2;
+      list.forEach(function (n, i) { pos[n.id] = { x: X[t], y: offset + i * rowH }; });
+    });
+    var H = top + rows * rowH + 10;
+    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'img', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
+    root.appendChild(svg('title', { id: uid + '-gt' }, ['Evidence independence graph for ' + report.caseId]));
+    root.appendChild(svg('desc', { id: uid + '-gd' }, ['Sources on the left, evidence in the middle, claims on the right. A text version of every relationship follows the graph.']));
+    var defs = svg('defs', {});
+    ['declared', 'verified', 'suspected'].forEach(function (b) {
+      defs.appendChild(svg('marker', { id: uid + '-arrow-' + b, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, [svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'arrow ' + b })]));
+    });
+    root.appendChild(defs);
+    [['Sources', X.source], ['Evidence', X.evidence], ['Claims', X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
+    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
+    root.appendChild(edgeLayer); root.appendChild(nodeLayer);
+    g.edges.forEach(function (e) {
+      var a = pos[e.from], b = pos[e.to];
+      if (!a || !b) return; // origin-level "unknown" edges are listed in the claim cards instead
+      var cls = 'edge ' + e.basis + ' rel-' + e.relation;
+      var d;
+      if (a.x === b.x) { var bend = e.relation === 'same_bytes' || e.relation === 'same_source_and_description' ? 70 : -70; d = 'M' + (a.x + (bend > 0 ? 60 : -60)) + ',' + a.y + ' C' + (a.x + bend + 40 * Math.sign(bend)) + ',' + a.y + ' ' + (b.x + bend + 40 * Math.sign(bend)) + ',' + b.y + ' ' + (b.x + (bend > 0 ? 60 : -60)) + ',' + b.y; }
+      else { var x1 = a.x + (a.x < b.x ? 62 : -62), x2 = b.x + (a.x < b.x ? -62 : 62); d = 'M' + x1 + ',' + a.y + ' C' + (x1 + x2) / 2 + ',' + a.y + ' ' + (x1 + x2) / 2 + ',' + b.y + ' ' + x2 + ',' + b.y; }
+      var pa = { d: d, class: cls };
+      if (e.relation === 'derived_from' || e.relation === 'held_by') pa['marker-end'] = 'url(#' + uid + '-arrow-' + (e.basis === 'suspected' || e.basis === 'verified' ? e.basis : 'declared') + ')';
+      var p = svg('path', pa);
+      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
+      edgeLayer.appendChild(p);
+    });
+    g.nodes.forEach(function (n) {
+      var p = pos[n.id]; if (!p) return;
+      var cls = 'node ' + n.type + (n.role ? ' ' + n.role : '') + (n.integrity ? ' int-' + n.integrity : '') + (n.decision ? ' dec-' + n.decision : '');
+      var grp = svg('g', { class: cls, transform: 'translate(' + p.x + ',' + p.y + ')', tabindex: 0 });
+      grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
+      grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
+      grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
+      nodeLayer.appendChild(grp);
+    });
+    var wrap = el('figure', { class: 'graphwrap' }, [root]);
+    var legend = el('figcaption', { class: 'legend' }, Object.keys(BASIS_HELP).map(function (b) {
+      return el('span', { class: 'lg' }, [el('span', { class: 'sw ' + b, 'aria-hidden': 'true' }), el('strong', {}, [b]), ' - ' + BASIS_HELP[b] + ' (' + g.basisCounts[b] + ')']);
+    }));
+    wrap.appendChild(legend);
+    // text alternative
+    var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tb = el('tbody');
+    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
+    tbl.appendChild(tb);
+    var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
+  }
+
+  // ---------- claims ----------
+  function claimCard(c) {
+    var k = c.corroboration;
+    var head = el('div', { class: 'claimhead' }, [el('h4', {}, [(c.line ? 'line ' + c.line + ' \u00b7 ' : '') + c.claimId + ': ' + c.statement]), badge(c.decision)]);
+    var big = el('p', { class: 'collapse' }, [
+      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' supporting item(s) collapse to ',
+      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' independent origin(s)',
+      k.falseCorroboration ? el('span', { class: 'flag' }, [' FALSE CORROBORATION']) : '',
+    ]);
+    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? 'Core decision: ' + c.coreDecision + ' \u00b7 ' : '') + 'Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
+    var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
+    var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
+    if (Array.isArray(c.missing) && c.missing.length) {
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+    }
+    if (k.clusters.supports.length || k.clusters.contradicts.length) {
+      var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
+      k.clusters.supports.concat(k.clusters.contradicts.map(function (x) { return Object.assign({ contra: true }, x); })).forEach(function (o) {
+        cl.appendChild(el('div', { class: 'cluster' + (o.contra ? ' contra' : '') }, [
+          el('p', {}, [el('strong', {}, [(o.contra ? 'Contradicting origin ' : 'Origin ') + o.origin]), ' \u2014 items ' + ids(o.evidenceIds)]),
+          el('ul', {}, (o.reasons || []).map(function (r) { return el('li', {}, [r]); })),
+        ]));
+      });
+      card.appendChild(cl);
+    }
+    if (c.findings.length) {
+      card.appendChild(el('h5', {}, ['Proof gaps (logical: follow from the declared data and policy)']));
+      card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
+    }
+    if (c.plan && c.plan.steps.length) {
+      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, ['Counterfactual evidence plan' + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
+      plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
+      c.plan.steps.forEach(function (st) {
+        var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
+          el('thead', {}, [el('tr', {}, ['If\u2026', 'Then status', 'Support / contra origins'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+        var tb = el('tbody');
+        st.outcomes.forEach(function (o) { tb.appendChild(el('tr', { class: o.resultingStatus === c.status ? 'same' : 'changes' }, [el('td', {}, [o.outcome + (o.note ? ' (' + o.note + ')' : '')]), el('td', {}, [o.resultingStatus]), el('td', {}, [o.supportOrigins + ' / ' + o.contradictOrigins])])); });
+        t.appendChild(tb); plan.appendChild(t);
+      });
+      card.appendChild(plan);
+    }
+    if (c.requirements.length) {
+      var rq = el('details', {}, [el('summary', {}, ['Suggested next steps (heuristic, ranked)'])]);
+      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
+      card.appendChild(rq);
+    }
+    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, ['Assumptions']), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
+    return card;
+  }
+
+  function integrityCard(r) {
+    var i = r.integrity;
+    var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
+    var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
+      el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tb = el('tbody');
+    rows.forEach(function (x) {
+      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
+        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+        : (x.reason || '');
+      tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
+    });
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
+    t.appendChild(tb);
+    var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
+    return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);
+  }
+
+  function panel(report, raw, idx) {
+    var uid = 'r' + idx;
+    var s = report.summary;
+    var dl = el('button', { type: 'button', class: 'export' }, ['Export report JSON']);
+    dl.addEventListener('click', function () {
+      var blob = new Blob([raw], { type: 'application/json' });
+      var a = el('a', { href: URL.createObjectURL(blob), download: report.caseId + '.proofgap-report.json' });
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    });
+    var hdr = el('header', { class: 'phead' }, [
+      el('h2', {}, [report.title]),
+      el('p', { class: 'meta' }, ['Case ' + report.caseId + ' \u00b7 analysis ' + report.analysisVersion + ' \u00b7 input SHA-256 ' + report.inputSha256.slice(0, 16) + '\u2026']),
+      el('p', { class: 'disclaimer' }, [report.disclaimer]),
+      el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
+      dl,
+    ]);
+    var claims = el('section', { class: 'card' }, [el('h3', {}, ['Claims, reasoning and proof gaps'])].concat(report.claims.map(claimCard)));
+    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
+    var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
+    if (warn) kids.push(warn);
+    return el('div', { class: 'panel', role: 'region', 'aria-label': 'Report ' + report.caseId }, kids);
+  }
+
+  function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
+
+  function render(list) {
+    var main = document.getElementById('reports');
+    while (main.firstChild) main.removeChild(main.firstChild);
+    main.className = list.length > 1 ? 'grid two' : 'grid';
+    list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
+    var st = document.getElementById('status');
+    st.textContent = list.length ? 'Showing ' + list.length + ' report(s).' : 'No report loaded.';
+  }
+
+  function fromEmbedded() {
+    var out = [];
+    Array.prototype.forEach.call(document.querySelectorAll('script[type="application/json"].pgx-report'), function (s) {
+      try { var r = JSON.parse(s.textContent); if (valid(r)) out.push({ report: r, raw: s.textContent.trim() + '\n' }); } catch (e) { /* ignore malformed block */ }
+    });
+    return out;
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    render(fromEmbedded());
+    var input = document.getElementById('file');
+    input.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(input.files, 0, 2), out = [], left = files.length, err = [];
+      if (!left) return;
+      files.forEach(function (f, i) {
+        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': too large'); if (--left === 0) done(); return; }
+        var rd = new FileReader();
+        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': not a ProofGap X report'); } catch (e) { err.push(f.name + ': invalid JSON'); } if (--left === 0) done(); };
+        rd.readAsText(f);
+      });
+      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' Skipped: ' + err.join('; '); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

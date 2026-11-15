@@ -1,0 +1,33 @@
+{
+  "name": "proofgap-x",
+  "version": "0.5.0",
+  "description": "Explainable evidence-confidence stress testing (Phase 1 prototype, not forensic software)",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "proofgap": "apps/proofgap-x/cli.js",
+    "proofgap-cite": "apps/proofgap-cite/cli.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "analyze": "node src/cli.js",
+    "bench": "node --expose-gc bench/run.js all",
+    "demo": "node src/cli.js examples/demo/case.json --evidence-dir examples/demo/evidence --format text",
+    "validate:local": "node scripts/validate-local.js",
+    "showcase": "node src/cli.js examples/showcase/deceptive.json --compare examples/showcase/independent.json --evidence-dir examples/showcase/evidence --format html --out viewer/showcase.html",
+    "cite": "node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources",
+    "showcase:cite": "node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format html --out apps/proofgap-cite/showcase.html"
+  },
+  "files": [
+    "src",
+    "apps",
+    "schemas",
+    "examples",
+    "viewer",
+    "NOTICE"
+  ]
+}

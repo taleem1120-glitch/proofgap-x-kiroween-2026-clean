@@ -1,0 +1,2403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-k9zmfc/BnavybzhhIqhkQwM3lXUBl/mamY/+/arrD4U='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>ProofGap X report viewer</title>
+<style>:root {
+  --bg: #0f1115; --panel: #171a21; --card: #1d212a; --ink: #e8e6e3; --muted: #a9b0bc; --line: #3a4150;
+  --ok: #4cc38a; --warn: #f0b429; --bad: #ff6b6b; --accent: #c792ea; --verified: #4cc38a; --declared: #9aa4b5; --suspected: #f0b429; --unknown: #6f7a8c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+a { color: var(--accent); }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #000; padding: 6px; z-index: 10; }
+.top { padding: 16px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #1a1430, var(--bg)); }
+.top h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: .02em; }
+.top p { margin: 4px 0; color: var(--muted); max-width: 70rem; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
+label.file { border: 1px dashed var(--line); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+input[type=file] { color: var(--muted); }
+#status { color: var(--muted); }
+main { padding: 16px; }
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .grid.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-width: 0; }
+.phead h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.meta { color: var(--muted); font-size: .85rem; margin: 4px 0; overflow-wrap: anywhere; }
+.disclaimer { font-size: .85rem; border-left: 3px solid var(--warn); padding-left: 8px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: .85rem; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1px solid; white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+.badge.ok { color: var(--ok); border-color: var(--ok); } .badge.warn { color: var(--warn); border-color: var(--warn); } .badge.bad { color: var(--bad); border-color: var(--bad); }
+.badge.ok::before { content: "+ "; } .badge.warn::before { content: "? "; } .badge.bad::before { content: "x "; }
+button.export { background: #2a2f3b; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit; }
+button.export:hover, button.export:focus-visible { border-color: var(--accent); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-top: 12px; min-width: 0; overflow-wrap: anywhere; }
+.card h3 { margin: 0 0 8px; font-size: 1rem; color: var(--accent); }
+.claim { border-top: 1px solid var(--line); padding: 10px 0; }
+.claim:first-of-type { border-top: 0; }
+.claimhead { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between; }
+.claimhead h4 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+.collapse { font-size: 1.05rem; margin: 6px 0; }
+.collapse .n { font-weight: 800; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.collapse .items { color: var(--muted); } .collapse .origins { color: var(--ink); }
+.flag { color: var(--bad); font-weight: 700; font-size: .85rem; letter-spacing: .04em; }
+.why { margin: 4px 0 8px 18px; padding: 0; color: var(--muted); font-size: .9rem; }
+details { margin: 6px 0; } summary { cursor: pointer; color: var(--ink); font-weight: 600; font-size: .92rem; }
+summary:focus-visible, .node:focus-visible, button:focus-visible, label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cluster { border-left: 3px solid var(--ok); padding: 2px 8px; margin: 6px 0; font-size: .88rem; overflow-wrap: anywhere; }
+.cluster.contra { border-left-color: var(--bad); }
+.cluster ul { margin: 2px 0 2px 16px; padding: 0; color: var(--muted); }
+h5 { margin: 8px 0 4px; font-size: .9rem; }
+.findings { list-style: none; padding: 0; margin: 0; font-size: .88rem; }
+.findings li { margin: 3px 0; overflow-wrap: anywhere; }
+.sev { display: inline-block; min-width: 4.5em; text-transform: uppercase; font-size: .72rem; font-weight: 700; }
+.sev-high .sev { color: var(--bad); } .sev-medium .sev { color: var(--warn); } .sev-low .sev, .sev-info .sev { color: var(--muted); }
+.missing { border-left: 3px solid var(--warn); padding: 2px 10px; margin: 6px 0; }
+.missing h5 { margin: 2px 0; color: var(--warn); }
+.missing ul { margin: 2px 0 2px 16px; padding: 0; }
+.note { color: var(--muted); font-size: .82rem; font-style: italic; }
+table { border-collapse: collapse; width: 100%; font-size: .84rem; margin: 6px 0; }
+caption { text-align: left; color: var(--muted); padding: 4px 0; caption-side: top; overflow-wrap: anywhere; }
+th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+tr.changes td:nth-child(2) { color: var(--ok); font-weight: 600; }
+.int-VERIFIED td:nth-child(2) { color: var(--verified); } .int-MISMATCH td:nth-child(2), .int-UNSAFE_PATH td:nth-child(2) { color: var(--bad); }
+.int-MISSING td:nth-child(2), .int-NOT_CHECKED td:nth-child(2) { color: var(--warn); }
+.wouldnot { color: var(--warn); }
+.graphwrap { margin: 0; overflow-x: auto; }
+svg.graph { width: 100%; min-width: 560px; height: auto; display: block; }
+.colhead { fill: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.node rect { fill: #252a35; stroke: var(--line); stroke-width: 1.5; }
+.node.source.declared_original rect { stroke: var(--ok); } .node.source.derived rect { stroke: var(--declared); stroke-dasharray: 4 2; } .node.source.grouped rect { stroke: var(--warn); }
+.node.evidence.int-VERIFIED rect { stroke: var(--verified); stroke-width: 2.5; } .node.evidence.int-MISMATCH rect { stroke: var(--bad); stroke-width: 2.5; }
+.node.claim rect { fill: #2a2140; stroke: var(--accent); }
+.node.claim.dec-supported_by_independent_origins rect { stroke: var(--ok); } .node.claim.dec-insufficient_support rect, .node.claim.dec-contradicted rect, .node.claim.dec-no_evidence rect { stroke: var(--bad); }
+.node.claim.dec-abstain_possible_undeclared_dependence rect, .node.claim.dec-conflicting rect { stroke: var(--warn); }
+.nid { fill: var(--ink); font-size: 11px; font-weight: 700; } .nlabel { fill: var(--muted); font-size: 9.5px; }
+.edge { fill: none; stroke-width: 1.4; opacity: .85; }
+.edge.declared { stroke: var(--declared); } .edge.verified { stroke: var(--verified); stroke-width: 2.6; }
+.edge.suspected { stroke: var(--suspected); stroke-dasharray: 6 4; stroke-width: 2; } .edge.unknown { stroke: var(--unknown); stroke-dasharray: 2 3; }
+.edge.rel-contradicts { stroke: var(--bad); stroke-dasharray: 3 2; } .edge.rel-held_by { opacity: .45; }
+.arrow.declared { fill: var(--declared); } .arrow.verified { fill: var(--verified); } .arrow.suspected { fill: var(--suspected); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .8rem; color: var(--muted); margin-top: 6px; }
+.sw { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px; }
+.sw.verified { border-color: var(--verified); border-top-width: 3px; } .sw.declared { border-color: var(--declared); }
+.sw.suspected { border-color: var(--suspected); border-top-style: dashed; } .sw.unknown { border-color: var(--unknown); border-top-style: dotted; }
+footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff; color: #000; } .panel, .card { background: #fff; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#reports">Skip to reports</a>
+<header class="top">
+<h1>ProofGap X — evidence independence &amp; proof gaps</h1>
+<p>Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
+<p>Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.</p>
+<div class="controls"><label class="file">Open 1–2 report JSON files: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
+</header>
+<main id="reports" class="grid" tabindex="-1"></main>
+<footer>ProofGap X prototype · synthetic example data · not forensic software · not independently validated.</footer>
+<script type="application/json" class="pgx-report" id="pgx-report-0">
+{
+  "analysisVersion": "0.4.0",
+  "artifacts": [
+    {
+      "basis": "sha256",
+      "canonical": "A2",
+      "members": [
+        "A2",
+        "A7",
+        "A8"
+      ],
+      "sources": [
+        "screenshot-1",
+        "shared-drive",
+        "tip-inbox"
+      ]
+    }
+  ],
+  "caseId": "SHOW-A-ECHO",
+  "claims": [
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "3 of 8 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "claimId": "door-0214",
+      "contradictScore": 0,
+      "corroboration": {
+        "apparentExcess": 7,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "A1",
+                "A2",
+                "A3",
+                "A4",
+                "A5",
+                "A6",
+                "A7",
+                "A8"
+              ],
+              "origin": "source:badge-export",
+              "reasons": [
+                "Source \"badge-export\" is declared as an original source (no declared parents).",
+                "Source \"forum-post\" is declared as derived from \"screenshot-1\" (transitively from \"badge-export\", \"screenshot-1\"), so it cannot independently corroborate its upstream.",
+                "Source \"news-article\" is declared as derived from \"forum-post\" (transitively from \"badge-export\", \"forum-post\", \"screenshot-1\"), so it cannot independently corroborate its upstream.",
+                "Source \"screenshot-1\" is declared as derived from \"badge-export\", so it cannot independently corroborate its upstream.",
+                "Source \"screenshot-2\" is declared as derived from \"badge-export\", so it cannot independently corroborate its upstream.",
+                "Source \"shared-drive\" is declared as an original source (no declared parents).",
+                "Source \"summary-pdf\" is declared as derived from \"news-article\", \"screenshot-2\" (transitively from \"badge-export\", \"forum-post\", \"news-article\", \"screenshot-1\", \"screenshot-2\"), so it cannot independently corroborate its upstream.",
+                "Source \"tip-inbox\" is declared as an original source (no declared parents).",
+                "Evidence \"A2\", \"A7\", \"A8\" is the same artifact (sha256); sources \"screenshot-1\", \"shared-drive\", \"tip-inbox\" are therefore treated as one origin.",
+                "8 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "badge-export",
+                "forum-post",
+                "news-article",
+                "screenshot-1",
+                "screenshot-2",
+                "shared-drive",
+                "summary-pdf",
+                "tip-inbox"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": true,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 1,
+        "supportingEvidenceItems": 8
+      },
+      "decision": "insufficient_support",
+      "explanation": [
+        "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
+        "This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "evidence": [
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A7",
+            "A8"
+          ],
+          "message": "Support comes from 1 independent origin(s); policy requires at least 2.",
+          "origins": [
+            "source:badge-export"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "FALSE_CORROBORATION",
+          "evidence": [
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A7",
+            "A8"
+          ],
+          "message": "8 supporting evidence items collapse to 1 independent origin(s); the extra items are duplicates or derivatives and add no independent corroboration.",
+          "origins": [
+            "source:badge-export"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A8"
+          ],
+          "message": "Evidence \"A3\", \"A4\", \"A5\", \"A6\", \"A8\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A7",
+            "A8"
+          ],
+          "origin": "source:badge-export",
+          "sourceIds": [
+            "badge-export",
+            "forum-post",
+            "news-article",
+            "screenshot-1",
+            "screenshot-2",
+            "shared-drive",
+            "summary-pdf",
+            "tip-inbox"
+          ],
+          "strength": 0.9,
+          "strengthCappedFromDerived": 1
+        }
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "all 1 support the claim",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "at least one contradicts the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "absence of further evidence is not evidence against the claim",
+                "outcome": "none can be found",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              }
+            ],
+            "requirement": "1 additional item(s), each from an origin that is not derived from, grouped with, or byte-identical to any existing origin of this claim (\"source:badge-export\")."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Trace the derived or duplicated items back to their upstream original(s) (\"source:badge-export\") and compare each copy against its original.",
+          "addresses": [
+            "FALSE_CORROBORATION"
+          ],
+          "basis": "heuristic",
+          "code": "FALSE_CORROBORATION",
+          "rank": 1,
+          "wouldNotShow": "That the original is accurate, or that the copies independently corroborate it.",
+          "wouldShow": "Whether the copies faithfully reproduce the original, and what the original itself contains."
+        },
+        {
+          "action": "Obtain evidence for this claim from an origin that is not \"source:badge-export\", not derived from them, and not in their origin groups.",
+          "addresses": [
+            "BELOW_INDEPENDENCE_THRESHOLD"
+          ],
+          "basis": "heuristic",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "rank": 2,
+          "wouldNotShow": "That the claim is true, or that the new origin is independent beyond what its declared provenance states.",
+          "wouldShow": "Whether a second, separately declared origin also supports the claim."
+        }
+      ],
+      "statement": "The server-room door was opened at 02:14 on 31 Oct.",
+      "status": "insufficient_support",
+      "supportScore": 0.9
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 1 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "claimId": "two-people",
+      "contradictScore": 0,
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "A6"
+              ],
+              "origin": "artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox",
+              "reasons": [
+                "Source \"summary-pdf\" is declared as derived from \"news-article\", \"screenshot-2\" (transitively from \"badge-export\", \"forum-post\", \"news-article\", \"screenshot-1\", \"screenshot-2\"), so it cannot independently corroborate its upstream.",
+                "Origin roots \"artifact:A2\", \"source:badge-export\", \"source:shared-drive\", \"source:tip-inbox\" are linked by a declared derivation or shared artifact and are merged into one independence group.",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "summary-pdf"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 1,
+        "supportingEvidenceItems": 1
+      },
+      "decision": "insufficient_support",
+      "explanation": [
+        "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
+        "This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "evidence": [
+            "A6"
+          ],
+          "message": "Support comes from 1 independent origin(s); policy requires at least 2.",
+          "origins": [
+            "artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "A6"
+          ],
+          "message": "Evidence \"A6\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "A6"
+          ],
+          "origin": "artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox",
+          "sourceIds": [
+            "summary-pdf"
+          ],
+          "strength": 0.6
+        }
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "all 1 support the claim",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "at least one contradicts the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "absence of further evidence is not evidence against the claim",
+                "outcome": "none can be found",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              }
+            ],
+            "requirement": "1 additional item(s), each from an origin that is not derived from, grouped with, or byte-identical to any existing origin of this claim (\"artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox\")."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Obtain evidence for this claim from an origin that is not \"artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox\", not derived from them, and not in their origin groups.",
+          "addresses": [
+            "BELOW_INDEPENDENCE_THRESHOLD"
+          ],
+          "basis": "heuristic",
+          "code": "BELOW_INDEPENDENCE_THRESHOLD",
+          "rank": 1,
+          "wouldNotShow": "That the claim is true, or that the new origin is independent beyond what its declared provenance states.",
+          "wouldShow": "Whether a second, separately declared origin also supports the claim."
+        }
+      ],
+      "statement": "Two people entered together.",
+      "status": "insufficient_support",
+      "supportScore": 0.6
+    }
+  ],
+  "derivedSources": [
+    {
+      "originGroups": [
+        "artifact:A2",
+        "source:badge-export",
+        "source:shared-drive",
+        "source:tip-inbox"
+      ],
+      "sourceId": "forum-post"
+    },
+    {
+      "originGroups": [
+        "artifact:A2",
+        "source:badge-export",
+        "source:shared-drive",
+        "source:tip-inbox"
+      ],
+      "sourceId": "news-article"
+    },
+    {
+      "originGroups": [
+        "artifact:A2",
+        "source:badge-export",
+        "source:shared-drive",
+        "source:tip-inbox"
+      ],
+      "sourceId": "screenshot-1"
+    },
+    {
+      "originGroups": [
+        "source:badge-export"
+      ],
+      "sourceId": "screenshot-2"
+    },
+    {
+      "originGroups": [
+        "artifact:A2",
+        "source:badge-export",
+        "source:shared-drive",
+        "source:tip-inbox"
+      ],
+      "sourceId": "summary-pdf"
+    }
+  ],
+  "disclaimer": "Prototype analysis of declared evidence provenance. It does not establish forensic authenticity, intent, or guilt, and has not been independently validated.",
+  "duplicates": [
+    {
+      "basis": "sha256",
+      "duplicateOf": "A2",
+      "evidenceId": "A7"
+    },
+    {
+      "basis": "sha256",
+      "duplicateOf": "A2",
+      "evidenceId": "A8"
+    }
+  ],
+  "excludedByIntegrity": [],
+  "graph": {
+    "basisCounts": {
+      "declared": 23,
+      "suspected": 2,
+      "unknown": 0,
+      "verified": 2
+    },
+    "edges": [
+      {
+        "basis": "declared",
+        "from": "source:forum-post",
+        "relation": "derived_from",
+        "to": "source:screenshot-1"
+      },
+      {
+        "basis": "declared",
+        "from": "source:news-article",
+        "relation": "derived_from",
+        "to": "source:forum-post"
+      },
+      {
+        "basis": "declared",
+        "from": "source:screenshot-1",
+        "relation": "derived_from",
+        "to": "source:badge-export"
+      },
+      {
+        "basis": "declared",
+        "from": "source:screenshot-2",
+        "relation": "derived_from",
+        "to": "source:badge-export"
+      },
+      {
+        "basis": "declared",
+        "from": "source:summary-pdf",
+        "relation": "derived_from",
+        "to": "source:news-article"
+      },
+      {
+        "basis": "declared",
+        "from": "source:summary-pdf",
+        "relation": "derived_from",
+        "to": "source:screenshot-2"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A1",
+        "relation": "held_by",
+        "to": "source:badge-export"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A2",
+        "relation": "held_by",
+        "to": "source:screenshot-1"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A3",
+        "relation": "held_by",
+        "to": "source:screenshot-2"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A4",
+        "relation": "held_by",
+        "to": "source:forum-post"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A5",
+        "relation": "held_by",
+        "to": "source:news-article"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A6",
+        "relation": "held_by",
+        "to": "source:summary-pdf"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A7",
+        "relation": "held_by",
+        "to": "source:tip-inbox"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A8",
+        "relation": "held_by",
+        "to": "source:shared-drive"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A1",
+        "relation": "supports",
+        "strength": 0.7,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A2",
+        "relation": "supports",
+        "strength": 0.9,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A3",
+        "relation": "supports",
+        "strength": 0.9,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A4",
+        "relation": "supports",
+        "strength": 0.8,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A5",
+        "relation": "supports",
+        "strength": 0.9,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A6",
+        "relation": "supports",
+        "strength": 1,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A6",
+        "relation": "supports",
+        "strength": 0.6,
+        "to": "claim:two-people"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A7",
+        "relation": "supports",
+        "strength": 0.8,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:A8",
+        "relation": "supports",
+        "strength": 0.8,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "suspected",
+        "cue": "SHARED_ARTIFACT_ACROSS_LINEAGES",
+        "from": "source:shared-drive",
+        "relation": "possibly_same_origin",
+        "to": "source:screenshot-1"
+      },
+      {
+        "basis": "suspected",
+        "cue": "SHARED_ARTIFACT_ACROSS_LINEAGES",
+        "from": "source:tip-inbox",
+        "relation": "possibly_same_origin",
+        "to": "source:screenshot-1"
+      },
+      {
+        "basis": "verified",
+        "from": "evidence:A7",
+        "relation": "same_bytes",
+        "to": "evidence:A2"
+      },
+      {
+        "basis": "verified",
+        "discoveredBy": "local_hashing",
+        "from": "evidence:A8",
+        "relation": "same_bytes",
+        "to": "evidence:A2"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "source:badge-export",
+        "label": "Door badge system export (original)",
+        "ref": "badge-export",
+        "role": "declared_original",
+        "roots": [
+          "source:badge-export"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:forum-post",
+        "label": "Forum post quoting screenshot 1",
+        "ref": "forum-post",
+        "role": "derived",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:news-article",
+        "label": "News article citing the forum post",
+        "ref": "news-article",
+        "role": "derived",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:screenshot-1",
+        "label": "Screenshot of the badge export",
+        "ref": "screenshot-1",
+        "role": "derived",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:screenshot-2",
+        "label": "Second screenshot, cropped",
+        "ref": "screenshot-2",
+        "role": "derived",
+        "roots": [
+          "source:badge-export"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:shared-drive",
+        "label": "Shared team drive",
+        "ref": "shared-drive",
+        "role": "declared_original",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:summary-pdf",
+        "label": "Internal summary PDF",
+        "ref": "summary-pdf",
+        "role": "derived",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:tip-inbox",
+        "label": "Anonymous tip inbox",
+        "ref": "tip-inbox",
+        "role": "declared_original",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "source"
+      },
+      {
+        "hasDeclaredHash": true,
+        "id": "evidence:A1",
+        "integrity": "VERIFIED",
+        "label": "Badge log row 02:14:07 door SR-1",
+        "ref": "A1",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": true,
+        "id": "evidence:A2",
+        "integrity": "VERIFIED",
+        "label": "Screenshot showing badge row",
+        "ref": "A2",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:A3",
+        "integrity": "NOT_CHECKED",
+        "label": "Cropped screenshot of badge row",
+        "ref": "A3",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:A4",
+        "integrity": "NOT_CHECKED",
+        "label": "Forum post: door opened 02:14",
+        "ref": "A4",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:A5",
+        "integrity": "NOT_CHECKED",
+        "label": "Article paragraph on the 02:14 entry",
+        "ref": "A5",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:A6",
+        "integrity": "NOT_CHECKED",
+        "label": "Summary PDF page 2",
+        "ref": "A6",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": true,
+        "id": "evidence:A7",
+        "integrity": "VERIFIED",
+        "label": "Tip attachment image",
+        "ref": "A7",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:A8",
+        "integrity": "NOT_CHECKED",
+        "label": "Image found on shared drive (no hash recorded by the case author)",
+        "ref": "A8",
+        "type": "evidence"
+      },
+      {
+        "decision": "insufficient_support",
+        "id": "claim:door-0214",
+        "label": "The server-room door was opened at 02:14 on 31 Oct.",
+        "ref": "door-0214",
+        "status": "insufficient_support",
+        "type": "claim"
+      },
+      {
+        "decision": "insufficient_support",
+        "id": "claim:two-people",
+        "label": "Two people entered together.",
+        "ref": "two-people",
+        "status": "insufficient_support",
+        "type": "claim"
+      },
+      {
+        "id": "origin:artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox",
+        "label": "artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox",
+        "ref": "artifact:A2+source:badge-export+source:shared-drive+source:tip-inbox",
+        "roots": [
+          "artifact:A2",
+          "source:badge-export",
+          "source:shared-drive",
+          "source:tip-inbox"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:badge-export",
+        "label": "source:badge-export",
+        "ref": "source:badge-export",
+        "roots": [
+          "source:badge-export"
+        ],
+        "type": "origin"
+      }
+    ]
+  },
+  "inputSha256": "653f7b33b2e31c222849313b9521a669a78f9ddd5838ebc4d299b8b0b6fd2b53",
+  "integrity": {
+    "counts": {
+      "MISMATCH": 0,
+      "MISSING": 0,
+      "NOT_CHECKED": 5,
+      "UNSAFE_PATH": 0,
+      "VERIFIED": 3
+    },
+    "limits": {
+      "maxFileBytes": 52428800,
+      "maxFiles": 200,
+      "maxMillis": 30000,
+      "maxPathDepth": 8,
+      "maxPathLength": 255,
+      "maxTotalBytes": 268435456
+    },
+    "mode": "local_directory",
+    "results": [
+      {
+        "declaredSha256": "a970068724c3a4bb59e2962a9cafea47e3f2cd2b80333c47fe7d52dc72693baf",
+        "evidenceId": "A1",
+        "file": "badge-export.csv",
+        "observedSha256": "a970068724c3a4bb59e2962a9cafea47e3f2cd2b80333c47fe7d52dc72693baf",
+        "status": "VERIFIED",
+        "verified": true
+      },
+      {
+        "declaredSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "evidenceId": "A2",
+        "file": "shot-1.txt",
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "status": "VERIFIED",
+        "verified": true
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "A3",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "A4",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "A5",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "A6",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "evidenceId": "A7",
+        "file": "tip-image.txt",
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "status": "VERIFIED",
+        "verified": true
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "A8",
+        "file": "drive-image.txt",
+        "observedSha256": "9f48a2a4bffcd44da147a9ff899954742e889555e6c536013f9a44539591c629",
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      }
+    ],
+    "usage": {
+      "filesRead": 4,
+      "totalBytes": 360
+    }
+  },
+  "notes": [
+    "2 duplicate evidence item(s) were merged into their canonical artifact; their links are kept but count once."
+  ],
+  "policy": {
+    "abstention": "decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately",
+    "duplicates": "identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)",
+    "independence": "declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another’s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN",
+    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes",
+    "minIndependentOrigins": 2,
+    "scoring": "noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)"
+  },
+  "schemaVersion": "1.0",
+  "summary": {
+    "claims": 2,
+    "decisionCounts": {
+      "insufficient_support": 2
+    },
+    "effectiveEvidence": 6,
+    "evidence": 8,
+    "statusCounts": {
+      "insufficient_support": 2
+    }
+  },
+  "title": "Scenario A — 'Eight documents agree' (synthetic, fictional)",
+  "tool": "proofgap-x",
+  "trust": {
+    "declaredOnly": [
+      "derivedFrom",
+      "originGroup",
+      "strength",
+      "stance",
+      "sha256 values whose integrity status is not VERIFIED"
+    ],
+    "independentlyVerified": {
+      "independence": 0,
+      "provenance": 0,
+      "sha256Matches": 3
+    },
+    "note": "Only SHA-256 byte equality against local files can be verified by this tool. Provenance and independence are never verified."
+  },
+  "warnings": [
+    {
+      "basis": "heuristic",
+      "code": "SHARED_ARTIFACT_ACROSS_LINEAGES",
+      "evidenceIds": [
+        "A2",
+        "A7",
+        "A8"
+      ],
+      "message": "Evidence \"A2\", \"A7\", \"A8\" is the same artifact held by sources with different declared lineages (\"screenshot-1\", \"shared-drive\", \"tip-inbox\"); their upstream origins may share an undeclared source.",
+      "rootSets": [
+        [
+          "source:badge-export"
+        ],
+        [
+          "source:shared-drive"
+        ],
+        [
+          "source:tip-inbox"
+        ]
+      ],
+      "sourceIds": [
+        "screenshot-1",
+        "shared-drive",
+        "tip-inbox"
+      ]
+    }
+  ]
+}
+</script>
+<script type="application/json" class="pgx-report" id="pgx-report-1">
+{
+  "analysisVersion": "0.4.0",
+  "artifacts": [],
+  "caseId": "SHOW-B-INDEPENDENT",
+  "claims": [
+    {
+      "abstentionCues": [
+        "IDENTICAL_DESCRIPTION_ACROSS_ORIGINS",
+        "SAME_NAME_DIFFERENT_ORIGINS"
+      ],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 2 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "claimId": "alarm-off",
+      "contradictScore": 0,
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B5"
+              ],
+              "origin": "source:contractor-a",
+              "reasons": [
+                "Source \"contractor-a\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "contractor-a"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B6"
+              ],
+              "origin": "source:contractor-b",
+              "reasons": [
+                "Source \"contractor-b\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "contractor-b"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 2,
+        "supportingEvidenceItems": 2
+      },
+      "decision": "abstain_possible_undeclared_dependence",
+      "explanation": [
+        "Supported by 2 independent origins (combined score 0.84).",
+        "This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt.",
+        "ABSTAINING from \"supported\": heuristic cue(s) IDENTICAL_DESCRIPTION_ACROSS_ORIGINS, SAME_NAME_DIFFERENT_ORIGINS suggest that some of these origins may share an undeclared source. Hard classification remains \"supported_by_independent_origins\"; resolve the cue before relying on it."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "PROVENANCE_UNVERIFIED",
+          "evidence": [
+            "B5",
+            "B6"
+          ],
+          "message": "Independence of \"source:contractor-a\", \"source:contractor-b\" rests on DECLARED provenance only; no independent provenance verification was performed.",
+          "origins": [
+            "source:contractor-a",
+            "source:contractor-b"
+          ],
+          "severity": "low"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "B5",
+            "B6"
+          ],
+          "message": "Evidence \"B5\", \"B6\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "B5"
+          ],
+          "origin": "source:contractor-a",
+          "sourceIds": [
+            "contractor-a"
+          ],
+          "strength": 0.6
+        },
+        {
+          "evidenceIds": [
+            "B6"
+          ],
+          "origin": "source:contractor-b",
+          "sourceIds": [
+            "contractor-b"
+          ],
+          "strength": 0.6
+        }
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ROBUSTNESS"
+        },
+        "steps": [
+          {
+            "id": "ROBUSTNESS",
+            "kind": "stress_test",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "1 origin(s) collapse into others",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "a single independent contradiction is found",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 2
+              }
+            ],
+            "requirement": "Support survives unless 1 of its 2 independent origins are shown to share an undeclared source with another, or fail integrity checks."
+          },
+          {
+            "id": "RESOLVE_DEPENDENCE_CUES",
+            "kind": "verify_provenance",
+            "minimalCount": 2,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "cue(s) shown to be coincidence (declared independence holds)",
+                "resultingStatus": "supported_by_independent_origins",
+                "supportOrigins": 2
+              },
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "conservative: assumes each cue merges two origins into one",
+                "outcome": "flagged items shown to share one origin",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              }
+            ],
+            "requirement": "Resolve 2 heuristic cue(s) (IDENTICAL_DESCRIPTION_ACROSS_ORIGINS, SAME_NAME_DIFFERENT_ORIGINS) by checking whether the flagged sources/evidence share an origin."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Check custody or acquisition records for the origins \"source:contractor-a\", \"source:contractor-b\" to determine whether any of them copied from another or shares an undeclared upstream.",
+          "addresses": [
+            "PROVENANCE_UNVERIFIED"
+          ],
+          "basis": "heuristic",
+          "code": "PROVENANCE_UNVERIFIED",
+          "rank": 1,
+          "wouldNotShow": "That the evidence is true or complete.",
+          "wouldShow": "Whether the declared independence is credible."
+        }
+      ],
+      "statement": "The room alarm was disarmed before the entry.",
+      "status": "supported_by_independent_origins",
+      "supportScore": 0.84
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true.",
+        "0 of 4 supporting evidence item(s) have a declared SHA-256 VERIFIED against a local file; the others are unverified. Verification confirms byte equality only, not authenticity."
+      ],
+      "claimId": "door-0214",
+      "contradictScore": 0,
+      "corroboration": {
+        "apparentExcess": 1,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [],
+          "supports": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B1"
+              ],
+              "origin": "source:badge-system",
+              "reasons": [
+                "Source \"badge-system\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "badge-system"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B2",
+                "B4"
+              ],
+              "origin": "source:cctv-nvr",
+              "reasons": [
+                "Source \"cctv-clip\" is declared as derived from \"cctv-nvr\", so it cannot independently corroborate its upstream.",
+                "Source \"cctv-nvr\" is declared as an original source (no declared parents).",
+                "2 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "cctv-clip",
+                "cctv-nvr"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B3"
+              ],
+              "origin": "source:hvac-bms",
+              "reasons": [
+                "Source \"hvac-bms\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "hvac-bms"
+              ]
+            }
+          ]
+        },
+        "falseCorroboration": true,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 3,
+        "supportingEvidenceItems": 4
+      },
+      "decision": "supported_by_independent_origins",
+      "explanation": [
+        "Supported by 3 independent origins (combined score 0.937).",
+        "This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "FALSE_CORROBORATION",
+          "evidence": [
+            "B1",
+            "B2",
+            "B3",
+            "B4"
+          ],
+          "message": "4 supporting evidence items collapse to 3 independent origin(s); the extra items are duplicates or derivatives and add no independent corroboration.",
+          "origins": [
+            "source:badge-system",
+            "source:cctv-nvr",
+            "source:hvac-bms"
+          ],
+          "severity": "medium"
+        },
+        {
+          "basis": "logical",
+          "code": "PROVENANCE_UNVERIFIED",
+          "evidence": [
+            "B1",
+            "B2",
+            "B3",
+            "B4"
+          ],
+          "message": "Independence of \"source:badge-system\", \"source:cctv-nvr\", \"source:hvac-bms\" rests on DECLARED provenance only; no independent provenance verification was performed.",
+          "origins": [
+            "source:badge-system",
+            "source:cctv-nvr",
+            "source:hvac-bms"
+          ],
+          "severity": "low"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "B1",
+            "B2",
+            "B3",
+            "B4"
+          ],
+          "message": "Evidence \"B1\", \"B2\", \"B3\", \"B4\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [],
+      "independentSupportOrigins": [
+        {
+          "evidenceIds": [
+            "B1"
+          ],
+          "origin": "source:badge-system",
+          "sourceIds": [
+            "badge-system"
+          ],
+          "strength": 0.7
+        },
+        {
+          "evidenceIds": [
+            "B2",
+            "B4"
+          ],
+          "origin": "source:cctv-nvr",
+          "sourceIds": [
+            "cctv-clip",
+            "cctv-nvr"
+          ],
+          "strength": 0.7,
+          "strengthCappedFromDerived": 0.9
+        },
+        {
+          "evidenceIds": [
+            "B3"
+          ],
+          "origin": "source:hvac-bms",
+          "sourceIds": [
+            "hvac-bms"
+          ],
+          "strength": 0.3
+        }
+      ],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 2,
+          "stepId": "ROBUSTNESS"
+        },
+        "steps": [
+          {
+            "id": "ROBUSTNESS",
+            "kind": "stress_test",
+            "minimalCount": 2,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "outcome": "2 origin(s) collapse into others",
+                "resultingStatus": "insufficient_support",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 1,
+                "hypothetical": true,
+                "outcome": "a single independent contradiction is found",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 3
+              }
+            ],
+            "requirement": "Support survives unless 2 of its 3 independent origins are shown to share an undeclared source with another, or fail integrity checks."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Trace the derived or duplicated items back to their upstream original(s) (\"source:badge-system\", \"source:cctv-nvr\", \"source:hvac-bms\") and compare each copy against its original.",
+          "addresses": [
+            "FALSE_CORROBORATION"
+          ],
+          "basis": "heuristic",
+          "code": "FALSE_CORROBORATION",
+          "rank": 1,
+          "wouldNotShow": "That the original is accurate, or that the copies independently corroborate it.",
+          "wouldShow": "Whether the copies faithfully reproduce the original, and what the original itself contains."
+        },
+        {
+          "action": "Check custody or acquisition records for the origins \"source:badge-system\", \"source:cctv-nvr\", \"source:hvac-bms\" to determine whether any of them copied from another or shares an undeclared upstream.",
+          "addresses": [
+            "PROVENANCE_UNVERIFIED"
+          ],
+          "basis": "heuristic",
+          "code": "PROVENANCE_UNVERIFIED",
+          "rank": 2,
+          "wouldNotShow": "That the evidence is true or complete.",
+          "wouldShow": "Whether the declared independence is credible."
+        }
+      ],
+      "statement": "The server-room door was opened at 02:14 on 31 Oct.",
+      "status": "supported_by_independent_origins",
+      "supportScore": 0.937
+    },
+    {
+      "abstentionCues": [],
+      "assumptions": [
+        "Provenance (derivedFrom, originGroup) is as declared by the case author and has not been independently verified.",
+        "Strength values are author-assigned judgments, not measurements.",
+        "\"2 or more independent origins\" is a policy threshold, not proof that a claim is true."
+      ],
+      "claimId": "two-people",
+      "contradictScore": 0.8,
+      "corroboration": {
+        "apparentExcess": 0,
+        "approximate": false,
+        "clusters": {
+          "contradicts": [
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B7"
+              ],
+              "origin": "source:badge-system",
+              "reasons": [
+                "Source \"badge-system\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "badge-system"
+              ]
+            },
+            {
+              "countsAs": "1 independent origin",
+              "evidenceIds": [
+                "B2"
+              ],
+              "origin": "source:cctv-nvr",
+              "reasons": [
+                "Source \"cctv-nvr\" is declared as an original source (no declared parents).",
+                "1 evidence item(s) in this group count as 1 independent origin. This is based on DECLARED provenance, which has not been independently verified."
+              ],
+              "sourceIds": [
+                "cctv-nvr"
+              ]
+            }
+          ],
+          "supports": []
+        },
+        "falseCorroboration": false,
+        "independenceBasis": "declared_provenance_not_independently_verified",
+        "independentSupportOrigins": 0,
+        "supportingEvidenceItems": 0
+      },
+      "decision": "contradicted",
+      "explanation": [
+        "Only contradicting evidence from 2 independent origin(s) is linked.",
+        "This is a statistical-style confidence heuristic over declared provenance, not a finding of authenticity or guilt."
+      ],
+      "findings": [
+        {
+          "basis": "logical",
+          "code": "ONLY_CONTRADICTING_EVIDENCE",
+          "evidence": [
+            "B2",
+            "B7"
+          ],
+          "message": "Only contradicting evidence from 2 independent origin(s) is linked; nothing supports this claim.",
+          "origins": [
+            "source:badge-system",
+            "source:cctv-nvr"
+          ],
+          "severity": "high"
+        },
+        {
+          "basis": "logical",
+          "code": "NO_DECLARED_HASH",
+          "evidence": [
+            "B2",
+            "B7"
+          ],
+          "message": "Evidence \"B2\", \"B7\" has no declared SHA-256, so its integrity cannot be checked.",
+          "origins": [],
+          "severity": "info"
+        }
+      ],
+      "independentContradictOrigins": [
+        {
+          "evidenceIds": [
+            "B7"
+          ],
+          "origin": "source:badge-system",
+          "sourceIds": [
+            "badge-system"
+          ],
+          "strength": 0.5
+        },
+        {
+          "evidenceIds": [
+            "B2"
+          ],
+          "origin": "source:cctv-nvr",
+          "sourceIds": [
+            "cctv-nvr"
+          ],
+          "strength": 0.6
+        }
+      ],
+      "independentSupportOrigins": [],
+      "plan": {
+        "basis": "outcomes are logical consequences of the fixed policy; which evidence to seek is a heuristic suggestion; no hypothetical item is asserted to exist",
+        "smallestChange": {
+          "minimalCount": 1,
+          "stepId": "ADD_INDEPENDENT_ORIGINS"
+        },
+        "steps": [
+          {
+            "id": "ADD_INDEPENDENT_ORIGINS",
+            "kind": "acquire",
+            "minimalCount": 1,
+            "outcomes": [
+              {
+                "contradictOrigins": 2,
+                "hypothetical": true,
+                "outcome": "1 independent item supports the claim",
+                "resultingStatus": "conflicting",
+                "supportOrigins": 1
+              },
+              {
+                "contradictOrigins": 2,
+                "hypothetical": true,
+                "outcome": "none can be found",
+                "resultingStatus": "contradicted",
+                "supportOrigins": 0
+              }
+            ],
+            "requirement": "At least 1 supporting item from an origin independent of the contradicting origin(s); reaching SUPPORTED additionally requires every contradiction to be withdrawn (see below)."
+          },
+          {
+            "id": "REASSESS_CONTRADICTIONS",
+            "kind": "reassess",
+            "minimalCount": 2,
+            "outcomes": [
+              {
+                "contradictOrigins": 0,
+                "hypothetical": true,
+                "note": "under the policy a single remaining contradiction keeps the claim conflicting",
+                "outcome": "all 2 are shown not to apply to the claim",
+                "resultingStatus": "no_evidence",
+                "supportOrigins": 0
+              },
+              {
+                "contradictOrigins": 2,
+                "hypothetical": true,
+                "outcome": "at least one still applies",
+                "resultingStatus": "contradicted",
+                "supportOrigins": 0
+              }
+            ],
+            "requirement": "Re-examine the 2 contradicting origin(s) (\"source:badge-system\", \"source:cctv-nvr\"): collection method, time and applicability to the claim as worded."
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "action": "Re-examine whether the claim as worded is still defensible; look for any evidence that supports it, or revise the claim.",
+          "addresses": [
+            "ONLY_CONTRADICTING_EVIDENCE"
+          ],
+          "basis": "heuristic",
+          "code": "ONLY_CONTRADICTING_EVIDENCE",
+          "rank": 1,
+          "wouldNotShow": "That the contradicting evidence is correct.",
+          "wouldShow": "Whether any support exists at all."
+        }
+      ],
+      "statement": "Two people entered together.",
+      "status": "contradicted",
+      "supportScore": 0
+    }
+  ],
+  "derivedSources": [
+    {
+      "originGroups": [
+        "source:cctv-nvr"
+      ],
+      "sourceId": "cctv-clip"
+    }
+  ],
+  "disclaimer": "Prototype analysis of declared evidence provenance. It does not establish forensic authenticity, intent, or guilt, and has not been independently validated.",
+  "duplicates": [],
+  "excludedByIntegrity": [],
+  "graph": {
+    "basisCounts": {
+      "declared": 16,
+      "suspected": 2,
+      "unknown": 5,
+      "verified": 0
+    },
+    "edges": [
+      {
+        "basis": "declared",
+        "from": "evidence:B2",
+        "relation": "contradicts",
+        "strength": 0.6,
+        "to": "claim:two-people"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B7",
+        "relation": "contradicts",
+        "strength": 0.5,
+        "to": "claim:two-people"
+      },
+      {
+        "basis": "declared",
+        "from": "source:cctv-clip",
+        "relation": "derived_from",
+        "to": "source:cctv-nvr"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B1",
+        "relation": "held_by",
+        "to": "source:badge-system"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B2",
+        "relation": "held_by",
+        "to": "source:cctv-nvr"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B3",
+        "relation": "held_by",
+        "to": "source:hvac-bms"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B4",
+        "relation": "held_by",
+        "to": "source:cctv-clip"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B5",
+        "relation": "held_by",
+        "to": "source:contractor-a"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B6",
+        "relation": "held_by",
+        "to": "source:contractor-b"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B7",
+        "relation": "held_by",
+        "to": "source:badge-system"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B1",
+        "relation": "supports",
+        "strength": 0.7,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B2",
+        "relation": "supports",
+        "strength": 0.7,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B3",
+        "relation": "supports",
+        "strength": 0.3,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B4",
+        "relation": "supports",
+        "strength": 0.9,
+        "to": "claim:door-0214"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B5",
+        "relation": "supports",
+        "strength": 0.6,
+        "to": "claim:alarm-off"
+      },
+      {
+        "basis": "declared",
+        "from": "evidence:B6",
+        "relation": "supports",
+        "strength": 0.6,
+        "to": "claim:alarm-off"
+      },
+      {
+        "basis": "suspected",
+        "cue": "IDENTICAL_DESCRIPTION_ACROSS_ORIGINS",
+        "from": "evidence:B6",
+        "relation": "possibly_same_origin",
+        "to": "evidence:B5"
+      },
+      {
+        "basis": "suspected",
+        "cue": "SAME_NAME_DIFFERENT_ORIGINS",
+        "from": "source:contractor-b",
+        "relation": "possibly_same_origin",
+        "to": "source:contractor-a"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "door-0214",
+        "from": "origin:source:badge-system",
+        "relation": "independence_not_established",
+        "to": "origin:source:cctv-nvr"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "two-people",
+        "from": "origin:source:badge-system",
+        "relation": "independence_not_established",
+        "to": "origin:source:cctv-nvr"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "door-0214",
+        "from": "origin:source:badge-system",
+        "relation": "independence_not_established",
+        "to": "origin:source:hvac-bms"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "door-0214",
+        "from": "origin:source:cctv-nvr",
+        "relation": "independence_not_established",
+        "to": "origin:source:hvac-bms"
+      },
+      {
+        "basis": "unknown",
+        "claimId": "alarm-off",
+        "from": "origin:source:contractor-a",
+        "relation": "independence_not_established",
+        "to": "origin:source:contractor-b"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "source:badge-system",
+        "label": "Door badge system export",
+        "ref": "badge-system",
+        "role": "declared_original",
+        "roots": [
+          "source:badge-system"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:cctv-clip",
+        "label": "Exported CCTV clip",
+        "ref": "cctv-clip",
+        "role": "derived",
+        "roots": [
+          "source:cctv-nvr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:cctv-nvr",
+        "label": "CCTV recorder (separate vendor)",
+        "ref": "cctv-nvr",
+        "role": "declared_original",
+        "roots": [
+          "source:cctv-nvr"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:contractor-a",
+        "label": "Security contractor report",
+        "ref": "contractor-a",
+        "role": "declared_original",
+        "roots": [
+          "source:contractor-a"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:contractor-b",
+        "label": "Security Contractor Report",
+        "ref": "contractor-b",
+        "role": "declared_original",
+        "roots": [
+          "source:contractor-b"
+        ],
+        "type": "source"
+      },
+      {
+        "id": "source:hvac-bms",
+        "label": "Building HVAC sensor log",
+        "ref": "hvac-bms",
+        "role": "declared_original",
+        "roots": [
+          "source:hvac-bms"
+        ],
+        "type": "source"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B1",
+        "integrity": "NOT_CHECKED",
+        "label": "Badge log row 02:14:07 door SR-1",
+        "ref": "B1",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B2",
+        "integrity": "NOT_CHECKED",
+        "label": "Recorder frame 02:14:09 door open",
+        "ref": "B2",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B3",
+        "integrity": "NOT_CHECKED",
+        "label": "Temperature dip at 02:15 near SR-1",
+        "ref": "B3",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B4",
+        "integrity": "NOT_CHECKED",
+        "label": "Exported clip of the same frame",
+        "ref": "B4",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B5",
+        "integrity": "NOT_CHECKED",
+        "label": "Report: alarm disarmed 02:11",
+        "ref": "B5",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B6",
+        "integrity": "NOT_CHECKED",
+        "label": "Report: alarm disarmed 02:11",
+        "ref": "B6",
+        "type": "evidence"
+      },
+      {
+        "hasDeclaredHash": false,
+        "id": "evidence:B7",
+        "integrity": "NOT_CHECKED",
+        "label": "Badge log shows a single badge at 02:14",
+        "ref": "B7",
+        "type": "evidence"
+      },
+      {
+        "decision": "abstain_possible_undeclared_dependence",
+        "id": "claim:alarm-off",
+        "label": "The room alarm was disarmed before the entry.",
+        "ref": "alarm-off",
+        "status": "supported_by_independent_origins",
+        "type": "claim"
+      },
+      {
+        "decision": "supported_by_independent_origins",
+        "id": "claim:door-0214",
+        "label": "The server-room door was opened at 02:14 on 31 Oct.",
+        "ref": "door-0214",
+        "status": "supported_by_independent_origins",
+        "type": "claim"
+      },
+      {
+        "decision": "contradicted",
+        "id": "claim:two-people",
+        "label": "Two people entered together.",
+        "ref": "two-people",
+        "status": "contradicted",
+        "type": "claim"
+      },
+      {
+        "id": "origin:source:badge-system",
+        "label": "source:badge-system",
+        "ref": "source:badge-system",
+        "roots": [
+          "source:badge-system"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:cctv-nvr",
+        "label": "source:cctv-nvr",
+        "ref": "source:cctv-nvr",
+        "roots": [
+          "source:cctv-nvr"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:contractor-a",
+        "label": "source:contractor-a",
+        "ref": "source:contractor-a",
+        "roots": [
+          "source:contractor-a"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:contractor-b",
+        "label": "source:contractor-b",
+        "ref": "source:contractor-b",
+        "roots": [
+          "source:contractor-b"
+        ],
+        "type": "origin"
+      },
+      {
+        "id": "origin:source:hvac-bms",
+        "label": "source:hvac-bms",
+        "ref": "source:hvac-bms",
+        "roots": [
+          "source:hvac-bms"
+        ],
+        "type": "origin"
+      }
+    ]
+  },
+  "inputSha256": "1fab6b7cb8e6b70c93523dbe4d3f13b40f28255f629e86288dcb236e4d5ed3df",
+  "integrity": {
+    "counts": {
+      "MISMATCH": 0,
+      "MISSING": 0,
+      "NOT_CHECKED": 7,
+      "UNSAFE_PATH": 0,
+      "VERIFIED": 0
+    },
+    "limits": {
+      "maxFileBytes": 52428800,
+      "maxFiles": 200,
+      "maxMillis": 30000,
+      "maxPathDepth": 8,
+      "maxPathLength": 255,
+      "maxTotalBytes": 268435456
+    },
+    "mode": "local_directory",
+    "results": [
+      {
+        "declaredSha256": null,
+        "evidenceId": "B1",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B2",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B3",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B4",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B5",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B6",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      },
+      {
+        "declaredSha256": null,
+        "evidenceId": "B7",
+        "file": null,
+        "reason": "no_declared_hash",
+        "status": "NOT_CHECKED",
+        "verified": false
+      }
+    ],
+    "usage": {
+      "filesRead": 0,
+      "totalBytes": 0
+    }
+  },
+  "notes": [],
+  "policy": {
+    "abstention": "decision = abstain_possible_undeclared_dependence when the hard classification is SUPPORTED but a heuristic cue (same source name, identical description, or a shared artifact across different declared lineages) touches two of its independent support origins. The hard classification `status` is unchanged and reported separately",
+    "duplicates": "identical sha256, or same source + normalized description, are one artifact; their links are merged, not discarded (0.2.0 fixes D1-D2)",
+    "independence": "declared provenance only, evaluated PER CLAIM and stance (D9). Count = maximum number of supporting items whose declared root sets (roots of all sources citing the same artifact, incl. originGroup) are pairwise disjoint (D10, replaces 0.2.0 union-find). Sources holding the same artifact share all of one another’s roots plus an `artifact:` root, inherited by their derivatives (D11). Adding evidence never lowers the count; copies never raise it. Independence is never verified; absence of a declared link means UNKNOWN",
+    "integrity": "when local verification is requested, MISMATCH evidence is excluded from scoring. Every safely readable non-empty file is hashed by the tool, also without a declared hash (0.4.0); evidence whose OBSERVED bytes are identical is one artifact. The byte identity is verified; that the holders share an origin is the same policy inference as for declared hashes",
+    "minIndependentOrigins": 2,
+    "scoring": "noisy-OR over per-independent-origin strength. Origin strength = max strength of non-derived evidence whose roots contain that root set; derived-only evidence takes the minimum of all derived-only evidence sharing any root, capped by the strongest non-derived evidence sharing any root (D7, D8, D11). If only derived evidence exists, the MINIMUM of its strengths is used so extra copies cannot raise it (D8)"
+  },
+  "schemaVersion": "1.0",
+  "summary": {
+    "claims": 3,
+    "decisionCounts": {
+      "abstain_possible_undeclared_dependence": 1,
+      "contradicted": 1,
+      "supported_by_independent_origins": 1
+    },
+    "effectiveEvidence": 7,
+    "evidence": 7,
+    "statusCounts": {
+      "contradicted": 1,
+      "supported_by_independent_origins": 2
+    }
+  },
+  "title": "Scenario B — three independent systems, one abstention (synthetic, fictional)",
+  "tool": "proofgap-x",
+  "trust": {
+    "declaredOnly": [
+      "derivedFrom",
+      "originGroup",
+      "strength",
+      "stance",
+      "sha256 values whose integrity status is not VERIFIED"
+    ],
+    "independentlyVerified": {
+      "independence": 0,
+      "provenance": 0,
+      "sha256Matches": 0
+    },
+    "note": "Only SHA-256 byte equality against local files can be verified by this tool. Provenance and independence are never verified."
+  },
+  "warnings": [
+    {
+      "basis": "heuristic",
+      "code": "IDENTICAL_DESCRIPTION_ACROSS_ORIGINS",
+      "evidenceIds": [
+        "B5",
+        "B6"
+      ],
+      "message": "Evidence \"B5\", \"B6\" have identical descriptions but are declared independent; check whether they are the same material."
+    },
+    {
+      "basis": "heuristic",
+      "code": "SAME_NAME_DIFFERENT_ORIGINS",
+      "message": "Sources \"contractor-a\", \"contractor-b\" share the name \"security contractor report\" but are declared independent; check for an undeclared common origin.",
+      "sourceIds": [
+        "contractor-a",
+        "contractor-b"
+      ]
+    }
+  ]
+}
+</script>
+<script>// ProofGap X offline report viewer.
+// SECURITY: every untrusted string is inserted with textContent / createTextNode. HTML-string insertion APIs are never used; no eval,
+// no network. Reports are read from embedded JSON data blocks or local files the user picks.
+(function () {
+  'use strict';
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var DECISION = {
+    supported_by_independent_origins: ['Supported (declared assumptions)', 'ok'],
+    abstain_possible_undeclared_dependence: ['Abstains: possible hidden shared source', 'warn'],
+    insufficient_support: ['Insufficient independent support', 'bad'],
+    conflicting: ['Conflicting evidence', 'warn'],
+    contradicted: ['Contradicted', 'bad'],
+    no_evidence: ['No evidence', 'bad'],
+    // ProofGap Cite verdicts
+    independently_corroborated: ['Independently corroborated (declared lineage)', 'ok'],
+    abstain_suspected_shared_origin: ['Abstains: may be the same source', 'warn'],
+    origin_unresolved: ['Origin unresolved', 'warn'],
+    single_origin: ['Single origin', 'bad'],
+    circular_reporting: ['Circular reporting', 'bad'],
+    unsupported: ['Unsupported', 'bad'],
+  };
+  var BASIS_HELP = {
+    verified: 'bytes hashed by this tool and identical (says nothing about who created them)',
+    declared: 'stated by the case author, not verified',
+    suspected: 'heuristic cue only; never changes scores',
+    unknown: 'no declared link; independence assumed by policy, not established',
+  };
+
+  function el(tag, attrs, children) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { if (attrs[k] !== undefined && attrs[k] !== null) n.setAttribute(k, String(attrs[k])); });
+    (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function svg(tag, attrs, children) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, String(attrs[k])); });
+    (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [d[0]]); }
+  function ids(xs) { return xs.map(function (x) { return x; }).join(', '); }
+  function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '\u2026' : s; }
+
+  // ---------- independence graph (deterministic layered layout) ----------
+  function graphView(report, uid) {
+    var g = report.graph;
+    var observedOnly = {};
+    report.integrity.results.forEach(function (x) { if (!x.declaredSha256 && x.observedSha256 && !x.observedEmpty) observedOnly[x.evidenceId] = true; });
+    var cols = { source: [], evidence: [], claim: [] };
+    g.nodes.forEach(function (n) { if (cols[n.type]) cols[n.type].push(n); });
+    // sources: originals first, then by number of roots (deeper derivations later), then id
+    cols.source.sort(function (a, b) { var ra = a.role === 'declared_original' ? 0 : 1, rb = b.role === 'declared_original' ? 0 : 1; return ra - rb || a.roots.length - b.roots.length || (a.ref < b.ref ? -1 : 1); });
+    var X = { source: 120, evidence: 400, claim: 680 }, rowH = 46, top = 40;
+    var pos = {};
+    var rows = Math.max(cols.source.length, cols.evidence.length, cols.claim.length);
+    ['source', 'evidence', 'claim'].forEach(function (t) {
+      var list = cols[t], offset = top + ((rows - list.length) * rowH) / 2;
+      list.forEach(function (n, i) { pos[n.id] = { x: X[t], y: offset + i * rowH }; });
+    });
+    var H = top + rows * rowH + 10;
+    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'img', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
+    root.appendChild(svg('title', { id: uid + '-gt' }, ['Evidence independence graph for ' + report.caseId]));
+    root.appendChild(svg('desc', { id: uid + '-gd' }, ['Sources on the left, evidence in the middle, claims on the right. A text version of every relationship follows the graph.']));
+    var defs = svg('defs', {});
+    ['declared', 'verified', 'suspected'].forEach(function (b) {
+      defs.appendChild(svg('marker', { id: uid + '-arrow-' + b, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, [svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'arrow ' + b })]));
+    });
+    root.appendChild(defs);
+    [['Sources', X.source], ['Evidence', X.evidence], ['Claims', X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
+    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
+    root.appendChild(edgeLayer); root.appendChild(nodeLayer);
+    g.edges.forEach(function (e) {
+      var a = pos[e.from], b = pos[e.to];
+      if (!a || !b) return; // origin-level "unknown" edges are listed in the claim cards instead
+      var cls = 'edge ' + e.basis + ' rel-' + e.relation;
+      var d;
+      if (a.x === b.x) { var bend = e.relation === 'same_bytes' || e.relation === 'same_source_and_description' ? 70 : -70; d = 'M' + (a.x + (bend > 0 ? 60 : -60)) + ',' + a.y + ' C' + (a.x + bend + 40 * Math.sign(bend)) + ',' + a.y + ' ' + (b.x + bend + 40 * Math.sign(bend)) + ',' + b.y + ' ' + (b.x + (bend > 0 ? 60 : -60)) + ',' + b.y; }
+      else { var x1 = a.x + (a.x < b.x ? 62 : -62), x2 = b.x + (a.x < b.x ? -62 : 62); d = 'M' + x1 + ',' + a.y + ' C' + (x1 + x2) / 2 + ',' + a.y + ' ' + (x1 + x2) / 2 + ',' + b.y + ' ' + x2 + ',' + b.y; }
+      var pa = { d: d, class: cls };
+      if (e.relation === 'derived_from' || e.relation === 'held_by') pa['marker-end'] = 'url(#' + uid + '-arrow-' + (e.basis === 'suspected' || e.basis === 'verified' ? e.basis : 'declared') + ')';
+      var p = svg('path', pa);
+      p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
+      edgeLayer.appendChild(p);
+    });
+    g.nodes.forEach(function (n) {
+      var p = pos[n.id]; if (!p) return;
+      var cls = 'node ' + n.type + (n.role ? ' ' + n.role : '') + (n.integrity ? ' int-' + n.integrity : '') + (n.decision ? ' dec-' + n.decision : '');
+      var grp = svg('g', { class: cls, transform: 'translate(' + p.x + ',' + p.y + ')', tabindex: 0 });
+      grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
+      grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
+      grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
+      nodeLayer.appendChild(grp);
+    });
+    var wrap = el('figure', { class: 'graphwrap' }, [root]);
+    var legend = el('figcaption', { class: 'legend' }, Object.keys(BASIS_HELP).map(function (b) {
+      return el('span', { class: 'lg' }, [el('span', { class: 'sw ' + b, 'aria-hidden': 'true' }), el('strong', {}, [b]), ' - ' + BASIS_HELP[b] + ' (' + g.basisCounts[b] + ')']);
+    }));
+    wrap.appendChild(legend);
+    // text alternative
+    var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tb = el('tbody');
+    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
+    tbl.appendChild(tb);
+    var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
+  }
+
+  // ---------- claims ----------
+  function claimCard(c) {
+    var k = c.corroboration;
+    var head = el('div', { class: 'claimhead' }, [el('h4', {}, [(c.line ? 'line ' + c.line + ' \u00b7 ' : '') + c.claimId + ': ' + c.statement]), badge(c.decision)]);
+    var big = el('p', { class: 'collapse' }, [
+      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' supporting item(s) collapse to ',
+      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' independent origin(s)',
+      k.falseCorroboration ? el('span', { class: 'flag' }, [' FALSE CORROBORATION']) : '',
+    ]);
+    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? 'Core decision: ' + c.coreDecision + ' \u00b7 ' : '') + 'Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
+    var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
+    var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
+    if (Array.isArray(c.missing) && c.missing.length) {
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+    }
+    if (k.clusters.supports.length || k.clusters.contradicts.length) {
+      var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
+      k.clusters.supports.concat(k.clusters.contradicts.map(function (x) { return Object.assign({ contra: true }, x); })).forEach(function (o) {
+        cl.appendChild(el('div', { class: 'cluster' + (o.contra ? ' contra' : '') }, [
+          el('p', {}, [el('strong', {}, [(o.contra ? 'Contradicting origin ' : 'Origin ') + o.origin]), ' \u2014 items ' + ids(o.evidenceIds)]),
+          el('ul', {}, (o.reasons || []).map(function (r) { return el('li', {}, [r]); })),
+        ]));
+      });
+      card.appendChild(cl);
+    }
+    if (c.findings.length) {
+      card.appendChild(el('h5', {}, ['Proof gaps (logical: follow from the declared data and policy)']));
+      card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
+    }
+    if (c.plan && c.plan.steps.length) {
+      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, ['Counterfactual evidence plan' + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
+      plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
+      c.plan.steps.forEach(function (st) {
+        var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
+          el('thead', {}, [el('tr', {}, ['If\u2026', 'Then status', 'Support / contra origins'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+        var tb = el('tbody');
+        st.outcomes.forEach(function (o) { tb.appendChild(el('tr', { class: o.resultingStatus === c.status ? 'same' : 'changes' }, [el('td', {}, [o.outcome + (o.note ? ' (' + o.note + ')' : '')]), el('td', {}, [o.resultingStatus]), el('td', {}, [o.supportOrigins + ' / ' + o.contradictOrigins])])); });
+        t.appendChild(tb); plan.appendChild(t);
+      });
+      card.appendChild(plan);
+    }
+    if (c.requirements.length) {
+      var rq = el('details', {}, [el('summary', {}, ['Suggested next steps (heuristic, ranked)'])]);
+      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
+      card.appendChild(rq);
+    }
+    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, ['Assumptions']), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
+    return card;
+  }
+
+  function integrityCard(r) {
+    var i = r.integrity;
+    var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
+    var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
+      el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tb = el('tbody');
+    rows.forEach(function (x) {
+      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
+        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+        : (x.reason || '');
+      tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
+    });
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
+    t.appendChild(tb);
+    var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
+    return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);
+  }
+
+  function panel(report, raw, idx) {
+    var uid = 'r' + idx;
+    var s = report.summary;
+    var dl = el('button', { type: 'button', class: 'export' }, ['Export report JSON']);
+    dl.addEventListener('click', function () {
+      var blob = new Blob([raw], { type: 'application/json' });
+      var a = el('a', { href: URL.createObjectURL(blob), download: report.caseId + '.proofgap-report.json' });
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    });
+    var hdr = el('header', { class: 'phead' }, [
+      el('h2', {}, [report.title]),
+      el('p', { class: 'meta' }, ['Case ' + report.caseId + ' \u00b7 analysis ' + report.analysisVersion + ' \u00b7 input SHA-256 ' + report.inputSha256.slice(0, 16) + '\u2026']),
+      el('p', { class: 'disclaimer' }, [report.disclaimer]),
+      el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
+      dl,
+    ]);
+    var claims = el('section', { class: 'card' }, [el('h3', {}, ['Claims, reasoning and proof gaps'])].concat(report.claims.map(claimCard)));
+    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
+    var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
+    if (warn) kids.push(warn);
+    return el('div', { class: 'panel', role: 'region', 'aria-label': 'Report ' + report.caseId }, kids);
+  }
+
+  function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
+
+  function render(list) {
+    var main = document.getElementById('reports');
+    while (main.firstChild) main.removeChild(main.firstChild);
+    main.className = list.length > 1 ? 'grid two' : 'grid';
+    list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
+    var st = document.getElementById('status');
+    st.textContent = list.length ? 'Showing ' + list.length + ' report(s).' : 'No report loaded.';
+  }
+
+  function fromEmbedded() {
+    var out = [];
+    Array.prototype.forEach.call(document.querySelectorAll('script[type="application/json"].pgx-report'), function (s) {
+      try { var r = JSON.parse(s.textContent); if (valid(r)) out.push({ report: r, raw: s.textContent.trim() + '\n' }); } catch (e) { /* ignore malformed block */ }
+    });
+    return out;
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    render(fromEmbedded());
+    var input = document.getElementById('file');
+    input.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(input.files, 0, 2), out = [], left = files.length, err = [];
+      if (!left) return;
+      files.forEach(function (f, i) {
+        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': too large'); if (--left === 0) done(); return; }
+        var rd = new FileReader();
+        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': not a ProofGap X report'); } catch (e) { err.push(f.name + ': invalid JSON'); } if (--left === 0) done(); };
+        rd.readAsText(f);
+      });
+      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' Skipped: ' + err.join('; '); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

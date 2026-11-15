@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "DEMO-001",
+  "title": "Synthetic demo case (fictional data)",
+  "sources": [
+    { "id": "cam-a", "name": "Camera A export" },
+    { "id": "cam-a-copy", "name": "Re-encoded copy of Camera A", "derivedFrom": ["cam-a"] },
+    { "id": "witness-1", "name": "Witness statement 1" },
+    { "id": "log-x", "name": "Access log X" }
+  ],
+  "claims": [
+    { "id": "c1", "statement": "The door was opened at 21:05." },
+    { "id": "c2", "statement": "The alarm was disabled before entry." },
+    { "id": "c3", "statement": "A second person was present." }
+  ],
+  "evidence": [
+    { "id": "e1", "sourceId": "cam-a", "description": "Door open frame", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] },
+    { "id": "e2", "sourceId": "cam-a-copy", "description": "Door open frame (copy)", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] },
+    { "id": "e3", "sourceId": "log-x", "description": "Badge entry 21:05", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.7 }, { "claimId": "c2", "stance": "contradicts", "strength": 0.6 }] },
+    { "id": "e4", "sourceId": "witness-1", "description": "Heard alarm tone stop", "links": [{ "claimId": "c2", "stance": "supports", "strength": 0.5 }] },
+    { "id": "e5", "sourceId": "cam-a", "description": "Door open frame", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "links": [{ "claimId": "c1", "stance": "supports", "strength": 0.8 }] }
+  ]
+}
