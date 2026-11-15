@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wlBm1mYM8VzovHxgPQF2XfcPUQVgPgSaf7ypuWjfJ0Q='; style-src 'sha256-n6aCHQev+AwNTmsvneSOfYjGaqViUZnGW63rG/pZT1A='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wlBm1mYM8VzovHxgPQF2XfcPUQVgPgSaf7ypuWjfJ0Q='; style-src 'sha256-D5Xz4EnPbY6INcYth/BH4kiEM6paaxClufmjGuBhsY8='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap Cite report viewer</title>
 <style>:root {
@@ -14,7 +14,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
 a { color: var(--accent); }
-.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #000; padding: 6px; z-index: 10; }
+.skip { position: fixed; inset-inline-start: 8px; top: 8px; transform: translateY(-200%); opacity: 0; pointer-events: none; z-index: 10; } .skip:focus { transform: none; opacity: 1; pointer-events: auto; background: #000; padding: 6px; }
 .top { padding: 16px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #1a1430, var(--bg)); }
 .top h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: .02em; }
 .top p { margin: 4px 0; color: var(--muted); max-width: 70rem; }
