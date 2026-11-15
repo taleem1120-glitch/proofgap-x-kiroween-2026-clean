@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wlBm1mYM8VzovHxgPQF2XfcPUQVgPgSaf7ypuWjfJ0Q='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wlBm1mYM8VzovHxgPQF2XfcPUQVgPgSaf7ypuWjfJ0Q='; style-src 'sha256-n6aCHQev+AwNTmsvneSOfYjGaqViUZnGW63rG/pZT1A='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X report viewer</title>
 <style>:root {
@@ -90,6 +90,37 @@ svg.graph { width: 100%; min-width: 560px; height: auto; display: block; }
 footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 @media print { body { background: #fff; color: #000; } .panel, .card { background: #fff; } }
+
+/* Mobile-first accessibility: preserve forensic graph geometry but avoid body overflow. */
+html { overflow-x: hidden; }
+body { min-width: 0; overflow-wrap: anywhere; }
+.controls > label { min-width: 0; max-width: 100%; }
+.controls select { min-height: 44px; max-width: 100%; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.controls input[type=file] { display: block; max-width: 100%; min-height: 44px; font: inherit; }
+button.export { min-height: 44px; }
+#pg-translation-scope { border-inline-start: 3px solid var(--warn); padding-inline-start: 9px; }
+.panel, .card, .claim, .claimhead { min-width: 0; }
+.claimhead h4, .cluster, .meta { overflow-wrap: anywhere; }
+.card table { display: block; overflow-x: auto; max-width: 100%; }
+.card table th, .card table td { min-width: 5rem; }
+html[dir="rtl"] .disclaimer { border-left: 0; padding-left: 0; border-right: 3px solid var(--warn); padding-right: 8px; }
+html[dir="rtl"] .missing, html[dir="rtl"] .cluster { border-left: 0; padding-left: 0; border-right: 3px solid var(--warn); padding-right: 8px; }
+html[dir="rtl"] .cluster { border-right-color: var(--ok); }
+html[dir="rtl"] .cluster.contra { border-right-color: var(--bad); }
+html[dir="rtl"] .why { margin-left: 0; margin-right: 18px; }
+html[dir="rtl"] .colhead { direction: ltr; unicode-bidi: isolate; }
+html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: start; }
+@media (max-width: 560px) {
+  .top { padding: 14px 12px; }
+  main { padding: 10px; }
+  .panel { padding: 10px; }
+  .card { padding: 9px; }
+  .controls { align-items: stretch; flex-direction: column; }
+  .controls > label { width: 100%; }
+  .claimhead { flex-direction: column; align-items: flex-start; }
+  .badge { font-size: .76rem; }
+  svg.graph { min-width: 560px; }
+}
 </style>
 </head>
 <body>
