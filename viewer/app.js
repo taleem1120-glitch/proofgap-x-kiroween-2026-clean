@@ -212,7 +212,9 @@
 
   function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
 
+  var currentReports = [];
   function render(list) {
+    currentReports = list;
     var main = document.getElementById('reports');
     while (main.firstChild) main.removeChild(main.firstChild);
     main.className = list.length > 1 ? 'grid two' : 'grid';
@@ -232,7 +234,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     ProofGapLocale.set(ProofGapLocale.detect());
     var language = document.getElementById('pg-language');
-    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); render(fromEmbedded()); });
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); render(currentReports); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
