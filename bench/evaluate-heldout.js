@@ -12,21 +12,26 @@ const metrics = m => ({
   precision: m.tp+m.fp ? m.tp/(m.tp+m.fp) : null,
   recall: m.tp+m.fn ? m.tp/(m.tp+m.fn) : null,
   falsePositiveRate: m.fp+m.tn ? m.fp/(m.fp+m.tn) : null,
-  specificity: m.fp+m.tn ? m.tn/(m.fp+m.tn) : null
+  specificity: m.fp+m.tn ? m.tn/(m.fp+m.tn) : null,
+  coverage: m.tp+m.fp+m.tn+m.fn+m.abstainedPositive+m.abstainedNegative
+    ? (m.tp+m.fp+m.tn+m.fn)/(m.tp+m.fp+m.tn+m.fn+m.abstainedPositive+m.abstainedNegative) : null
 });
 function run(cases, method) {
-  const m={tp:0,fp:0,tn:0,fn:0,unknown:0,unsupported:0};
+  const m={tp:0,fp:0,tn:0,fn:0,unknown:0,abstainedPositive:0,abstainedNegative:0};
   const grouped={};
   for(const row of cases) {
     const raw=method==='sha256'
       ? {suspected:sha(row.a)===sha(row.b),reason:'exact_bytes'}
       : compareTextCopies(row.a,row.b);
-    if (raw.reason==='insufficient_or_unsupported_text') m.unsupported++;
     if (row.label==='unknown') {m.unknown++;continue;}
     const positive=row.label==='same_origin';
+    const group=grouped[row.group]??={tp:0,fp:0,tn:0,fn:0,abstainedPositive:0,abstainedNegative:0};
+    if (raw.reason==='insufficient_or_unsupported_text') {
+      const bucket=positive?'abstainedPositive':'abstainedNegative';
+      m[bucket]++;group[bucket]++;continue;
+    }
     const bucket=raw.suspected?(positive?'tp':'fp'):(positive?'fn':'tn');
     m[bucket]++;
-    const group=grouped[row.group]??={tp:0,fp:0,tn:0,fn:0};
     group[bucket]++;
   }
   return {overall:metrics(m),byGroup:Object.fromEntries(Object.entries(grouped).map(([k,v])=>[k,metrics(v)]))};
