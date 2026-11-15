@@ -172,12 +172,12 @@
   function integrityCard(r) {
     var i = r.integrity;
     var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
-    var t = el('table', { class: 'integrity' }, [el('caption', {}, [L('sourceVerification') + ': ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
+    var t = el('table', { class: 'integrity' }, [el('caption', {}, [L('sourceVerification') + ': ' + (i.mode === 'not_requested' ? L('notRequested') : L('checkedLocal'))]),
       el('thead', {}, [el('tr', {}, [L('evidence'), L('status'), L('reason')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
     rows.forEach(function (x) {
-      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
-        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+      var why = x.verified ? L('bytesMatched')
+        : (!x.declaredSha256 && x.observedSha256) ? L('localHash') + ' ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (' + L('emptyFile') + ')' : '')
         : (x.reason || '');
       tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
     });
@@ -233,22 +233,28 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     ProofGapLocale.set(ProofGapLocale.detect());
+    function translateStatic(){
+      [['pg-offline','headerOffline'],['pg-intro','headerCaveat'],['pg-footer','footerCaveat'],['pg-skip','skipReports']].forEach(function(pair){
+        var node=document.getElementById(pair[0]); if(node)node.textContent=L(pair[1]);
+      });
+    }
+    translateStatic();
     var fileCaption = document.getElementById('pg-open-files');
     if (fileCaption) fileCaption.textContent = L('openFiles');
     var language = document.getElementById('pg-language');
-    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); if (fileCaption) fileCaption.textContent = L('openFiles'); render(currentReports); });
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); translateStatic(); if (fileCaption) fileCaption.textContent = L('openFiles'); render(currentReports); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
       var files = Array.prototype.slice.call(input.files, 0, 2), out = [], left = files.length, err = [];
       if (!left) return;
       files.forEach(function (f, i) {
-        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': too large'); if (--left === 0) done(); return; }
+        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': ' + L('tooLarge')); if (--left === 0) done(); return; }
         var rd = new FileReader();
-        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': not a ProofGap X report'); } catch (e) { err.push(f.name + ': invalid JSON'); } if (--left === 0) done(); };
+        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': ' + L('notReport')); } catch (e) { err.push(f.name + ': ' + L('invalidJson')); } if (--left === 0) done(); };
         rd.readAsText(f);
       });
-      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' Skipped: ' + err.join('; '); }
+      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' ' + L('skipped') + ': ' + err.join('; '); }
     });
   });
 })();
