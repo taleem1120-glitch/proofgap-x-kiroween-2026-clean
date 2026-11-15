@@ -111,7 +111,7 @@
     }));
     wrap.appendChild(legend);
     // text alternative
-    var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tbl = el('table', { class: 'edges' }, [el('caption', {}, [L('allRelations',{n:g.edges.length})]), el('thead', {}, [el('tr', {}, [L('from'), L('relation'), L('to'), L('basis')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
     g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
@@ -124,33 +124,33 @@
     var k = c.corroboration;
     var head = el('div', { class: 'claimhead' }, [el('h4', {}, [(c.line ? 'line ' + c.line + ' \u00b7 ' : '') + c.claimId + ': ' + c.statement]), badge(c.decision)]);
     var big = el('p', { class: 'collapse' }, [
-      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' supporting item(s) collapse to ',
-      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' independent origin(s)',
-      k.falseCorroboration ? el('span', { class: 'flag' }, [' FALSE CORROBORATION']) : '',
+      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' ' + L('collapseTo') + ' ',
+      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' ' + L('originsSuffix'),
+      k.falseCorroboration ? el('span', { class: 'flag' }, [L('falseCorroboration')]) : '',
     ]);
-    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? 'Core decision: ' + c.coreDecision + ' \u00b7 ' : '') + 'Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
+    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? L('coreDecision') + ': ' + c.coreDecision + ' \u00b7 ' : '') + L('hardClassification') + ': ' + c.status + ' \u00b7 ' + L('supportScore') + ' ' + c.supportScore + ' \u00b7 ' + L('contradictScore') + ' ' + c.contradictScore + (k.approximate ? ' \u00b7 ' + L('approxGrouping') : '')]);
     var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
     var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
     if (Array.isArray(c.missing) && c.missing.length) {
       card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, [L('missing')]), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
     }
     if (k.clusters.supports.length || k.clusters.contradicts.length) {
-      var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
+      var cl = el('details', { open: '' }, [el('summary', {}, [L('whyOrigins',{n:k.independentSupportOrigins})])]);
       k.clusters.supports.concat(k.clusters.contradicts.map(function (x) { return Object.assign({ contra: true }, x); })).forEach(function (o) {
         cl.appendChild(el('div', { class: 'cluster' + (o.contra ? ' contra' : '') }, [
-          el('p', {}, [el('strong', {}, [(o.contra ? 'Contradicting origin ' : 'Origin ') + o.origin]), ' \u2014 items ' + ids(o.evidenceIds)]),
+          el('p', {}, [el('strong', {}, [(o.contra ? L('contradictOrigin') + ' ' : L('origin') + ' ') + o.origin]), ' \u2014 ' + L('items') + ' ' + ids(o.evidenceIds)]),
           el('ul', {}, (o.reasons || []).map(function (r) { return el('li', {}, [r]); })),
         ]));
       });
       card.appendChild(cl);
     }
     if (c.findings.length) {
-      card.appendChild(el('h5', {}, ['Proof gaps (logical: follow from the declared data and policy)']));
+      card.appendChild(el('h5', {}, [L('proofGaps')]));
       card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
     }
     if (c.plan && c.plan.steps.length) {
       var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, [L('plan') + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
-      plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
+      plan.appendChild(el('p', { class: 'note' }, [L('hypotheticalNote')]));
       c.plan.steps.forEach(function (st) {
         var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
           el('thead', {}, [el('tr', {}, ['If\u2026', 'Then status', 'Support / contra origins'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
@@ -162,7 +162,7 @@
     }
     if (c.requirements.length) {
       var rq = el('details', {}, [el('summary', {}, [L('next')])]);
-      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
+      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, [L('wouldShow') + ': ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, [L('wouldNotShow') + ': ' + r.wouldNotShow])]); })));
       card.appendChild(rq);
     }
     if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, [L('assumptions')]), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
@@ -172,8 +172,8 @@
   function integrityCard(r) {
     var i = r.integrity;
     var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
-    var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
-      el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var t = el('table', { class: 'integrity' }, [el('caption', {}, [L('sourceVerification') + ': ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
+      el('thead', {}, [el('tr', {}, [L('evidence'), L('status'), L('reason')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
     rows.forEach(function (x) {
       var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
@@ -181,7 +181,7 @@
         : (x.reason || '');
       tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
     });
-    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, [L('noHash')])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
     return el('section', { class: 'card' }, [el('h3', {}, [L('verifyHeading')]), counts, t]);
@@ -198,13 +198,13 @@
     });
     var hdr = el('header', { class: 'phead' }, [
       el('h2', {}, [report.title]),
-      el('p', { class: 'meta' }, ['Case ' + report.caseId + ' \u00b7 analysis ' + report.analysisVersion + ' \u00b7 input SHA-256 ' + report.inputSha256.slice(0, 16) + '\u2026']),
+      el('p', { class: 'meta' }, [L('case') + ' ' + report.caseId + ' \u00b7 ' + L('analysis') + ' ' + report.analysisVersion + ' \u00b7 ' + L('inputHash') + '  + report.inputSha256.slice(0, 16) + '\u2026']),
       el('p', { class: 'disclaimer' }, [report.disclaimer]),
       el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
       dl,
     ]);
     var claims = el('section', { class: 'card' }, [el('h3', {}, [L('claimsHeading')])].concat(report.claims.map(claimCard)));
-    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
+    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, [L('warningsHeading')]), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
     var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
     if (warn) kids.push(warn);
     return el('div', { class: 'panel', role: 'region', 'aria-label': 'Report ' + report.caseId }, kids);
