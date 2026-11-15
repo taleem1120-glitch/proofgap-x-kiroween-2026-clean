@@ -31,3 +31,11 @@ test('short, unsupported, or invalid bounds fail conservatively',()=>{
  assert.throws(()=>detectSharedPassage(part('x'),part('x'),{minRunTokens:0}),RangeError);
  assert.throws(()=>detectSharedPassage(part('x'),part('x'),{maxCandidates:100}),RangeError);
 });
+
+test('repeated-text resource limits return an inconclusive manual-review signal',()=>{
+ const repeated=Array.from({length:6500},()=> 'repeat').join(' ');
+ const x=detectSharedPassage(repeated,repeated,{maxComparisons:1000});
+ assert.equal(x.review,true);
+ assert.equal(x.incomplete,true);
+ assert.equal(x.basis,'comparison_budget_exceeded_manual_review');
+});
