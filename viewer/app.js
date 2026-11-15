@@ -234,7 +234,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     ProofGapLocale.set(ProofGapLocale.detect());
     function translateStatic(){
-      [['pg-offline','headerOffline'],['pg-intro','headerCaveat'],['pg-footer','footerCaveat'],['pg-skip','skipReports']].forEach(function(pair){
+      [['pg-translation-scope','translationScope'],['pg-offline','headerOffline'],['pg-intro','headerCaveat'],['pg-footer','footerCaveat'],['pg-skip','skipReports']].forEach(function(pair){
         var node=document.getElementById(pair[0]); if(node)node.textContent=L(pair[1]);
       });
     }
