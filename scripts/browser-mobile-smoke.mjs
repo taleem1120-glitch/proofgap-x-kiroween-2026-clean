@@ -12,7 +12,7 @@ const pages=[
 const all=[];
 try {
  for(const file of pages) {
-  for(const viewport of [{width:360,height:800},{width:1280,height:900}]) {
+  for(const viewport of [{width:360,height:800},{width:411,height:914},{width:1280,height:900}]) {
    const context=await browser.newContext({viewport,acceptDownloads:true,locale:'en-US'});
    const page=await context.newPage();
    const errors=[];
