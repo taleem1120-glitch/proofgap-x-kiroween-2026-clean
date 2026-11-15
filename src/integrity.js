@@ -127,9 +127,15 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       const h = createHash('sha256');
       const buf = Buffer.allocUnsafe(CHUNK);
       let n = 0, r;
-      while ((r = readSync(fd, buf, 0, CHUNK, null)) > 0) {
+      // Limits are checked during streaming, not only against the initial stat.
+      // A file can grow after fstat, or a slow read can exceed the deadline.
+      while (true) {
+        if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+        r = readSync(fd, buf, 0, CHUNK, null);
+        if (r === 0) break;
         n += r;
         if (n > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
+        if (totalBytes + n > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
         h.update(buf.subarray(0, r));
       }
       totalBytes += n;
