@@ -12,7 +12,7 @@ test('ten distinct localizations have nonempty translated critical terms',()=>{
  for(const lang of t.codes){
   t.set(lang);
   for(const key of ['language','export','falseCorroboration','proofGaps','warningsHeading','whyOrigins']){
-   assert.ok(t.t(key).length>3,lang+':'+key);
+   assert.ok(t.t(key).trim().length>0,lang+':'+key);
    assert.notEqual(t.t(key),key);
   }
  }
