@@ -4,6 +4,17 @@
 (function () {
   'use strict';
   var SVGNS = 'http://www.w3.org/2000/svg';
+  var L = ProofGapLocale.t;
+  var DECISION_KEYS = {
+    supported_by_independent_origins:'supported',
+    abstain_possible_undeclared_dependence:'abstainHidden',
+    insufficient_support:'insufficient',
+    conflicting:'conflicting', contradicted:'contradicted', no_evidence:'noEvidence',
+    independently_corroborated:'corroborated', abstain_suspected_shared_origin:'abstainShared',
+    origin_unresolved:'unresolved', single_origin:'singleOrigin',
+    circular_reporting:'circular', unsupported:'unsupported'
+  };
+
   var DECISION = {
     supported_by_independent_origins: ['Supported (declared assumptions)', 'ok'],
     abstain_possible_undeclared_dependence: ['Abstains: possible hidden shared source', 'warn'],
@@ -38,7 +49,7 @@
     (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
     return n;
   }
-  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [d[0]]); }
+  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [DECISION_KEYS[decision] ? L(DECISION_KEYS[decision]) : d[0]]); }
   function ids(xs) { return xs.map(function (x) { return x; }).join(', '); }
   function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '\u2026' : s; }
 
@@ -67,7 +78,7 @@
       defs.appendChild(svg('marker', { id: uid + '-arrow-' + b, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, [svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'arrow ' + b })]));
     });
     root.appendChild(defs);
-    [['Sources', X.source], ['Evidence', X.evidence], ['Claims', X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
+    [[L('sources'), X.source], [L('evidence'), X.evidence], [L('claims'), X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
     var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
     root.appendChild(edgeLayer); root.appendChild(nodeLayer);
     g.edges.forEach(function (e) {
@@ -90,7 +101,7 @@
       grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
       grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
-      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION_KEYS[n.decision] ? L(DECISION_KEYS[n.decision]) : n.decision) : n.role.replace(/_/g, ' ');
       grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
       nodeLayer.appendChild(grp);
     });
@@ -104,8 +115,8 @@
     var tb = el('tbody');
     g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
-    var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
+    var det = el('details', { class: 'edgelist' }, [el('summary', {}, [L('graphText')]), tbl]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), wrap, det]);
   }
 
   // ---------- claims ----------
@@ -121,7 +132,7 @@
     var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
     var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
     if (Array.isArray(c.missing) && c.missing.length) {
-      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, [L('missing')]), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
     }
     if (k.clusters.supports.length || k.clusters.contradicts.length) {
       var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
@@ -138,7 +149,7 @@
       card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
     }
     if (c.plan && c.plan.steps.length) {
-      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, ['Counterfactual evidence plan' + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
+      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, [L('plan') + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
       plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
       c.plan.steps.forEach(function (st) {
         var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
@@ -150,11 +161,11 @@
       card.appendChild(plan);
     }
     if (c.requirements.length) {
-      var rq = el('details', {}, [el('summary', {}, ['Suggested next steps (heuristic, ranked)'])]);
+      var rq = el('details', {}, [el('summary', {}, [L('next')])]);
       rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
       card.appendChild(rq);
     }
-    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, ['Assumptions']), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
+    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, [L('assumptions')]), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
     return card;
   }
 
@@ -173,13 +184,13 @@
     if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
-    return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);
+    return el('section', { class: 'card' }, [el('h3', {}, [L('verifyHeading')]), counts, t]);
   }
 
   function panel(report, raw, idx) {
     var uid = 'r' + idx;
     var s = report.summary;
-    var dl = el('button', { type: 'button', class: 'export' }, ['Export report JSON']);
+    var dl = el('button', { type: 'button', class: 'export' }, [L('export')]);
     dl.addEventListener('click', function () {
       var blob = new Blob([raw], { type: 'application/json' });
       var a = el('a', { href: URL.createObjectURL(blob), download: report.caseId + '.proofgap-report.json' });
@@ -192,7 +203,7 @@
       el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
       dl,
     ]);
-    var claims = el('section', { class: 'card' }, [el('h3', {}, ['Claims, reasoning and proof gaps'])].concat(report.claims.map(claimCard)));
+    var claims = el('section', { class: 'card' }, [el('h3', {}, [L('claimsHeading')])].concat(report.claims.map(claimCard)));
     var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
     var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
     if (warn) kids.push(warn);
@@ -207,7 +218,7 @@
     main.className = list.length > 1 ? 'grid two' : 'grid';
     list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
     var st = document.getElementById('status');
-    st.textContent = list.length ? 'Showing ' + list.length + ' report(s).' : 'No report loaded.';
+    st.textContent = list.length ? L('showing',{n:list.length}) : L('noReport');
   }
 
   function fromEmbedded() {
@@ -219,6 +230,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    ProofGapLocale.set(ProofGapLocale.detect());
+    var language = document.getElementById('pg-language');
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); render(fromEmbedded()); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
