@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, 'feature/**']
+    branches: [main, 'feature/**', 'audit/**']
   pull_request:
+  workflow_dispatch:
 
 # Least privilege: the workflow only needs to read the repository. No secrets are used.
 permissions:
@@ -37,3 +38,17 @@ jobs:
       - run: npm test
       - name: Demo smoke test (local files only, no network)
         run: node src/cli.js examples/demo/case.json --evidence-dir examples/demo/evidence --format text > /dev/null
+      - name: ProofGap Cite smoke test (second application)
+        run: node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format json > /dev/null
+      - name: Synthetic comparison diagnostic (NOT real-world superiority)
+        run: node bench/text-copy-diagnostic.js
+      - name: Security, metamorphic, benchmark regressions
+        run: node --test test/security.test.js test/metamorphic.test.js test/benchmark.test.js
+      - name: Re-encoded text adversarial tests
+        run: node --test test/text-copy-adversarial.test.js
+      - name: Repeatable text-copy microbenchmark (observational)
+        run: node bench/text-copy-performance.js
+      - name: Competition source and license gate
+        run: node scripts/release-source-gate.js
+      - name: Verify package contents and licence declaration
+        run: npm pack --dry-run --json > /dev/null
