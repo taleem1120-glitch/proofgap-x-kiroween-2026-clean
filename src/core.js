@@ -23,7 +23,7 @@ import { serializeReport } from './report.js';
 import { renderText } from './render.js';
 import { renderHtml, DEFAULT_HTML_PROFILE } from './html.js';
 import { DEFAULT_LIMITS } from './limits.js';
-import { openSync, fstatSync, readSync, closeSync, writeFileSync } from 'node:fs';
+import { constants, openSync, fstatSync, readSync, closeSync, writeFileSync } from 'node:fs';
 
 export const CORE_API_VERSION = '1.0.0';
 export { ANALYSIS_VERSION, POLICY, DEFAULT_PROFILE, DEFAULT_HTML_PROFILE, DEFAULT_LIMITS, DEFAULT_INTEGRITY_LIMITS };
@@ -62,7 +62,9 @@ export function analyze({ caseData, caseText, evidenceDir, limits = DEFAULT_LIMI
  * Errors are CaseValidationError with path "$", so CLIs can report them without stack traces.
  */
 export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
-  const fd = openSync(path, 'r');
+  // O_NONBLOCK prevents a named pipe from hanging before fstat can reject it.
+  // O_NOFOLLOW rejects a symlink at the final component on supported POSIX systems.
+  const fd = openSync(path, constants.O_RDONLY | (constants.O_NONBLOCK ?? 0) | (constants.O_NOFOLLOW ?? 0));
   try {
     if (!fstatSync(fd).isFile()) throw new CaseValidationError([{ path: '$', message: 'input must be a regular file' }]);
     const buf = Buffer.alloc(maxBytes + 1);
