@@ -87,9 +87,10 @@ export function findSuspectedTextCopies(documents, policy = RESEMBLANCE_POLICY) 
  * public quotations or syndicated disclaimers can cause false alarms.
  * Complexity is linear in the number of tokens in each supported pair.
  */
-export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2 } = {}) {
+export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2, maxComparisons = 100_000 } = {}) {
   if (!Number.isInteger(minRunTokens) || minRunTokens < 30 || minRunTokens > 500 ||
-      !Number.isInteger(maxCandidates) || maxCandidates < 1 || maxCandidates > 5)
+      !Number.isInteger(maxCandidates) || maxCandidates < 1 || maxCandidates > 5 ||
+      !Number.isInteger(maxComparisons) || maxComparisons < 1000 || maxComparisons > 1_000_000)
     throw new RangeError('invalid passage detection bounds');
   const A = normalizeCopyText(a), B = normalizeCopyText(b);
   if (!A || !B) return { review: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
@@ -103,6 +104,8 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     else aIndex.set(key, [i]);
   }
   let longest = 0;
+  let work = 0;
+  let truncated = false;
   const candidates = [];
   for (let j = 0; j + width <= B.length; j++) {
     const key = B.slice(j, j + width).join(' ');
@@ -110,19 +113,29 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     if (!positions) continue;
     for (const i of positions) {
       let left = 0, right = width;
-      while (i - left - 1 >= 0 && j - left - 1 >= 0 && A[i-left-1] === B[j-left-1]) left++;
-      while (i + right < A.length && j + right < B.length && A[i+right] === B[j+right]) right++;
+      while (i - left - 1 >= 0 && j - left - 1 >= 0 && A[i-left-1] === B[j-left-1]) {
+        if (++work > maxComparisons) { truncated = true; break; }
+        left++;
+      }
+      if (truncated) break;
+      while (i + right < A.length && j + right < B.length && A[i+right] === B[j+right]) {
+        if (++work > maxComparisons) { truncated = true; break; }
+        right++;
+      }
+      if (truncated) break;
       const n = left + right;
       if (n > longest) longest = n;
       if (n >= minRunTokens && candidates.length < maxCandidates &&
           !candidates.some(x=>x.startA===i-left && x.startB===j-left))
         candidates.push({startA:i-left,startB:j-left,tokens:n});
     }
+    if (truncated) break;
   }
   return {
-    review: longest >= minRunTokens,
+    review: longest >= minRunTokens || truncated,
+    incomplete: truncated,
     longestRunTokens: longest,
-    basis: longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage',
+    basis: truncated ? 'comparison_budget_exceeded_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage'),
     candidates
   };
 }
