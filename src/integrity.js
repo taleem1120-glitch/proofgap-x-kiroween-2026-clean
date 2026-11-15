@@ -129,7 +129,11 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       let n = 0, r;
       while ((r = readSync(fd, buf, 0, CHUNK, null)) > 0) {
         n += r;
+        // Check resource budgets on observed bytes rather than only the initial stat size.
+        // A file can grow while it is being read, and a slow read can outlast the deadline.
+        if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
         if (n > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
+        if (totalBytes + n > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
         h.update(buf.subarray(0, r));
       }
       totalBytes += n;
