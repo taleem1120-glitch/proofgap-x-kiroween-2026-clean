@@ -49,15 +49,32 @@ export function compareTextCopies(a, b, policy = RESEMBLANCE_POLICY) {
  */
 export function findSuspectedTextCopies(documents, policy = RESEMBLANCE_POLICY) {
   if (!Array.isArray(documents) || documents.length > 50) throw new RangeError('at most 50 text documents');
+  // Advisory-only input cap limits total work, including rejected/unsupported documents.
+  const ids = new Set();
+  let totalChars = 0;
+  const prepared = documents.map((doc) => {
+    if (typeof doc?.id !== 'string' || !doc.id || typeof doc.text !== 'string')
+      throw new TypeError('each document needs a nonempty string id and text');
+    if (ids.has(doc.id)) throw new TypeError('document ids must be unique');
+    ids.add(doc.id);
+    totalChars += doc.text.length;
+    if (totalChars > 2_000_000) throw new RangeError('total text exceeds 2000000 characters');
+    const tokens = normalizeCopyText(doc.text, policy);
+    return { id: doc.id, grams: tokens ? shingles(tokens, policy.shingleSize) : null };
+  });
   const out = [];
-  for (let i = 0; i < documents.length; i++) {
-    const a = documents[i];
-    if (typeof a?.id !== 'string' || typeof a?.text !== 'string') throw new TypeError('each document needs string id and text');
-    for (let j = i + 1; j < documents.length; j++) {
-      const b = documents[j];
-      if (typeof b?.id !== 'string' || typeof b?.text !== 'string') throw new TypeError('each document needs string id and text');
-      const cue = compareTextCopies(a.text, b.text, policy);
-      if (cue.suspected) out.push({ refs: [a.id, b.id].sort(), jaccard: cue.jaccard, containment: cue.containment, basis: 'heuristic_unverified' });
+  for (let i = 0; i < prepared.length; i++) {
+    for (let j = i + 1; j < prepared.length; j++) {
+      const a = prepared[i], b = prepared[j];
+      if (!a.grams || !b.grams) continue;
+      let overlap = 0;
+      for (const gram of a.grams) if (b.grams.has(gram)) overlap++;
+      const union = a.grams.size + b.grams.size - overlap;
+      const jaccard = union ? overlap / union : 0;
+      const containment = Math.min(a.grams.size, b.grams.size)
+        ? overlap / Math.min(a.grams.size, b.grams.size) : 0;
+      if (jaccard >= policy.minJaccard && containment >= policy.minContainment)
+        out.push({ refs: [a.id, b.id].sort(), jaccard, containment, basis: 'heuristic_unverified' });
     }
   }
   return out.sort((x, y) => x.refs.join(':').localeCompare(y.refs.join(':')));
