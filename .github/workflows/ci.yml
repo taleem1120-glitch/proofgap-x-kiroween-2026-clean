@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, 'feature/**']
+    branches: [main, 'feature/**', 'audit/**']
   pull_request:
+  workflow_dispatch:
 
 # Least privilege: the workflow only needs to read the repository. No secrets are used.
 permissions:
