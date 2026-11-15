@@ -43,3 +43,19 @@ test('bad labels, duplicate ids and large inputs fail closed',()=>{
   const x=run({cases});assert.notEqual(x.status,0);assert.equal(x.stdout,'');
  }
 });
+
+test('unsupported short text abstains instead of being counted as failure or true negative',()=>{
+ const x=run({cases:[
+  {id:'one',a:'too short',b:'too short',label:'same_origin',group:'short'},
+  {id:'two',a:'small text',b:'different short',label:'different_origin',group:'short'}
+ ]});
+ assert.equal(x.status,0,x.stderr);
+ const out=JSON.parse(x.stdout);
+ assert.equal(out.lexicalCue.overall.abstainedPositive,1);
+ assert.equal(out.lexicalCue.overall.abstainedNegative,1);
+ assert.equal(out.lexicalCue.overall.fn,0);
+ assert.equal(out.lexicalCue.overall.tn,0);
+ assert.equal(out.lexicalCue.overall.coverage,0);
+ assert.equal(out.lexicalCue.overall.recall,null);
+ assert.equal(out.sha256.overall.coverage,1);
+});
