@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-k9zmfc/BnavybzhhIqhkQwM3lXUBl/mamY/+/arrD4U='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-9QiYVlu/Hju/Zo2z5qIEIn1PBC2tb+cpnjpZNC0K43M='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X report viewer</title>
 <style>:root {
@@ -98,7 +98,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
 <h1>ProofGap X — evidence independence &amp; proof gaps</h1>
 <p>Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
 <p>Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.</p>
-<div class="controls"><label class="file">Open 1–2 report JSON files: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
+<div class="controls"><label class="file"><span id="pg-language-caption">Language</span>: <select id="pg-language" aria-label="Interface language"><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="fa">فارسی</option><option value="hi">हिन्दी</option><option value="zh">中文</option></select></label><label class="file"><span id="pg-open-files">Open 1–2 report JSON files</span>: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
 </header>
 <main id="reports" class="grid" tabindex="-1"></main>
 <footer>ProofGap X prototype · synthetic example data · not forensic software · not independently validated.</footer>
@@ -2162,12 +2162,38 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
   ]
 }
 </script>
-<script>// ProofGap X offline report viewer.
+<script>// Interface localization only. Report data and export bytes remain unchanged.
+// No network, browser storage or external dependencies; works in standalone HTML.
+var ProofGapLocale=(function(){
+'use strict';
+var keys=["language","openFiles","export","claimsHeading","graphHeading","verifyHeading","missing","plan","next","assumptions","noReport","showing","supported","insufficient","conflicting","contradicted","noEvidence","singleOrigin","circular","unsupported","unresolved","abstainShared","corroborated","abstainHidden","sources","evidence","claims","graphText"];
+var rows={"en":["Language","Open 1–2 report JSON files","Export report JSON","Claims, reasoning and proof gaps","Evidence independence graph","Source verification","What is missing","Counterfactual evidence plan","Suggested next steps (heuristic, ranked)","Assumptions","No report loaded.","Showing {n} report(s).","Supported (declared assumptions)","Insufficient independent support","Conflicting evidence","Contradicted","No evidence","Single origin","Circular reporting","Unsupported","Origin unresolved","Abstains: may be the same source","Independently corroborated (declared lineage)","Abstains: possible hidden shared source","Sources","Evidence","Claims","Text version of the graph"],"ar":["اللغة","فتح ملف أو ملفين من تقارير JSON","تصدير التقرير JSON","الادعاءات والتفسير وثغرات الإثبات","مخطط استقلال الأدلة","التحقق من المصدر","ما الأدلة الناقصة؟","خطة الأدلة الافتراضية","الخطوات التالية المقترحة (استدلالية)","الافتراضات","لم يُحمّل أي تقرير.","عرض {n} تقرير/تقارير.","مدعوم وفق الافتراضات المعلنة","دعم مستقل غير كافٍ","أدلة متعارضة","تم نقضه","لا توجد أدلة","مصدر واحد","استشهادات دائرية","غير مدعوم","المصدر غير محدد","امتناع: قد يكون المصدر نفسه","تعزيز مستقل وفق السلسلة المعلنة","امتناع: احتمال مصدر مشترك خفي","المصادر","الأدلة","الادعاءات","نسخة نصية من المخطط"],"fr":["Langue","Ouvrir 1 ou 2 rapports JSON","Exporter le rapport JSON","Affirmations, raisonnement et lacunes","Graphe d'indépendance des preuves","Vérification de la source","Éléments manquants","Plan de preuves hypothétiques","Étapes suggérées (heuristiques)","Hypothèses","Aucun rapport chargé.","Affichage de {n} rapport(s).","Étaye (hypothèses déclarées)","Appui indépendant insuffisant","Preuves contradictoires","Réfuté","Aucune preuve","Source unique","Citations circulaires","Non étayé","Origine non résolue","Abstention : même source possible","Corroboration indépendante déclarée","Abstention : dépendance cachée possible","Sources","Preuves","Affirmations","Version textuelle du graphe"],"es":["Idioma","Abrir 1 o 2 informes JSON","Exportar informe JSON","Afirmaciones, razonamiento y lagunas","Grafo de independencia de pruebas","Verificación de fuentes","Qué falta","Plan hipotético de pruebas","Siguientes pasos sugeridos","Supuestos","No se cargó ningún informe.","Mostrando {n} informe(s).","Respaldado (supuestos declarados)","Apoyo independiente insuficiente","Pruebas en conflicto","Refutado","Sin pruebas","Una sola fuente","Citas circulares","Sin respaldo","Origen no resuelto","Abstención: posible misma fuente","Corroboración independiente declarada","Abstención: posible origen compartido","Fuentes","Pruebas","Afirmaciones","Versión textual del grafo"],"de":["Sprache","1–2 JSON-Berichte öffnen","JSON-Bericht exportieren","Behauptungen, Begründung und Lücken","Graph der Beweisunabhängigkeit","Quellenprüfung","Was fehlt","Hypothetischer Beweisplan","Empfohlene nächste Schritte","Annahmen","Kein Bericht geladen.","{n} Bericht(e) angezeigt.","Gestützt (deklarierte Annahmen)","Unzureichende unabhängige Belege","Widersprüchliche Belege","Widerlegt","Keine Belege","Eine Quelle","Zirkuläre Zitate","Nicht belegt","Herkunft ungeklärt","Enthaltung: möglicherweise gleiche Quelle","Unabhängig bestätigt (deklariert)","Enthaltung: mögliche verdeckte Abhängigkeit","Quellen","Belege","Behauptungen","Textversion des Graphen"],"pt":["Idioma","Abrir 1–2 relatórios JSON","Exportar relatório JSON","Afirmações, raciocínio e lacunas","Grafo de independência das evidências","Verificação de fontes","O que falta","Plano hipotético de evidências","Próximos passos sugeridos","Premissas","Nenhum relatório carregado.","Exibindo {n} relatório(s).","Apoiado (premissas declaradas)","Apoio independente insuficiente","Evidências conflitantes","Contradito","Sem evidências","Uma fonte","Citações circulares","Sem apoio","Origem não resolvida","Abstenção: mesma fonte possível","Corroboração independente declarada","Abstenção: possível dependência oculta","Fontes","Evidências","Afirmações","Versão textual do grafo"],"tr":["Dil","1–2 JSON raporu aç","JSON raporunu dışa aktar","İddialar, gerekçe ve kanıt boşlukları","Kanıt bağımsızlığı grafiği","Kaynak doğrulaması","Eksik olanlar","Varsayımsal kanıt planı","Önerilen sonraki adımlar","Varsayımlar","Rapor yüklenmedi.","{n} rapor gösteriliyor.","Destekleniyor (beyan edilen varsayımlar)","Bağımsız destek yetersiz","Çelişkili kanıtlar","Çürütüldü","Kanıt yok","Tek kaynak","Döngüsel alıntılar","Desteklenmiyor","Köken belirsiz","Çekimser: aynı kaynak olabilir","Bağımsız doğrulama (beyan edilen)","Çekimser: gizli ortak kaynak olabilir","Kaynaklar","Kanıtlar","İddialar","Grafiğin metin sürümü"],"fa":["زبان","باز کردن ۱ تا ۲ گزارش JSON","خروجی گزارش JSON","ادعاها، استدلال و خلأهای شواهد","نمودار استقلال شواهد","بررسی منبع","چه چیزی کم است؟","طرح فرضی شواهد","گام‌های بعدی پیشنهادی","فرض‌ها","گزارشی بارگذاری نشده است.","نمایش {n} گزارش.","پشتیبانی‌شده بر اساس فرض‌های اعلامی","پشتیبانی مستقل ناکافی","شواهد متعارض","ردشده","بدون شواهد","یک منبع","استنادهای دوری","بدون پشتیبانی","منشأ نامشخص","امتناع: احتمال منبع مشترک","تأیید مستقل بر پایه روابط اعلامی","امتناع: احتمال وابستگی پنهان","منابع","شواهد","ادعاها","نسخه متنی نمودار"],"hi":["भाषा","1–2 JSON रिपोर्ट खोलें","JSON रिपोर्ट निर्यात करें","दावे, तर्क और साक्ष्य की कमी","साक्ष्य स्वतंत्रता ग्राफ़","स्रोत सत्यापन","क्या कमी है","काल्पनिक साक्ष्य योजना","सुझाए गए अगले कदम","मान्यताएँ","कोई रिपोर्ट लोड नहीं हुई।","{n} रिपोर्ट दिखाई जा रही हैं।","समर्थित (घोषित मान्यताएँ)","अपर्याप्त स्वतंत्र समर्थन","विरोधी साक्ष्य","खंडित","कोई साक्ष्य नहीं","एक स्रोत","चक्रीय उद्धरण","असमर्थित","मूल स्रोत अनिश्चित","निर्णय रोका: समान स्रोत संभव","स्वतंत्र पुष्टि (घोषित वंश)","निर्णय रोका: छिपा साझा स्रोत संभव","स्रोत","साक्ष्य","दावे","ग्राफ़ का पाठ रूप"],"zh":["语言","打开 1–2 个 JSON 报告","导出 JSON 报告","主张、推理与证据缺口","证据独立性关系图","来源验证","缺少什么","假设性证据方案","建议的后续步骤","假设条件","尚未加载报告。","显示 {n} 个报告。","已支持（基于声明的假设）","独立支持不足","证据相互冲突","已被反驳","没有证据","单一来源","循环引用","缺乏支持","来源未确定","暂不判断：可能源于同一来源","独立佐证（基于声明的关系）","暂不判断：可能存在隐性共同来源","来源","证据","主张","关系图文本版本"]};
+var dictionaries={};Object.keys(rows).forEach(function(code){dictionaries[code]={};keys.forEach(function(key,i){dictionaries[code][key]=rows[code][i];});});
+var active='en';
+function t(key,values){var result=(dictionaries[active]&&dictionaries[active][key])||dictionaries.en[key]||key;return result.replace(/\{(\w+)\}/g,function(_,name){return values&&values[name]!==undefined?String(values[name]):'{'+name+'}';});}
+function direction(code){return code==='ar'||code==='fa'?'rtl':'ltr';}
+function set(code){active=Object.prototype.hasOwnProperty.call(dictionaries,code)?code:'en';document.documentElement.lang=active;document.documentElement.dir=direction(active);var select=document.getElementById('pg-language');if(select)select.value=active;var caption=document.getElementById('pg-language-caption');if(caption)caption.textContent=t('language');}
+function detect(){var params=new URLSearchParams(location.search);var requested=params.get('lang')||(navigator.language||'en').split('-')[0];return Object.prototype.hasOwnProperty.call(dictionaries,requested)?requested:'en';}
+return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.keys(dictionaries)};
+})();
+
+// ProofGap X offline report viewer.
 // SECURITY: every untrusted string is inserted with textContent / createTextNode. HTML-string insertion APIs are never used; no eval,
 // no network. Reports are read from embedded JSON data blocks or local files the user picks.
 (function () {
   'use strict';
   var SVGNS = 'http://www.w3.org/2000/svg';
+  var L = ProofGapLocale.t;
+  var DECISION_KEYS = {
+    supported_by_independent_origins:'supported',
+    abstain_possible_undeclared_dependence:'abstainHidden',
+    insufficient_support:'insufficient',
+    conflicting:'conflicting', contradicted:'contradicted', no_evidence:'noEvidence',
+    independently_corroborated:'corroborated', abstain_suspected_shared_origin:'abstainShared',
+    origin_unresolved:'unresolved', single_origin:'singleOrigin',
+    circular_reporting:'circular', unsupported:'unsupported'
+  };
+
   var DECISION = {
     supported_by_independent_origins: ['Supported (declared assumptions)', 'ok'],
     abstain_possible_undeclared_dependence: ['Abstains: possible hidden shared source', 'warn'],
@@ -2202,7 +2228,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
     return n;
   }
-  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [d[0]]); }
+  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [DECISION_KEYS[decision] ? L(DECISION_KEYS[decision]) : d[0]]); }
   function ids(xs) { return xs.map(function (x) { return x; }).join(', '); }
   function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '\u2026' : s; }
 
@@ -2231,7 +2257,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       defs.appendChild(svg('marker', { id: uid + '-arrow-' + b, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, [svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'arrow ' + b })]));
     });
     root.appendChild(defs);
-    [['Sources', X.source], ['Evidence', X.evidence], ['Claims', X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
+    [[L('sources'), X.source], [L('evidence'), X.evidence], [L('claims'), X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
     var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
     root.appendChild(edgeLayer); root.appendChild(nodeLayer);
     g.edges.forEach(function (e) {
@@ -2254,7 +2280,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
       grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
-      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION_KEYS[n.decision] ? L(DECISION_KEYS[n.decision]) : n.decision) : n.role.replace(/_/g, ' ');
       grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
       nodeLayer.appendChild(grp);
     });
@@ -2268,8 +2294,8 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     var tb = el('tbody');
     g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
-    var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
+    var det = el('details', { class: 'edgelist' }, [el('summary', {}, [L('graphText')]), tbl]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), wrap, det]);
   }
 
   // ---------- claims ----------
@@ -2285,7 +2311,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
     var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
     if (Array.isArray(c.missing) && c.missing.length) {
-      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, [L('missing')]), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
     }
     if (k.clusters.supports.length || k.clusters.contradicts.length) {
       var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
@@ -2302,7 +2328,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
     }
     if (c.plan && c.plan.steps.length) {
-      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, ['Counterfactual evidence plan' + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
+      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, [L('plan') + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
       plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
       c.plan.steps.forEach(function (st) {
         var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
@@ -2314,11 +2340,11 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       card.appendChild(plan);
     }
     if (c.requirements.length) {
-      var rq = el('details', {}, [el('summary', {}, ['Suggested next steps (heuristic, ranked)'])]);
+      var rq = el('details', {}, [el('summary', {}, [L('next')])]);
       rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
       card.appendChild(rq);
     }
-    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, ['Assumptions']), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
+    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, [L('assumptions')]), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
     return card;
   }
 
@@ -2337,13 +2363,13 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
     if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
-    return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);
+    return el('section', { class: 'card' }, [el('h3', {}, [L('verifyHeading')]), counts, t]);
   }
 
   function panel(report, raw, idx) {
     var uid = 'r' + idx;
     var s = report.summary;
-    var dl = el('button', { type: 'button', class: 'export' }, ['Export report JSON']);
+    var dl = el('button', { type: 'button', class: 'export' }, [L('export')]);
     dl.addEventListener('click', function () {
       var blob = new Blob([raw], { type: 'application/json' });
       var a = el('a', { href: URL.createObjectURL(blob), download: report.caseId + '.proofgap-report.json' });
@@ -2356,7 +2382,7 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
       el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
       dl,
     ]);
-    var claims = el('section', { class: 'card' }, [el('h3', {}, ['Claims, reasoning and proof gaps'])].concat(report.claims.map(claimCard)));
+    var claims = el('section', { class: 'card' }, [el('h3', {}, [L('claimsHeading')])].concat(report.claims.map(claimCard)));
     var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
     var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
     if (warn) kids.push(warn);
@@ -2365,13 +2391,15 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
 
   function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
 
+  var currentReports = [];
   function render(list) {
+    currentReports = list;
     var main = document.getElementById('reports');
     while (main.firstChild) main.removeChild(main.firstChild);
     main.className = list.length > 1 ? 'grid two' : 'grid';
     list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
     var st = document.getElementById('status');
-    st.textContent = list.length ? 'Showing ' + list.length + ' report(s).' : 'No report loaded.';
+    st.textContent = list.length ? L('showing',{n:list.length}) : L('noReport');
   }
 
   function fromEmbedded() {
@@ -2383,6 +2411,11 @@ footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    ProofGapLocale.set(ProofGapLocale.detect());
+    var fileCaption = document.getElementById('pg-open-files');
+    if (fileCaption) fileCaption.textContent = L('openFiles');
+    var language = document.getElementById('pg-language');
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); if (fileCaption) fileCaption.textContent = L('openFiles'); render(currentReports); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
