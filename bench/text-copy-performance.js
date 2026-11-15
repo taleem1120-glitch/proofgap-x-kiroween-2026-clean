@@ -5,13 +5,14 @@ import { cpus, platform, arch, totalmem } from 'node:os';
 import { compareTextCopies } from '../src/text-copy-cues.js';
 
 const samples = 30;
-const lengths = [100, 1000, 5000];
+const lengths = [100, 1000, 2500];
 const percentile = (sorted, p) => sorted[Math.ceil(p * sorted.length) - 1];
 const all = [];
 
 for (const n of lengths) {
   const a = Array.from({length:n}, (_,i)=>`case evidence item${i} provenance timestamp original author report`).join(' ');
   const b = a.replaceAll('report','REPORT').replaceAll('  ',' ') + ' editorial update';
+  // Test only supported inputs; values beyond maxChars intentionally produce no score.
   // Warm the JIT, then retain every sample, including slow samples.
   for(let i=0;i<5;i++) compareTextCopies(a,b);
   const latencies = [];
