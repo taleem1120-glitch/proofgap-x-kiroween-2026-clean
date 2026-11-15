@@ -198,7 +198,7 @@
     });
     var hdr = el('header', { class: 'phead' }, [
       el('h2', {}, [report.title]),
-      el('p', { class: 'meta' }, [L('case') + ' ' + report.caseId + ' \u00b7 ' + L('analysis') + ' ' + report.analysisVersion + ' \u00b7 ' + L('inputHash') + '  + report.inputSha256.slice(0, 16) + '\u2026']),
+      el('p', { class: 'meta' }, [L('case') + ' ' + report.caseId + ' \u00b7 ' + L('analysis') + ' ' + report.analysisVersion + ' \u00b7 ' + L('inputHash') + ' ' + report.inputSha256.slice(0, 16) + '\u2026']),
       el('p', { class: 'disclaimer' }, [report.disclaimer]),
       el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
       dl,
