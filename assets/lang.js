@@ -15,6 +15,10 @@ function apply(lang){
  for(const node of document.querySelectorAll('[data-i18n]')){
   const key=node.getAttribute('data-i18n');if(dict[lang][key])node.textContent=dict[lang][key];
  }
+ for(const link of document.querySelectorAll('a[href$="showcase.html"]')){
+  const original=link.getAttribute('href').split('?')[0];
+  link.setAttribute('href', original+'?lang='+encodeURIComponent(lang));
+ }
  try{localStorage.setItem('proofgap-lang',lang)}catch{}
 }
 select.addEventListener('change',()=>apply(select.value));
