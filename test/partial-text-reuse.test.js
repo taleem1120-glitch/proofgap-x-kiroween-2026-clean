@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { compareTextCopies,detectSharedPassage } from '../src/text-copy-cues.js';
+const part=(label,n=100)=>Array.from({length:n},(_,i)=>`evidence ${label} marker${i} observation analysis`).join(' ');
+test('partial reuse exposes 100-token embedded excerpt without asserting source lineage',()=>{
+ const common=part('unique',45);
+ const a=part('alpha',60)+' '+common+' '+part('endingA',70);
+ const b=part('introB',65)+' '+common+' '+part('endingB',60);
+ const partial=detectSharedPassage(a,b);
+ assert.equal(partial.review,true);
+ assert.equal(partial.basis,'shared_passage_unverified_review_only');
+ assert.ok(partial.longestRunTokens>=200);
+ assert.equal(compareTextCopies(a,b).suspected,false);
+});
+test('unrelated articles are not flagged as partial near-copies',()=>{
+ const result=detectSharedPassage(part('first'),part('second'));
+ assert.equal(result.review,false);
+ assert.equal(result.candidates.length,0);
+});
+test('standard boilerplate produces REVIEW-only: cannot infer common origin',()=>{
+ const template=part('generic legal notice',20);
+ const a=template+' '+part('first',90);
+ const b=template+' '+part('second',90);
+ const result=detectSharedPassage(a,b);
+ assert.equal(result.review,true);
+ assert.equal(result.basis,'shared_passage_unverified_review_only');
+ assert.equal('verified' in result,false);
+});
+test('short, unsupported, or invalid bounds fail conservatively',()=>{
+ assert.equal(detectSharedPassage('short phrase','short phrase').review,false);
+ assert.throws(()=>detectSharedPassage(part('x'),part('x'),{minRunTokens:0}),RangeError);
+ assert.throws(()=>detectSharedPassage(part('x'),part('x'),{maxCandidates:100}),RangeError);
+});
