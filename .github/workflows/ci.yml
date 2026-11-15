@@ -44,3 +44,7 @@ jobs:
         run: node bench/text-copy-diagnostic.js
       - name: Security, metamorphic, benchmark regressions
         run: node --test test/security.test.js test/metamorphic.test.js test/benchmark.test.js
+      - name: Re-encoded text adversarial tests
+        run: node --test test/text-copy-adversarial.test.js
+      - name: Repeatable text-copy microbenchmark (observational)
+        run: node bench/text-copy-performance.js
