@@ -233,8 +233,10 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     ProofGapLocale.set(ProofGapLocale.detect());
+    var fileCaption = document.getElementById('pg-open-files');
+    if (fileCaption) fileCaption.textContent = L('openFiles');
     var language = document.getElementById('pg-language');
-    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); render(currentReports); });
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); if (fileCaption) fileCaption.textContent = L('openFiles'); render(currentReports); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
