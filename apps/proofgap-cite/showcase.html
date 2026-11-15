@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-0s0a2hcccTXp6wJdpdvkTJybS6kPimElzwqRk51plw0='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wlBm1mYM8VzovHxgPQF2XfcPUQVgPgSaf7ypuWjfJ0Q='; style-src 'sha256-jn1K1W3UjnEnYTNVA2lEOvwL0UMCFsewvQTV5TuxaLg='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap Cite report viewer</title>
 <style>:root {
@@ -2610,7 +2610,39 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
     return el('div', { class: 'panel', role: 'region', 'aria-label': 'Report ' + report.caseId }, kids);
   }
 
-  function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
+  // Defensive shape and resource validation for untrusted uploaded JSON. Never infer provenance.
+  function valid(r) {
+    if (!r || r.tool !== 'proofgap-x' || !Array.isArray(r.claims) || r.claims.length > 500 ||
+        !Array.isArray(r.warnings) || r.warnings.length > 500 ||
+        !r.graph || !Array.isArray(r.graph.nodes) || r.graph.nodes.length > 2000 ||
+        !Array.isArray(r.graph.edges) || r.graph.edges.length > 4000 ||
+        !r.graph.basisCounts || typeof r.graph.basisCounts !== 'object' ||
+        !r.integrity || !Array.isArray(r.integrity.results) || r.integrity.results.length > 2000 ||
+        !r.integrity.counts || typeof r.integrity.counts !== 'object' ||
+        !r.summary || !r.summary.decisionCounts || typeof r.summary.decisionCounts !== 'object' ||
+        typeof r.title !== 'string' || typeof r.caseId !== 'string' ||
+        typeof r.analysisVersion !== 'string' || typeof r.inputSha256 !== 'string' ||
+        typeof r.disclaimer !== 'string') return false;
+    if (!r.claims.every(function(c) {
+      return c && typeof c.claimId === 'string' && typeof c.statement === 'string' &&
+        c.corroboration && typeof c.corroboration === 'object' &&
+        typeof c.corroboration.supportingEvidenceItems === 'number' &&
+        typeof c.corroboration.independentSupportOrigins === 'number' &&
+        c.corroboration.clusters &&
+        Array.isArray(c.corroboration.clusters.supports) &&
+        Array.isArray(c.corroboration.clusters.contradicts) &&
+        Array.isArray(c.explanation) && c.explanation.length <= 500 &&
+        Array.isArray(c.findings) && c.findings.length <= 500 &&
+        Array.isArray(c.requirements) && c.requirements.length <= 500 &&
+        Array.isArray(c.assumptions) && c.assumptions.length <= 500 &&
+        (!c.missing || Array.isArray(c.missing)) &&
+        (!c.plan || (Array.isArray(c.plan.steps) && c.plan.steps.length <= 500));
+    })) return false;
+    if (!r.integrity.results.every(function(x){ return x && typeof x.evidenceId === 'string'; })) return false;
+    if (!r.graph.nodes.every(function(n){ return n && typeof n.id === 'string' && typeof n.type === 'string'; })) return false;
+    if (!r.graph.edges.every(function(e){ return e && typeof e.from === 'string' && typeof e.to === 'string'; })) return false;
+    return true;
+  }
 
   var currentReports = [];
   function render(list) {
@@ -2618,9 +2650,19 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
     var main = document.getElementById('reports');
     while (main.firstChild) main.removeChild(main.firstChild);
     main.className = list.length > 1 ? 'grid two' : 'grid';
-    list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
+    var displayed = 0, rejected = 0;
+    list.forEach(function (x, i) {
+      try {
+        if (!valid(x.report)) { rejected++; return; }
+        main.appendChild(panel(x.report, x.raw, i)); displayed++;
+      } catch (e) {
+        // A malicious or malformed local report must not crash the other report.
+        rejected++;
+      }
+    });
     var st = document.getElementById('status');
-    st.textContent = list.length ? L('showing',{n:list.length}) : L('noReport');
+    st.textContent = displayed ? L('showing',{n:displayed}) : L('noReport');
+    if (rejected) st.textContent += ' ' + L('skipped') + ': ' + rejected;
   }
 
   function fromEmbedded() {
@@ -2649,7 +2691,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       var files = Array.prototype.slice.call(input.files, 0, 2), out = [], left = files.length, err = [];
       if (!left) return;
       files.forEach(function (f, i) {
-        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': ' + L('tooLarge')); if (--left === 0) done(); return; }
+        if (f.size > 5 * 1024 * 1024) { err.push(f.name + ': ' + L('tooLarge')); if (--left === 0) done(); return; }
         var rd = new FileReader();
         rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': ' + L('notReport')); } catch (e) { err.push(f.name + ': ' + L('invalidJson')); } if (--left === 0) done(); };
         rd.readAsText(f);
