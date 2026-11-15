@@ -35,7 +35,15 @@ try {
     scrollWidth:document.documentElement.scrollWidth,
     clientWidth:document.documentElement.clientWidth
    }));
-   assert.ok(scrollWidth<=clientWidth+2,file+' body overflows at '+viewport.width+': '+scrollWidth+'/'+clientWidth);
+   if (scrollWidth>clientWidth+2) {
+     const offenders=await page.evaluate(()=>Array.from(document.querySelectorAll('body *')).map(el=>({
+       tag:el.tagName,cls:typeof el.className==='string'?el.className:'',id:el.id,
+       right:Math.round(el.getBoundingClientRect().right),
+       left:Math.round(el.getBoundingClientRect().left),
+       scrollWidth:el.scrollWidth,clientWidth:el.clientWidth
+     })).filter(e=>e.right>document.documentElement.clientWidth+2||e.left < -2).slice(0,25));
+     throw new Error(file+' body overflows at '+viewport.width+': '+scrollWidth+'/'+clientWidth+' offenders '+JSON.stringify(offenders));
+   }
    assert.equal(await page.locator('.graphwrap').count(),count);
    const downloaded=page.waitForEvent('download');
    await page.locator('.panel').first().getByRole('button').click();
