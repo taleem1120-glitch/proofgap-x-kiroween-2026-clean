@@ -48,3 +48,7 @@ jobs:
         run: node --test test/text-copy-adversarial.test.js
       - name: Repeatable text-copy microbenchmark (observational)
         run: node bench/text-copy-performance.js
+      - name: Competition source and license gate
+        run: node scripts/release-source-gate.js
+      - name: Verify package contents and licence declaration
+        run: npm pack --dry-run --json > /dev/null
