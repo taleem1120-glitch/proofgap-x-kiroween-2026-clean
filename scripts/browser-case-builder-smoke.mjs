@@ -55,6 +55,16 @@ try{
  const reportDownload=await reportReady;
  const reportText=readFileSync(await reportDownload.path(),'utf8');
  assert.equal(reportText,serializeReport(analyzeCase(data)),'browser/core hash or policy drift');
+ assert.match(await page.locator('#analysis-result').innerText(),/دعم مستقل غير كافٍ|النتيجة \/ Result/);
+ // A user adding then removing a source must not leave a stale downloadable report.
+ await page.locator('#add-source').click();
+ assert.equal(await page.locator('#export-report').isDisabled(),true);
+ assert.equal(await page.locator('#sources .row').nth(2).locator('[name=id]').inputValue(),'s3');
+ await page.locator('#sources .row').nth(2).locator('[data-action=remove]').click();
+ assert.equal(await page.locator('#export-report').isDisabled(),true);
+ await page.locator('#run-analysis').click();
+ await page.waitForFunction(()=>/اكتمل التحليل|تعذر تحليل القضية/.test(document.getElementById('status').textContent));
+ assert.equal(await page.locator('#export-report').isEnabled(),true);
  mkdirSync('artifacts/browser-visual-review',{recursive:true});
  await page.screenshot({path:'artifacts/browser-visual-review/mobile-end-to-end-analysis-360-ar.png',animations:'disabled',fullPage:true});
  const {w,screen}=await page.evaluate(()=>({w:document.documentElement.scrollWidth,screen:document.documentElement.clientWidth}));
