@@ -52,3 +52,29 @@ test('deadline expiring immediately before a streaming read must not yield VERIF
     assert.equal(result.results[0].verified, false);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('file growth after initial fstat cannot exceed the per-file byte budget or produce VERIFIED', () => {
+  const root = mkdtempSync(join(tmpdir(), 'pgx-file-cap-'));
+  try {
+    const file = join(root, 'grow.txt');
+    writeFileSync(file, 'a');
+    let ticks = 0;
+    const now = () => {
+      ticks++;
+      // Append after fstat but before the first read, deterministically exercising
+      // the streaming cap rather than the initial stat-size check.
+      if (ticks === 3) appendFileSync(file, 'bcde');
+      return 0;
+    };
+    const result = verifyEvidenceFiles(evidence('grow.txt', sha('abcde')), {
+      evidenceDir: root,
+      limits: limits({ maxFileBytes: 2 }),
+      now,
+    });
+    assert.equal(result.results[0].status, 'NOT_CHECKED');
+    assert.equal(result.results[0].reason, 'file_size_limit');
+    assert.equal(result.results[0].verified, false);
+    assert.equal(result.usage.totalBytes, 0);
+    assert.ok(ticks >= 3);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
