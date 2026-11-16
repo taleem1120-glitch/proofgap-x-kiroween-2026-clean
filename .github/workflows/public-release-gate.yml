@@ -3,7 +3,14 @@ on:
   workflow_dispatch:
   push:
     branches: ['main']
-    paths: ['.github/workflows/public-release-gate.yml', 'scripts/public-release-smoke.mjs']
+    paths:
+      - '.github/workflows/public-release-gate.yml'
+      - 'scripts/public-release-smoke.mjs'
+      - 'index.html'
+      - 'assets/lang.js'
+      - 'tools/**'
+      - 'viewer/**'
+      - 'apps/proofgap-cite/**'
   workflow_run:
     workflows: ['pages build and deployment']
     types: [completed]
