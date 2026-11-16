@@ -68,11 +68,57 @@ $('case-form').addEventListener('submit',event=>{
  try{
   const content=serializeCase({caseId:$('case-id').value.trim(),title:$('case-title').value.trim(),
    sources:rows('sources'),claims:rows('claims'),evidence:rows('evidence')});
-  const blob=new Blob([content],{type:'application/json;charset=utf-8'});
-  const link=document.createElement('a'),url=URL.createObjectURL(blob);
-  link.href=url;link.download=$('case-id').value.trim()+'.proofgap-case.json';
-  document.body.appendChild(link);link.click();link.remove();
-  URL.revokeObjectURL(url);
+  downloadJson(content,$('case-id').value.trim()+'.proofgap-case.json');
   $('status').textContent='تم إنشاء JSON. هذه مدخلات للقضية وليست تقرير نتائج. شغّل محرك ProofGap X لتحليلها.';
  }catch(error){$('status').textContent='تعذر التصدير: '+String(error.message||error);}
+});
+
+function inputRows(){
+ return {caseId:$('case-id').value.trim(),title:$('case-title').value.trim(),
+   sources:rows('sources'),claims:rows('claims'),evidence:rows('evidence')};
+}
+function downloadJson(content,name){
+ const blob=new Blob([content],{type:'application/json;charset=utf-8'});
+ const link=document.createElement('a'),url=URL.createObjectURL(blob);
+ link.href=url;link.download=name;
+ document.body.appendChild(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+let latestReport=null;
+function clearReport(){
+ latestReport=null;
+ $('export-report').disabled=true;
+ $('analysis-result').textContent='';
+}
+for (const id of ['case-id','case-title','sources','claims','evidence']) {
+ $(id).addEventListener('input',clearReport);
+ $(id).addEventListener('change',clearReport);
+}
+$('run-analysis').addEventListener('click',async()=>{
+ clearReport();$('status').textContent='';
+ try {
+  const {analyzeBuilderRows}=await import('./browser-engine.bundle.js');
+  const {report,reportText}=analyzeBuilderRows(inputRows());
+  if (!report || report.tool!=='proofgap-x' || !Array.isArray(report.claims))throw Error('Invalid engine response');
+  latestReport={reportText,caseId:report.caseId};
+  $('export-report').disabled=false;
+  const counts=report.summary?.decisionCounts||{};
+  const perClaim=report.claims.map(c=>[
+    c.claimId,
+    'قرار / Decision: '+String(c.decision),
+    'أصول الدعم المعلنة / Declared independent support origins: '+String(c.corroboration?.independentSupportOrigins),
+    'عدد الأدلة / Evidence items: '+String(c.corroboration?.supportingEvidenceItems)
+  ].join(' | '));
+  $('analysis-result').textContent='نتيجة تحليل محلي — ليست إثباتًا لصحة الوقائع أو استقلالية المصادر\n'+
+   'Case: '+report.caseId+'\n'+perClaim.join('\n')+'\n'+
+   'Decisions: '+JSON.stringify(counts)+'\n'+
+   'صدر التقرير محليًا. افحص التقرير الكامل وتفسيراته قبل اتخاذ أي قرار.';
+  $('status').textContent='اكتمل التحليل داخل المتصفح. ملف الأدلة الأصلي لم يتم التحقق منه.';
+ } catch(error) {
+  $('status').textContent='تعذر تحليل القضية: '+String(error.message||error);
+ }
+});
+$('export-report').addEventListener('click',()=>{
+ if(!latestReport)return;
+ downloadJson(latestReport.reportText,latestReport.caseId+'.proofgap-report.json');
 });
