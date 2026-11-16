@@ -15,7 +15,7 @@ This record distinguishes automated checks and synthetic observations from real-
 | Mobile Chromium smoke | Passed at 360 px viewport | Run 43912452078 |
 | Ten-language builder navigation | Passed in browser smoke | Run 43912452078 |
 | Case-builder total/stance count regression | 3 total, 2 supporting, 1 contradicting; UI and exported JSON agree | PR 12 checks and run 43912452078 |
-| Browser core reproducibility | Passed on the preceding validated main revision; generated bundle remained in parity | Run 43912054865 |
+| Browser core reproducibility | Passed on the preceding validated main revision; generated bundle remained in parity | Run 43911608811 |
 | GitHub Pages deployment | Passed | Deployment run 43912451551 |
 
 The mobile browser smoke also exercised local analysis, JSON export, byte-identical browser/core report output, cycle rejection, no horizontal overflow, and no JavaScript exceptions.
