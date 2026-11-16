@@ -4,6 +4,17 @@
 (function () {
   'use strict';
   var SVGNS = 'http://www.w3.org/2000/svg';
+  var L = ProofGapLocale.t;
+  var DECISION_KEYS = {
+    supported_by_independent_origins:'supported',
+    abstain_possible_undeclared_dependence:'abstainHidden',
+    insufficient_support:'insufficient',
+    conflicting:'conflicting', contradicted:'contradicted', no_evidence:'noEvidence',
+    independently_corroborated:'corroborated', abstain_suspected_shared_origin:'abstainShared',
+    origin_unresolved:'unresolved', single_origin:'singleOrigin',
+    circular_reporting:'circular', unsupported:'unsupported'
+  };
+
   var DECISION = {
     supported_by_independent_origins: ['Supported (declared assumptions)', 'ok'],
     abstain_possible_undeclared_dependence: ['Abstains: possible hidden shared source', 'warn'],
@@ -38,7 +49,7 @@
     (children || []).forEach(function (c) { n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
     return n;
   }
-  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [d[0]]); }
+  function badge(decision) { var d = DECISION[decision] || [decision, 'warn']; return el('span', { class: 'badge ' + d[1] }, [DECISION_KEYS[decision] ? L(DECISION_KEYS[decision]) : d[0]]); }
   function ids(xs) { return xs.map(function (x) { return x; }).join(', '); }
   function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '\u2026' : s; }
 
@@ -67,7 +78,7 @@
       defs.appendChild(svg('marker', { id: uid + '-arrow-' + b, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, [svg('path', { d: 'M0,0 L10,5 L0,10 z', class: 'arrow ' + b })]));
     });
     root.appendChild(defs);
-    [['Sources', X.source], ['Evidence', X.evidence], ['Claims', X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
+    [[L('sources'), X.source], [L('evidence'), X.evidence], [L('claims'), X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
     var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
     root.appendChild(edgeLayer); root.appendChild(nodeLayer);
     g.edges.forEach(function (e) {
@@ -90,7 +101,7 @@
       grp.appendChild(svg('title', {}, [n.type + ' ' + n.ref + ': ' + n.label + (n.integrity ? ' — integrity ' + n.integrity : '') + (n.decision ? ' — ' + n.decision : '') + (n.role ? ' — ' + n.role.replace(/_/g, ' ') : '')]));
       grp.appendChild(svg('rect', { x: -60, y: -16, width: 120, height: 32, rx: n.type === 'claim' ? 16 : 5 }));
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
-      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION[n.decision] || [n.decision])[0] : n.role.replace(/_/g, ' ');
+      var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION_KEYS[n.decision] ? L(DECISION_KEYS[n.decision]) : n.decision) : n.role.replace(/_/g, ' ');
       grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
       nodeLayer.appendChild(grp);
     });
@@ -100,12 +111,12 @@
     }));
     wrap.appendChild(legend);
     // text alternative
-    var tbl = el('table', { class: 'edges' }, [el('caption', {}, ['All relationships (' + g.edges.length + ')']), el('thead', {}, [el('tr', {}, ['From', 'Relation', 'To', 'Basis'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var tbl = el('table', { class: 'edges' }, [el('caption', {}, [L('allRelations',{n:g.edges.length})]), el('thead', {}, [el('tr', {}, [L('from'), L('relation'), L('to'), L('basis')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
     g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
     tbl.appendChild(tb);
-    var det = el('details', { class: 'edgelist' }, [el('summary', {}, ['Text version of the graph']), tbl]);
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, ['Evidence independence graph']), wrap, det]);
+    var det = el('details', { class: 'edgelist' }, [el('summary', {}, [L('graphText')]), tbl]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), wrap, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
   }
 
   // ---------- claims ----------
@@ -113,33 +124,33 @@
     var k = c.corroboration;
     var head = el('div', { class: 'claimhead' }, [el('h4', {}, [(c.line ? 'line ' + c.line + ' \u00b7 ' : '') + c.claimId + ': ' + c.statement]), badge(c.decision)]);
     var big = el('p', { class: 'collapse' }, [
-      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' supporting item(s) collapse to ',
-      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' independent origin(s)',
-      k.falseCorroboration ? el('span', { class: 'flag' }, [' FALSE CORROBORATION']) : '',
+      el('span', { class: 'n items' }, [String(k.supportingEvidenceItems)]), ' ' + L('collapseTo') + ' ',
+      el('span', { class: 'n origins' }, [String(k.independentSupportOrigins)]), ' ' + L('originsSuffix'),
+      k.falseCorroboration ? el('span', { class: 'flag' }, [L('falseCorroboration')]) : '',
     ]);
-    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? 'Core decision: ' + c.coreDecision + ' \u00b7 ' : '') + 'Hard classification: ' + c.status + ' \u00b7 support score ' + c.supportScore + ' \u00b7 contradict score ' + c.contradictScore + (k.approximate ? ' \u00b7 approximate grouping' : '')]);
+    var meta = el('p', { class: 'meta' }, [(c.coreDecision ? L('coreDecision') + ': ' + c.coreDecision + ' \u00b7 ' : '') + L('hardClassification') + ': ' + c.status + ' \u00b7 ' + L('supportScore') + ' ' + c.supportScore + ' \u00b7 ' + L('contradictScore') + ' ' + c.contradictScore + (k.approximate ? ' \u00b7 ' + L('approxGrouping') : '')]);
     var why = el('ul', { class: 'why' }, c.explanation.map(function (t) { return el('li', {}, [t]); }));
     var card = el('article', { class: 'claim dec-' + c.decision }, [head, big, meta, why]);
     if (Array.isArray(c.missing) && c.missing.length) {
-      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, ['What is missing']), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
+      card.appendChild(el('div', { class: 'missing' }, [el('h5', {}, [L('missing')]), el('ul', {}, c.missing.map(function (m) { return el('li', {}, [m]); }))]));
     }
     if (k.clusters.supports.length || k.clusters.contradicts.length) {
-      var cl = el('details', { open: '' }, [el('summary', {}, ['Why these count as ' + k.independentSupportOrigins + ' origin(s)'])]);
+      var cl = el('details', { open: '' }, [el('summary', {}, [L('whyOrigins',{n:k.independentSupportOrigins})])]);
       k.clusters.supports.concat(k.clusters.contradicts.map(function (x) { return Object.assign({ contra: true }, x); })).forEach(function (o) {
         cl.appendChild(el('div', { class: 'cluster' + (o.contra ? ' contra' : '') }, [
-          el('p', {}, [el('strong', {}, [(o.contra ? 'Contradicting origin ' : 'Origin ') + o.origin]), ' \u2014 items ' + ids(o.evidenceIds)]),
+          el('p', {}, [el('strong', {}, [(o.contra ? L('contradictOrigin') + ' ' : L('origin') + ' ') + o.origin]), ' \u2014 ' + L('items') + ' ' + ids(o.evidenceIds)]),
           el('ul', {}, (o.reasons || []).map(function (r) { return el('li', {}, [r]); })),
         ]));
       });
       card.appendChild(cl);
     }
     if (c.findings.length) {
-      card.appendChild(el('h5', {}, ['Proof gaps (logical: follow from the declared data and policy)']));
+      card.appendChild(el('h5', {}, [L('proofGaps')]));
       card.appendChild(el('ul', { class: 'findings' }, c.findings.map(function (f) { return el('li', { class: 'sev-' + f.severity }, [el('span', { class: 'sev' }, [f.severity]), ' ' + f.code + ': ' + f.message]); })));
     }
     if (c.plan && c.plan.steps.length) {
-      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, ['Counterfactual evidence plan' + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
-      plan.appendChild(el('p', { class: 'note' }, ['Hypothetical only. Outcomes are what the same policy would decide; no listed item is claimed to exist.']));
+      var plan = el('details', { class: 'plan', open: '' }, [el('summary', {}, [L('plan') + (c.plan.smallestChange ? ' \u2014 smallest change: ' + c.plan.smallestChange.minimalCount + ' \u00d7 ' + c.plan.smallestChange.stepId : '')])]);
+      plan.appendChild(el('p', { class: 'note' }, [L('hypotheticalNote')]));
       c.plan.steps.forEach(function (st) {
         var t = el('table', { class: 'outcomes' }, [el('caption', {}, [st.id + ' (' + st.kind + ', minimal ' + st.minimalCount + '): ' + st.requirement]),
           el('thead', {}, [el('tr', {}, ['If\u2026', 'Then status', 'Support / contra origins'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
@@ -150,36 +161,36 @@
       card.appendChild(plan);
     }
     if (c.requirements.length) {
-      var rq = el('details', {}, [el('summary', {}, ['Suggested next steps (heuristic, ranked)'])]);
-      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, ['Would show: ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, ['Would NOT show: ' + r.wouldNotShow])]); })));
+      var rq = el('details', {}, [el('summary', {}, [L('next')])]);
+      rq.appendChild(el('ol', {}, c.requirements.map(function (r) { return el('li', {}, [r.action, el('br'), el('small', {}, [L('wouldShow') + ': ' + r.wouldShow]), el('br'), el('small', { class: 'wouldnot' }, [L('wouldNotShow') + ': ' + r.wouldNotShow])]); })));
       card.appendChild(rq);
     }
-    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, ['Assumptions']), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
+    if (c.assumptions.length) card.appendChild(el('details', {}, [el('summary', {}, [L('assumptions')]), el('ul', {}, c.assumptions.map(function (a) { return el('li', {}, [a]); }))]));
     return card;
   }
 
   function integrityCard(r) {
     var i = r.integrity;
     var rows = i.results.filter(function (x) { return x.declaredSha256 || x.observedSha256; });
-    var t = el('table', { class: 'integrity' }, [el('caption', {}, ['Source verification: ' + (i.mode === 'not_requested' ? 'NOT REQUESTED \u2014 declared hashes are unverified' : 'checked against a local evidence directory')]),
-      el('thead', {}, [el('tr', {}, ['Evidence', 'Status', 'Reason'].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
+    var t = el('table', { class: 'integrity' }, [el('caption', {}, [L('sourceVerification') + ': ' + (i.mode === 'not_requested' ? L('notRequested') : L('checkedLocal'))]),
+      el('thead', {}, [el('tr', {}, [L('evidence'), L('status'), L('reason')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
     var tb = el('tbody');
     rows.forEach(function (x) {
-      var why = x.verified ? 'bytes match declared SHA-256 (not proof of authenticity)'
-        : (!x.declaredSha256 && x.observedSha256) ? 'no declared hash; bytes hashed locally ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (empty file, not used for linking)' : '')
+      var why = x.verified ? L('bytesMatched')
+        : (!x.declaredSha256 && x.observedSha256) ? L('localHash') + ' ' + x.observedSha256.slice(0, 12) + '\u2026' + (x.observedEmpty ? ' (' + L('emptyFile') + ')' : '')
         : (x.reason || '');
       tb.appendChild(el('tr', { class: 'int-' + x.status }, [el('td', {}, [x.evidenceId]), el('td', {}, [x.status]), el('td', {}, [why])]));
     });
-    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, ['No evidence item declares a SHA-256 or names a local file.'])]));
+    if (!rows.length) tb.appendChild(el('tr', {}, [el('td', { colspan: 3 }, [L('noHash')])]));
     t.appendChild(tb);
     var counts = el('p', { class: 'meta' }, Object.keys(i.counts).map(function (k) { return k + ' ' + i.counts[k] + '  '; }));
-    return el('section', { class: 'card' }, [el('h3', {}, ['Source verification']), counts, t]);
+    return el('section', { class: 'card' }, [el('h3', {}, [L('verifyHeading')]), counts, t]);
   }
 
   function panel(report, raw, idx) {
     var uid = 'r' + idx;
     var s = report.summary;
-    var dl = el('button', { type: 'button', class: 'export' }, ['Export report JSON']);
+    var dl = el('button', { type: 'button', class: 'export' }, [L('export')]);
     dl.addEventListener('click', function () {
       var blob = new Blob([raw], { type: 'application/json' });
       var a = el('a', { href: URL.createObjectURL(blob), download: report.caseId + '.proofgap-report.json' });
@@ -187,27 +198,71 @@
     });
     var hdr = el('header', { class: 'phead' }, [
       el('h2', {}, [report.title]),
-      el('p', { class: 'meta' }, ['Case ' + report.caseId + ' \u00b7 analysis ' + report.analysisVersion + ' \u00b7 input SHA-256 ' + report.inputSha256.slice(0, 16) + '\u2026']),
+      el('p', { class: 'meta' }, [L('case') + ' ' + report.caseId + ' \u00b7 ' + L('analysis') + ' ' + report.analysisVersion + ' \u00b7 ' + L('inputHash') + ' ' + report.inputSha256.slice(0, 16) + '\u2026']),
       el('p', { class: 'disclaimer' }, [report.disclaimer]),
       el('p', { class: 'chips' }, Object.keys(s.decisionCounts || {}).map(function (d) { return el('span', { class: 'chip' }, [badge(d), ' \u00d7 ' + s.decisionCounts[d]]); })),
       dl,
     ]);
-    var claims = el('section', { class: 'card' }, [el('h3', {}, ['Claims, reasoning and proof gaps'])].concat(report.claims.map(claimCard)));
-    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, ['Suspected hidden dependence (heuristic warnings)']), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
+    var claims = el('section', { class: 'card' }, [el('h3', {}, [L('claimsHeading')])].concat(report.claims.map(claimCard)));
+    var warn = report.warnings.length ? el('section', { class: 'card' }, [el('h3', {}, [L('warningsHeading')]), el('ul', {}, report.warnings.map(function (w) { return el('li', {}, [w.code + ': ' + w.message]); }))]) : null;
     var kids = [hdr, claims, graphView(report, uid), integrityCard(report)];
     if (warn) kids.push(warn);
     return el('div', { class: 'panel', role: 'region', 'aria-label': 'Report ' + report.caseId }, kids);
   }
 
-  function valid(r) { return r && r.tool === 'proofgap-x' && Array.isArray(r.claims) && r.graph && Array.isArray(r.graph.nodes) && r.integrity && r.summary; }
+  // Defensive shape and resource validation for untrusted uploaded JSON. Never infer provenance.
+  function valid(r) {
+    if (!r || r.tool !== 'proofgap-x' || !Array.isArray(r.claims) || r.claims.length > 500 ||
+        !Array.isArray(r.warnings) || r.warnings.length > 500 ||
+        !r.graph || !Array.isArray(r.graph.nodes) || r.graph.nodes.length > 2000 ||
+        !Array.isArray(r.graph.edges) || r.graph.edges.length > 4000 ||
+        !r.graph.basisCounts || typeof r.graph.basisCounts !== 'object' ||
+        !r.integrity || !Array.isArray(r.integrity.results) || r.integrity.results.length > 2000 ||
+        !r.integrity.counts || typeof r.integrity.counts !== 'object' ||
+        !r.summary || !r.summary.decisionCounts || typeof r.summary.decisionCounts !== 'object' ||
+        typeof r.title !== 'string' || typeof r.caseId !== 'string' ||
+        typeof r.analysisVersion !== 'string' || typeof r.inputSha256 !== 'string' ||
+        typeof r.disclaimer !== 'string') return false;
+    if (!r.claims.every(function(c) {
+      return c && typeof c.claimId === 'string' && typeof c.statement === 'string' &&
+        c.corroboration && typeof c.corroboration === 'object' &&
+        typeof c.corroboration.supportingEvidenceItems === 'number' &&
+        typeof c.corroboration.independentSupportOrigins === 'number' &&
+        c.corroboration.clusters &&
+        Array.isArray(c.corroboration.clusters.supports) &&
+        Array.isArray(c.corroboration.clusters.contradicts) &&
+        Array.isArray(c.explanation) && c.explanation.length <= 500 &&
+        Array.isArray(c.findings) && c.findings.length <= 500 &&
+        Array.isArray(c.requirements) && c.requirements.length <= 500 &&
+        Array.isArray(c.assumptions) && c.assumptions.length <= 500 &&
+        (!c.missing || Array.isArray(c.missing)) &&
+        (!c.plan || (Array.isArray(c.plan.steps) && c.plan.steps.length <= 500));
+    })) return false;
+    if (!r.integrity.results.every(function(x){ return x && typeof x.evidenceId === 'string'; })) return false;
+    if (!r.graph.nodes.every(function(n){ return n && typeof n.id === 'string' && typeof n.type === 'string'; })) return false;
+    if (!r.graph.edges.every(function(e){ return e && typeof e.from === 'string' && typeof e.to === 'string'; })) return false;
+    return true;
+  }
 
+  var currentReports = [];
   function render(list) {
+    currentReports = list;
     var main = document.getElementById('reports');
     while (main.firstChild) main.removeChild(main.firstChild);
     main.className = list.length > 1 ? 'grid two' : 'grid';
-    list.forEach(function (x, i) { main.appendChild(panel(x.report, x.raw, i)); });
+    var displayed = 0, rejected = 0;
+    list.forEach(function (x, i) {
+      try {
+        if (!valid(x.report)) { rejected++; return; }
+        main.appendChild(panel(x.report, x.raw, i)); displayed++;
+      } catch (e) {
+        // A malicious or malformed local report must not crash the other report.
+        rejected++;
+      }
+    });
     var st = document.getElementById('status');
-    st.textContent = list.length ? 'Showing ' + list.length + ' report(s).' : 'No report loaded.';
+    st.textContent = displayed ? L('showing',{n:displayed}) : L('noReport');
+    if (rejected) st.textContent += ' ' + L('skipped') + ': ' + rejected;
   }
 
   function fromEmbedded() {
@@ -219,18 +274,32 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    ProofGapLocale.set(ProofGapLocale.detect());
+    var appHeading = document.querySelector('.top h1');
+    var citationApp = appHeading && /ProofGap Cite/i.test(appHeading.textContent);
+    function translateStatic(){
+      [['pg-translation-scope','translationScope'],['pg-offline','headerOffline'],['pg-intro','headerCaveat'],['pg-footer','footerCaveat'],['pg-skip','skipReports']].forEach(function(pair){
+        var node=document.getElementById(pair[0]); if(node)node.textContent=L(pair[1]);
+      });
+      if (appHeading) appHeading.textContent=L(citationApp?'titleCitation':'titleInvestigation');
+    }
+    translateStatic();
+    var fileCaption = document.getElementById('pg-open-files');
+    if (fileCaption) fileCaption.textContent = L('openFiles');
+    var language = document.getElementById('pg-language');
+    if (language) language.addEventListener('change', function () { ProofGapLocale.set(language.value); translateStatic(); if (fileCaption) fileCaption.textContent = L('openFiles'); render(currentReports); });
     render(fromEmbedded());
     var input = document.getElementById('file');
     input.addEventListener('change', function () {
       var files = Array.prototype.slice.call(input.files, 0, 2), out = [], left = files.length, err = [];
       if (!left) return;
       files.forEach(function (f, i) {
-        if (f.size > 60 * 1024 * 1024) { err.push(f.name + ': too large'); if (--left === 0) done(); return; }
+        if (f.size > 5 * 1024 * 1024) { err.push(f.name + ': ' + L('tooLarge')); if (--left === 0) done(); return; }
         var rd = new FileReader();
-        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': not a ProofGap X report'); } catch (e) { err.push(f.name + ': invalid JSON'); } if (--left === 0) done(); };
+        rd.onload = function () { try { var r = JSON.parse(rd.result); if (valid(r)) out[i] = { report: r, raw: rd.result }; else err.push(f.name + ': ' + L('notReport')); } catch (e) { err.push(f.name + ': ' + L('invalidJson')); } if (--left === 0) done(); };
         rd.readAsText(f);
       });
-      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' Skipped: ' + err.join('; '); }
+      function done() { render(out.filter(Boolean)); if (err.length) document.getElementById('status').textContent += ' ' + L('skipped') + ': ' + err.join('; '); }
     });
   });
 })();

@@ -42,12 +42,16 @@ jobs:
         run: node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format json > /dev/null
       - name: Synthetic comparison diagnostic (NOT real-world superiority)
         run: node bench/text-copy-diagnostic.js
+      - name: Adversarial text-copy challenge (generated corpus, NOT independent validation)
+        run: node bench/adversarial-copy-challenge.js
       - name: Security, metamorphic, benchmark regressions
         run: node --test test/security.test.js test/metamorphic.test.js test/benchmark.test.js
       - name: Re-encoded text adversarial tests
         run: node --test test/text-copy-adversarial.test.js
       - name: Repeatable text-copy microbenchmark (observational)
         run: node bench/text-copy-performance.js
+      - name: Reproducible core scaling diagnostic (synthetic; observational)
+        run: node bench/engine-scaling-check.js
       - name: Competition source and license gate
         run: node scripts/release-source-gate.js
       - name: Verify package contents and licence declaration

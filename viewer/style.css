@@ -6,7 +6,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
 a { color: var(--accent); }
-.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #000; padding: 6px; z-index: 10; }
+.skip { position: fixed; inset-inline-start: 8px; top: 8px; transform: translateY(-200%); opacity: 0; pointer-events: none; z-index: 10; } .skip:focus { transform: none; opacity: 1; pointer-events: auto; background: #000; padding: 6px; }
 .top { padding: 16px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #1a1430, var(--bg)); }
 .top h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: .02em; }
 .top p { margin: 4px 0; color: var(--muted); max-width: 70rem; }
@@ -82,3 +82,44 @@ svg.graph { width: 100%; min-width: 560px; height: auto; display: block; }
 footer { padding: 16px 20px; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 @media print { body { background: #fff; color: #000; } .panel, .card { background: #fff; } }
+
+/* Mobile-first accessibility: preserve forensic graph geometry but avoid body overflow. */
+html { overflow-x: hidden; }
+body { min-width: 0; overflow-wrap: anywhere; }
+.controls > label { min-width: 0; max-width: 100%; }
+.controls select { min-height: 44px; max-width: 100%; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.controls input[type=file] { display: block; max-width: 100%; min-height: 44px; font: inherit; }
+button.export { min-height: 44px; }
+#pg-translation-scope { border-inline-start: 3px solid var(--warn); padding-inline-start: 9px; }
+.panel, .card, .claim, .claimhead { min-width: 0; }
+.claimhead h4, .cluster, .meta { overflow-wrap: anywhere; }
+.card table { display: block; overflow-x: auto; max-width: 100%; }
+.card table th, .card table td { min-width: 5rem; }
+html[dir="rtl"] .disclaimer { border-left: 0; padding-left: 0; border-right: 3px solid var(--warn); padding-right: 8px; }
+html[dir="rtl"] .missing, html[dir="rtl"] .cluster { border-left: 0; padding-left: 0; border-right: 3px solid var(--warn); padding-right: 8px; }
+html[dir="rtl"] .cluster { border-right-color: var(--ok); }
+html[dir="rtl"] .cluster.contra { border-right-color: var(--bad); }
+html[dir="rtl"] .why { margin-left: 0; margin-right: 18px; }
+html[dir="rtl"] .colhead { direction: ltr; unicode-bidi: isolate; }
+html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: start; }
+@media (max-width: 560px) {
+  .top { padding: 14px 12px; }
+  main { padding: 10px; }
+  .panel { padding: 10px; }
+  .card { padding: 9px; }
+  .controls { align-items: stretch; flex-direction: column; }
+  .controls > label { width: 100%; }
+  .claimhead { flex-direction: column; align-items: flex-start; }
+  .badge { font-size: .76rem; }
+  svg.graph { min-width: 560px; }
+}
+
+/* At narrow widths, keep limitations visible but make first evidence card reachable sooner. */
+@media (max-width: 560px) {
+  .top h1 { font-size: 1.22rem; line-height: 1.27; margin-block-end: .55rem; }
+  .top p { font-size: .81rem; line-height: 1.35; margin-block: .3rem; }
+  #pg-translation-scope { font-size: .79rem; }
+  .top .controls { gap: 6px; margin-block-start: .45rem; }
+  .top .controls label.file { padding-block: 4px; }
+  .phead h2 { line-height: 1.35; }
+}

@@ -6,7 +6,7 @@
 - Category: **Skeleton Crew** (a reusable skeleton + **two distinct applications in separate repository folders**)
 - Build with authentic Kiro usage; keep `.kiro` directory tracked at repository root; explain concrete Kiro features honestly.
 - Public GitHub repository with a detectable open-source license; working demo or test build freely accessible to judges.
-- Public YouTube demo **under three minutes**, with real functionality on the target platform.
+- Public YouTube demo **under three minutes**, with real functionality on the target platform.\n- All submitted materials in English, or English translations of video, description, testing instructions and other submission materials.\n- Project must have been created during the submission period (Oct 30–Dec 4, 2026); disclose reused pre-existing components if any.
 - Competition deadline **December 4, 2026, 2:00 p.m. PST** (**December 5, 2026, 1:00 a.m. Baghdad**).
 - Judging: Potential Impact, Technological Implementation with Kiro, Design, Innovation/Idea, Presentation (20% each).
 - Official source: https://kiroween.devpost.com/rules
@@ -19,7 +19,7 @@
 - Test instructions: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/main/docs/JUDGES_QUICKSTART_2026.md
 - Kiro audit: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/main/.kiro/KIRO_USAGE.md
 - YouTube: **TO RECORD, PUBLISH AND VERIFY**; never invent a URL.
-- Devpost submission: **TO COMPLETE AND VERIFY**.
+- Devpost submission: **TO COMPLETE AND VERIFY**.\n- Arabic filming guide: [FINAL_VIDEO_RECORDING_AR.md](FINAL_VIDEO_RECORDING_AR.md) (a script, not a recorded video).
 
 ## Suggested project title
 **ProofGap X — Detect Evidence Echoes, Find the Missing Independent Source**
@@ -32,7 +32,7 @@ Ten reports can appear to agree while quietly relying on the same original sourc
 - 0:18–0:58: open ProofGap X, show collapse of dependent sources, integrity caveat and what evidence is missing.
 - 0:58–1:27: show a contrasting independently sourced case and abstention.
 - 1:27–2:08: open ProofGap Cite, demonstrate a copied press release and a citation cycle; export actual JSON.
-- 2:08–2:28: open public GitHub CI results; show 212 passing unit tests per runtime (current evidence) plus both working demos, not a real-world detection score.
+- 2:08–2:28: open public GitHub CI results; show the exact passing test count and CI URL from the FINAL deployed commit, and the 10-language Chromium checks; never use an outdated hardcoded number or imply field accuracy.
 - 2:28–2:45: show factual `.kiro/KIRO_USAGE.md`, specs and actual Kiro usage. End with the tagline: **Count independent origins, not repeated reports.**
 
 Avoid tiny mobile text and app browser bars in the **edited** video; preserve authenticity of UI behavior and results. No unauthorized logos, copyrighted music or personal evidence.
@@ -43,7 +43,7 @@ Avoid tiny mobile text and app browser bars in the **edited** video; preserve au
 - [x] GitHub Pages deploy passed, run 43750069480
 - [x] Owner-provided mobile screen recordings of both app views and a JSON export
 - [ ] Current final hardening PR reviewed, merged, and CI passed on main
-- [ ] Judge accessibility independently rechecked after final deployment
+- [x] Candidate branch Chromium automation: both applications at 360, 411, 1280 px and ten-language switching (6 viewport/app combinations, 60 switches). Browser test is NOT human review.\n- [ ] Human accessibility, Android visual review and language proofreading\n- [ ] Judge accessibility independently rechecked after final deployment
 - [ ] Final video published publicly on YouTube, <3 min, link recorded
 - [ ] Devpost submission marked Submitted, with correct Skeleton Crew category
 - [ ] External security audit/independent blinded field trial (commercial certification only; **not** prerequisite claimed by rules)

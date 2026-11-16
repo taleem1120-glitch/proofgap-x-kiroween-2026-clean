@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>ProofGap X — منشئ ملف القضية</title>
+<style>
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#10141b;color:#eff5fc}
+*{box-sizing:border-box}body{margin:0;padding:clamp(12px,4vw,35px)}main{max-width:850px;margin:auto}
+h1{font-size:clamp(1.5rem,5vw,2.2rem)}h2{font-size:1.2rem}p,.hint{line-height:1.55;color:#c5d3e1}
+fieldset{border:1px solid #6d8299;border-radius:10px;padding:12px;margin:12px 0}
+legend{font-weight:bold;padding:0 8px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+label{display:block;font-weight:600;font-size:.92rem}input,select,textarea{display:block;width:100%;max-width:100%;min-height:44px;padding:8px;margin:5px 0;background:#202c39;color:#fff;border:1px solid #96abc0;border-radius:6px;font:inherit}
+textarea{min-height:65px}button{min-height:44px;padding:8px 14px;margin:6px 0;background:#2c475a;color:#fff;border:1px solid #b4d7ed;border-radius:7px;font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffc76e}
+.row{border-bottom:1px solid #46576b;padding:9px 0}.row:last-child{border:0}.note{border-inline-start:4px solid #f0b429;padding-inline-start:12px}#status{min-height:1.5rem;color:#ffd88a;white-space:pre-wrap}a{color:#b3e4ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:#192532;border:1px solid #59728a;border-radius:8px;padding:12px;font:500 .94rem/1.65 system-ui,sans-serif}footer{margin-top:25px;border-top:1px solid #46576b;padding-top:16px;color:#c5d3e1}
+</style>
+</head>
+<body><main>
+<a href="../index.html">العودة إلى الصفحة الرئيسية / Home</a>
+<h1>منشئ ملف القضية — ProofGap X</h1>
+<p class="note">تُنشئ هذه الأداة مدخل JSON لقضية منظمة، ثم تشغّل المحرك المشترك محليًا لتوليد تقرير التحليل. لا تُحمّل بيانات القضية إلى خادم، ولا تتحقق من حقيقة المصدر أو صحة الوقائع أو سلامة الملفات الأصلية. استخدم بيانات افتراضية في العرض العام.</p>
+<p>This offline tool now generates structured case inputs AND runs the original ProofGap analysis engine locally in the browser. Source ancestry and evidence strengths remain user declarations, not verified facts.</p>
+<form id="case-form" novalidate>
+<fieldset><legend>بيانات القضية / Case</legend><div class="fields">
+<label>رمز القضية / Case ID<input id="case-id" value="DEMO-CASE-1" maxlength="64" required></label>
+<label>العنوان / Title<input id="case-title" value="قضية افتراضية — مصدر واحد وتقارير متعددة" maxlength="500" required></label>
+</div></fieldset>
+<fieldset><legend>المصادر / Sources</legend><p class="hint">يجب أن تكون الرموز فريدة. إذا كان المصدر نسخة، أدخل رمز مصدره الأصلي في حقل «مشتق من».</p><div id="sources"></div><button type="button" id="add-source">+ إضافة مصدر</button></fieldset>
+<fieldset><legend>الادعاءات / Claims</legend><div id="claims"></div><button type="button" id="add-claim">+ إضافة ادعاء</button></fieldset>
+<fieldset><legend>عناصر الأدلة / Evidence</legend><p class="hint">قوة الدليل تقدير مدخل وليست احتمالًا مثبتًا. لا تثبت هذه الأداة الاستقلالية الفعلية.</p><div id="evidence"></div><button type="button" id="add-evidence">+ إضافة دليل</button></fieldset>
+<button type="submit">تنزيل مدخل القضية / Export Case JSON</button>
+<button type="button" id="run-analysis">تحليل القضية على الهاتف / Analyze Locally</button>
+<button type="button" id="export-report" disabled>تنزيل تقرير التحليل / Export Report JSON</button>
+<p class="note">يستخدم التحليل المحرك المشترك نفسه دون رفع البيانات. روابط المصادر والقوة التقديرية معلومات مصرّح بها من المستخدم وليست حقيقة مثبتة. فحص ملفات الأدلة الأصلية غير متاح في هذا المتصفح.</p>
+<pre id="analysis-result" role="status" aria-live="polite"></pre>
+<output id="status" role="status" aria-live="polite"></output>
+</form>
+<footer>Prototype helper • Offline only • No telemetry • Export only explicit structured data • لا تدخل أدلة حساسة في نسخة عامة</footer>
+<script type="module" src="case-builder-ui.js"></script>
+</main></body>
+</html>

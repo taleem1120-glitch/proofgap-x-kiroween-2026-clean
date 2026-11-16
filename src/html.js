@@ -26,7 +26,7 @@ export function renderHtml(serializedReports, options = {}) {
     if (typeof r !== 'string' || /[<>&\u2028\u2029]/.test(r)) throw new Error('report text must come from serializeReport (unescaped markup characters found)');
     JSON.parse(r);
   }
-  const js = read('app.js'), css = read('style.css');
+  const js = read('i18n.js') + '\n' + read('app.js'), css = read('style.css');
   const csp = `default-src 'none'; script-src 'sha256-${b64(js)}'; style-src 'sha256-${b64(css)}'; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'`;
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const blocks = serializedReports.map((r, i) => `<script type="application/json" class="pgx-report" id="pgx-report-${i}">\n${r.trimEnd()}\n</script>`).join('\n');
@@ -41,15 +41,16 @@ export function renderHtml(serializedReports, options = {}) {
 <style>${css}</style>
 </head>
 <body>
-<a class="skip" href="#reports">Skip to reports</a>
+<a class="skip" href="#reports" id="pg-skip">Skip to reports</a>
 <header class="top">
 <h1>${custom ? esc(heading) : 'ProofGap X — evidence independence &amp; proof gaps'}</h1>
-<p>Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
-<p>${custom ? esc(intro) : 'Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.'}</p>
-<div class="controls"><label class="file">Open 1–2 report JSON files: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
+<p id="pg-offline">Offline viewer. Nothing is uploaded: this page has no network access (Content-Security-Policy) and only reads the reports embedded in it or files you choose below.</p>
+<p id="pg-intro">${custom ? esc(intro) : 'Results describe the structure of support under <strong>declared</strong> provenance. They are not findings of truth, authenticity, intent or guilt.'}</p>
+<p id="pg-translation-scope" role="note">Interface translations do not modify original report text.</p>
+<div class="controls"><label class="file"><span id="pg-language-caption">Language</span>: <select id="pg-language" aria-label="Interface language"><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="fa">فارسی</option><option value="hi">हिन्दी</option><option value="zh">中文</option></select></label><label class="file"><span id="pg-open-files">Open 1–2 report JSON files</span>: <input id="file" type="file" accept="application/json,.json" multiple></label><span id="status" role="status" aria-live="polite"></span></div>
 </header>
 <main id="reports" class="grid" tabindex="-1"></main>
-<footer>${custom ? esc(footer) : 'ProofGap X prototype · synthetic example data · not forensic software · not independently validated.'}</footer>
+<footer id="pg-footer">${custom ? esc(footer) : 'ProofGap X prototype · synthetic example data · not forensic software · not independently validated.'}</footer>
 ${blocks}
 <script>${js}</script>
 </body>
