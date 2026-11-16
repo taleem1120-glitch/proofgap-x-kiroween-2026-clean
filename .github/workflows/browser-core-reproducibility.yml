@@ -4,16 +4,10 @@ on:
     branches: ['main', 'feature/global-i18n-2026-11-15']
     paths:
       - '.github/workflows/browser-core-reproducibility.yml'
-      - 'src/analyze.js'
-      - 'src/graph.js'
-      - 'src/independence.js'
-      - 'src/classify.js'
-      - 'src/planner.js'
-      - 'src/gaps.js'
-      - 'src/canonical.js'
-      - 'tools/browser-*'
-      - 'tools/case-builder-core.js'
+      - 'src/**'
+      - 'tools/**'
       - 'scripts/build-browser-engine.mjs'
+      - 'test/browser-core-parity.test.js'
   pull_request:
     branches: ['main']
   workflow_dispatch:
