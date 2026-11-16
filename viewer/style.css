@@ -113,3 +113,13 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
   .badge { font-size: .76rem; }
   svg.graph { min-width: 560px; }
 }
+
+/* At narrow widths, keep limitations visible but make first evidence card reachable sooner. */
+@media (max-width: 560px) {
+  .top h1 { font-size: 1.22rem; line-height: 1.27; margin-block-end: .55rem; }
+  .top p { font-size: .81rem; line-height: 1.35; margin-block: .3rem; }
+  #pg-translation-scope { font-size: .79rem; }
+  .top .controls { gap: 6px; margin-block-start: .45rem; }
+  .top .controls label.file { padding-block: 4px; }
+  .phead h2 { line-height: 1.35; }
+}
