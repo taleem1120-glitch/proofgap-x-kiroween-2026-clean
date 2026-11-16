@@ -17,11 +17,13 @@ function fixture(n){
  return{schemaVersion:'1.0',caseId:'PERF-'+n,title:'Synthetic performance workload',sources,claims,evidence};
 }
 const results=[];
-for(const n of [12,36,72]){
+for(const n of [12,36,72,144,288]){
  const input=fixture(n);
  const start=performance.now();
  const report=analyzeCase(validateCase(input));
  const ms=Math.round((performance.now()-start)*100)/100;
+ // Conservative CI runaway guard, not a user-facing latency or throughput promise.
+ if(ms>10000)throw new Error('analysis exceeded 10 second safety ceiling at '+n+' synthetic sources');
  const bytes=Buffer.byteLength(serializeReport(report));
  if(report.claims[0].corroboration.independentSupportOrigins!==n)throw Error('unrelated roots unexpectedly merged at '+n);
  if(!Number.isFinite(ms)||bytes<1000)throw Error('invalid benchmark result');
