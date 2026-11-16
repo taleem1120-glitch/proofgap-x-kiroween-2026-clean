@@ -164,3 +164,30 @@ test('D12: shared artifact across different declared lineages is SUSPECTED, neve
   assert.deepEqual(r.abstentionCues, ['SHARED_ARTIFACT_ACROSS_LINEAGES']);
   for (const o of r.independentSupportOrigins) assert.ok(o.strength <= 0.3 + 1e-9, 'derived copy carried its self-assigned 1.0');
 });
+test('D13: derived contradictory copies cannot manufacture an extra contradiction origin or inflate its score',()=>{
+  const c=mk([S('orig'),S('copy',{derivedFrom:['orig']}),S('other')],[{id:'c1',statement:'x'}],[
+    {id:'e1',sourceId:'orig',description:'original contradiction',links:[L('c1','contradicts',0.3)]},
+    {id:'e2',sourceId:'copy',description:'derived contradiction copy',links:[L('c1','contradicts',1.0)]},
+    {id:'e3',sourceId:'other',description:'independent contradiction',links:[L('c1','contradicts',0.4)]},
+  ]);
+  const r=claim(analyzeCase(c),'c1');
+  assert.equal(r.independentContradictOrigins.length,2);
+  assert.equal(r.independentContradictOrigins.find(o=>o.sourceIds.includes('orig')).strength,0.3);
+  assert.equal(r.contradictScore,0.58);
+  assert.equal(r.status,'contradicted');
+});
+
+test('D14: a non-citing bridge source cannot collapse independent CONTRADICTING origins for a claim',()=>{
+  const sources=[S('A'),S('B'),S('X',{derivedFrom:['A','B']})];
+  const claims=[{id:'c1',statement:'x'}];
+  const evidence=[
+    {id:'e1',sourceId:'A',description:'a',links:[L('c1','contradicts')]},
+    {id:'e2',sourceId:'B',description:'b',links:[L('c1','contradicts')]},
+  ];
+  const withoutBridge=claim(analyzeCase(mk(sources.slice(0,2),claims,evidence)),'c1');
+  const withBridge=claim(analyzeCase(mk(sources,claims,evidence)),'c1');
+  assert.equal(withoutBridge.independentContradictOrigins.length,2);
+  assert.equal(withBridge.independentContradictOrigins.length,2);
+  assert.equal(withBridge.status,'contradicted');
+  assert.equal(withBridge.contradictScore,withoutBridge.contradictScore);
+});
