@@ -220,7 +220,7 @@ export function analyzeCase(c, opts = {}) {
       claimId: claim.id, statement: claim.statement, status, decision, abstentionCues: cues.map((w) => w.code), supportScore, contradictScore,
       independentSupportOrigins: sup, independentContradictOrigins: con, explanation: why,
       corroboration: {
-        supportingEvidenceItems: supportItems.length, independentSupportOrigins: sup.length,
+        supportingEvidenceItems: supportItems.length, contradictingEvidenceItems: contradictItems.length, independentSupportOrigins: sup.length,
         apparentExcess: Math.max(0, supportItems.length - sup.length),
         falseCorroboration: supportItems.length >= 2 && supportItems.length > sup.length,
         independenceBasis: 'declared_provenance_not_independently_verified',
