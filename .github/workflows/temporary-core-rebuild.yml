@@ -1,0 +1,28 @@
+name: Temporary signed-off browser core regeneration
+on:
+  push:
+    branches: ['feature/global-i18n-2026-11-15']
+    paths: ['.github/workflows/temporary-core-rebuild.yml']
+permissions:
+  contents: write
+jobs:
+  rebuild:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+      - run: npm install --no-save --package-lock=false --ignore-scripts esbuild@0.25.12 @noble/hashes@1.8.0
+      - name: Rebuild and assert engine parity
+        run: |
+          node scripts/build-browser-engine.mjs
+          node --test test/browser-core-parity.test.js test/case-builder.test.js
+      - name: Commit regenerated artifact to isolated branch
+        run: |
+          git add tools/browser-engine.bundle.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --quiet || git commit -m 'build: regenerate verified browser core after Unicode validation fix'
+          git push origin HEAD:feature/global-i18n-2026-11-15
