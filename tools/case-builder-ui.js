@@ -1,4 +1,20 @@
 import {serializeCase} from './case-builder-core.js';
+import {LOCALES,translate,preferredLanguage} from './case-builder-locale.js';
+let activeLanguage=preferredLanguage();
+const T=(key)=>translate(activeLanguage,key);
+const FIELD_KEYS={
+ 'رمز المصدر / ID':'sourceId','اسم المصدر / Name':'name','مشتق من (رموز مفصولة بفاصلة) / Derived from':'derivedFrom',
+ 'مجموعة أصل مشتركة / Shared origin group':'originGroup','رمز الادعاء / ID':'claimId','نص الادعاء / Statement':'statement',
+ 'رمز الدليل / ID':'evidenceId','الوصف / Description':'description','القوة التقديرية / Declared strength':'strength',
+ 'رمز المصدر / Source ID':'sourceId','رمز الادعاء / Claim ID':'claimId'};
+function localize(){
+ document.documentElement.lang=activeLanguage;
+ document.documentElement.dir=['ar','fa'].includes(activeLanguage)?'rtl':'ltr';
+ document.querySelectorAll('[data-l10n]').forEach(node=>{node.textContent=T(node.getAttribute('data-l10n'));});
+ document.querySelectorAll('.app-nav a').forEach(a=>{a.href=a.getAttribute('href').split('?')[0]+'?lang='+encodeURIComponent(activeLanguage);});
+ try{localStorage.setItem('proofgap-lang',activeLanguage);}catch{}
+}
+
 const $=id=>document.getElementById(id);
 const mk=(tag,attrs,text)=>{
  const e=document.createElement(tag);
@@ -7,15 +23,15 @@ const mk=(tag,attrs,text)=>{
  return e;
 };
 const field=(label,key,value='',type='text')=>{
- const l=mk('label',{},label),i=mk('input',{name:key,type,maxlength:type==='number'?10:500});
+ const l=mk('label',{},''),i=mk('input',{name:key,type,maxlength:type==='number'?10:500});
  i.value=String(value);
  if(type==='number'){i.min='0';i.max='1';i.step='0.05';}
- l.appendChild(i);return l;
+ l.append(mk('span',{'data-l10n':FIELD_KEYS[label]||'description'},T(FIELD_KEYS[label]||'description')),i);return l;
 };
 const dropdown=(label,key,options,value)=>{
- const l=mk('label',{},label),select=mk('select',{name:key});
- for(const [v,title] of options){const opt=mk('option',{value:v},title);select.appendChild(opt);}
- select.value=value;l.appendChild(select);return l;
+ const l=mk('label',{},''),select=mk('select',{name:key});
+ for(const [v,title] of options){const opt=mk('option',{value:v,'data-l10n':v},T(v));select.appendChild(opt);}
+ select.value=value;l.append(mk('span',{'data-l10n':'stance'},T('stance')),select);return l;
 };
 const sequence={sources:0,claims:0,evidence:0};
 const definitions={
@@ -45,14 +61,15 @@ const definitions={
 };
 function add(kind,values){
  const box=$(kind),def=definitions[kind],count=++sequence[kind];
- if(count>80){$('status').textContent='تم بلوغ الحد الأقصى للصفوف';return;}
+ if(count>80){$('status').textContent=T('limitReached');return;}
  const row=mk('section',{class:'row','data-kind':kind});
- const hdr=mk('strong',{},def.title+' '+count);
+ const hdr=mk('strong',{},T(kind==='sources'?'source':kind==='claims'?'claim':'item')+' '+count);
+ hdr.setAttribute('data-row-kind',kind);hdr.setAttribute('data-row-number',String(count));
  const group=mk('div',{class:'fields'});
  for(const [label,key,fallback,type] of def.fields)group.appendChild(field(label,key,values?.[key]??(key==='id'?fallback.replace(/\d+$/,String(count)):fallback),type));
  if(kind==='evidence')group.appendChild(dropdown('الاتجاه / Stance','stance',[['supports','يدعم / Supports'],['contradicts','يناقض / Contradicts']],values?.stance||'supports'));
- const remove=mk('button',{type:'button','data-action':'remove'},'حذف هذا الصف / Remove');
- remove.addEventListener('click',()=>{if(box.querySelectorAll('.row').length>1){row.remove();clearReport();}else $('status').textContent='يلزم صف واحد على الأقل';});
+ const remove=mk('button',{type:'button','data-action':'remove','data-l10n':'remove'},T('remove'));
+ remove.addEventListener('click',()=>{if(box.querySelectorAll('.row').length>1){row.remove();clearReport();}else $('status').textContent=T('atLeastOne');});
  row.append(hdr,group,remove);box.appendChild(row);
 }
 // Explicit listeners preserve behavior when captions are translated.
@@ -60,6 +77,15 @@ $('add-source').addEventListener('click',()=>{add('sources');clearReport();});
 $('add-claim').addEventListener('click',()=>{add('claims');clearReport();});
 $('add-evidence').addEventListener('click',()=>{add('evidence');clearReport();});
 add('sources');add('claims');add('evidence');
+const languageSelect=$('language');
+languageSelect.value=activeLanguage;
+localize();
+languageSelect.addEventListener('change',()=>{
+ if(!LOCALES.includes(languageSelect.value))return;
+ activeLanguage=languageSelect.value;
+ localize();
+ document.querySelectorAll('[data-row-kind]').forEach(node=>{const kind=node.getAttribute('data-row-kind');node.textContent=T(kind==='sources'?'source':kind==='claims'?'claim':'item')+' '+node.getAttribute('data-row-number');});
+});
 function rows(kind){return Array.from($(kind).querySelectorAll('.row'),row=>{
  const out={};for(const input of row.querySelectorAll('[name]'))out[input.name]=input.value;return out;
 });}
@@ -70,8 +96,8 @@ $('case-form').addEventListener('submit',event=>{
   const content=serializeCase({caseId:$('case-id').value.trim(),title:$('case-title').value.trim(),
    sources:rows('sources'),claims:rows('claims'),evidence:rows('evidence')});
   downloadJson(content,$('case-id').value.trim()+'.proofgap-case.json');
-  $('status').textContent='تم إنشاء JSON. هذه مدخلات للقضية وليست تقرير نتائج. شغّل محرك ProofGap X لتحليلها.';
- }catch(error){$('status').textContent='تعذر التصدير: '+String(error.message||error);}
+  $('status').textContent=T('caseExported');
+ }catch(error){$('status').textContent=T('invalidExport')+': '+String(error.message||error);}
 });
 
 function inputRows(){
@@ -102,7 +128,7 @@ $('run-analysis').addEventListener('click',async()=>{
  clearReport();
  const revision=formRevision;
  $('run-analysis').disabled=true;
- $('status').textContent='يُنفّذ التحليل محليًا / Analyzing locally…';
+ $('status').textContent=T('localAnalysis');
  try {
   const snapshot=inputRows();
   const {analyzeBuilderRows}=await import('./browser-engine.bundle.js');
@@ -123,17 +149,17 @@ $('run-analysis').addEventListener('click',async()=>{
   };
   const perClaim=report.claims.map(c=>[
     c.claimId,
-    'النتيجة / Result: '+(labels[c.decision]||labels[c.status]||String(c.decision)),
-    'أصول الدعم المعلنة / Declared independent support origins: '+String(c.corroboration?.independentSupportOrigins),
-    'عدد الأدلة / Evidence items: '+String(c.corroboration?.supportingEvidenceItems)
+    T('localResult')+': '+(labels[c.decision]||labels[c.status]||String(c.decision)),
+    T('supportOrigins')+': '+String(c.corroboration?.independentSupportOrigins),
+    T('evidenceItems')+': '+String(c.corroboration?.supportingEvidenceItems)
   ].join(' | '));
-  $('analysis-result').textContent='نتيجة تحليل محلي — ليست إثباتًا لصحة الوقائع أو استقلالية المصادر\n'+
+  $('analysis-result').textContent=T('uncertainty')+'\n'+
    'Case: '+report.caseId+'\n'+perClaim.join('\n')+'\n'+
-   'تصنيف الحالات المعلنة / Decision counts: '+JSON.stringify(counts)+'\n'+
-   'صدر التقرير محليًا. افحص التقرير الكامل وتفسيراته قبل اتخاذ أي قرار.';
-  $('status').textContent='اكتمل التحليل داخل المتصفح. ملف الأدلة الأصلي لم يتم التحقق منه.';
+   T('decisionCounts')+': '+JSON.stringify(counts)+'\n'+
+   T('preview');
+  $('status').textContent=T('analysisDone');
  } catch(error) {
-  if (revision===formRevision) $('status').textContent='تعذر تحليل القضية: '+String(error.message||error);
+  if (revision===formRevision) $('status').textContent=T('analysisFailed')+': '+String(error.message||error);
  } finally {
   $('run-analysis').disabled=false;
  }
