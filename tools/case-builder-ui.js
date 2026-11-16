@@ -86,7 +86,9 @@ function downloadJson(content,name){
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 let latestReport=null;
+let formRevision=0;
 function clearReport(){
+ formRevision++;
  latestReport=null;
  $('export-report').disabled=true;
  $('analysis-result').textContent='';
@@ -97,10 +99,16 @@ for (const id of ['case-id','case-title','sources','claims','evidence']) {
  $(id).addEventListener('change',clearReport);
 }
 $('run-analysis').addEventListener('click',async()=>{
- clearReport();$('status').textContent='';
+ clearReport();
+ const revision=formRevision;
+ $('run-analysis').disabled=true;
+ $('status').textContent='يُنفّذ التحليل محليًا / Analyzing locally…';
  try {
+  const snapshot=inputRows();
   const {analyzeBuilderRows}=await import('./browser-engine.bundle.js');
-  const {report,reportText}=analyzeBuilderRows(inputRows());
+  if (revision!==formRevision) return; // Changed input while the engine was loading.
+  const {report,reportText}=analyzeBuilderRows(snapshot);
+  if (revision!==formRevision) return; // Do not publish stale analysis.
   if (!report || report.tool!=='proofgap-x' || !Array.isArray(report.claims))throw Error('Invalid engine response');
   latestReport={reportText,caseId:report.caseId};
   $('export-report').disabled=false;
@@ -125,7 +133,9 @@ $('run-analysis').addEventListener('click',async()=>{
    'صدر التقرير محليًا. افحص التقرير الكامل وتفسيراته قبل اتخاذ أي قرار.';
   $('status').textContent='اكتمل التحليل داخل المتصفح. ملف الأدلة الأصلي لم يتم التحقق منه.';
  } catch(error) {
-  $('status').textContent='تعذر تحليل القضية: '+String(error.message||error);
+  if (revision===formRevision) $('status').textContent='تعذر تحليل القضية: '+String(error.message||error);
+ } finally {
+  $('run-analysis').disabled=false;
  }
 });
 $('export-report').addEventListener('click',()=>{
