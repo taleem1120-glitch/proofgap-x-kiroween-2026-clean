@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import {createServer} from 'node:http';
-import {readFileSync} from 'node:fs';
+import {readFileSync,mkdirSync} from 'node:fs';
 import {resolve,extname} from 'node:path';
 import assert from 'node:assert/strict';
 import {validateCase} from '../src/validate.js';
@@ -55,6 +55,8 @@ try{
  const reportDownload=await reportReady;
  const reportText=readFileSync(await reportDownload.path(),'utf8');
  assert.equal(reportText,serializeReport(analyzeCase(data)),'browser/core hash or policy drift');
+ mkdirSync('artifacts/browser-visual-review',{recursive:true});
+ await page.screenshot({path:'artifacts/browser-visual-review/mobile-end-to-end-analysis-360-ar.png',animations:'disabled',fullPage:true});
  const {w,screen}=await page.evaluate(()=>({w:document.documentElement.scrollWidth,screen:document.documentElement.clientWidth}));
  assert.ok(w<=screen+2,'builder mobile horizontal overflow '+w+'/'+screen);
  // A source cycle must not trigger any second download.
