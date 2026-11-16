@@ -20,6 +20,14 @@ Scope: PR #6, original engine, offline mobile authoring, reproducible browser co
 - Temporary build workflow with write access must be deleted before releasing; only read-only testing workflows should remain.
 - `main` public Pages deployment must be separately checked AFTER merge. Branch-only features must not be represented as published until verified.
 
+## Final pre-publication readiness improvements (additional pass)
+- Corrected judge-facing landing copy: phone case builder now **runs the same engine locally** rather than merely exporting input JSON, while clearly stating files are not authenticated. Normal JavaScript asset loading is not misleadingly described as zero network traffic; case data is not uploaded.
+- Corrected judges quickstart to remove the obsolete 212-test figure, document the exact branch-local evidence, and warn that pre-merge features are not yet publicly deployed.
+- Added `scripts/public-release-smoke.mjs` for a **post-deployment** exact-byte comparison of eight critical public HTML/JS assets versus the checked-out release commit. Added tests for missing or stale files and untrusted HTTP URLs. This does **not** mean the website has passed the test yet.
+- Added `.github/workflows/public-release-gate.yml` as a **manual** read-only post-Pages release gate. Must run on `main` only after Pages reports the new exact SHA as deployed.
+- Added `test/competition-release-copy.test.js` so inaccurate or obsolete landing/judges' claims fail the unit suite.
+- The public Pages revision is *not verified* by the completion of branch-local CI or the presence of links. A current post-merge browser/device check remains required.
+
 ## Release recommendation
 **Conditional go for a competition prototype**, not unconditional commercial release. Merge only after latest source, browser, and reproducibility gates succeed, visual checking on an actual Android device, and final human review of demo language and Kiro documentation. Retain the project's accurate research-prototype positioning. Do not use uncontrolled synthetic benchmark timing as a service-level guarantee.
 
