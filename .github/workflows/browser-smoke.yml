@@ -1,7 +1,7 @@
 name: Browser smoke for multilingual offline viewers
 on:
   push:
-    branches: ['feature/global-i18n-2026-11-15']
+    branches: ['main', 'feature/global-i18n-2026-11-15']
     paths:
       - scripts/browser-mobile-smoke.mjs
       - scripts/browser-case-builder-smoke.mjs
@@ -9,7 +9,14 @@ on:
       - tools/case-builder.html
       - tools/case-builder-core.js
       - tools/case-builder-ui.js
+      - tools/browser-engine.bundle.js
+      - tools/browser-engine-entry.js
+      - src/analyze.js
+      - src/graph.js
+      - src/independence.js
       - .github/workflows/browser-smoke.yml
+  pull_request:
+    branches: ['main']
   workflow_dispatch:
 permissions:
   contents: read
