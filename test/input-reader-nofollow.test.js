@@ -32,7 +32,7 @@ test('CLI input reader rejects FIFOs without blocking on POSIX', { skip: process
       return;
     }
     assert.equal(made.status, 0, made.stderr);
-    const script = `import { readInputFile, CaseValidationError } from ${JSON.stringify(new URL('../src/core.js', import.meta.url).href)};
+    const script = `const { readInputFile, CaseValidationError } = await import('./src/core.js');
 try { readInputFile(process.argv[1]); process.exit(1); }
 catch (error) { process.exit(error instanceof CaseValidationError ? 0 : 2); }`;
     const child = spawnSync(process.execPath, ['--input-type=module', '-e', script, fifo], {
