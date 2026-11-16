@@ -54,10 +54,7 @@ function add(kind,values){
  remove.addEventListener('click',()=>{if(box.querySelectorAll('.row').length>1)row.remove();else $('status').textContent='يلزم صف واحد على الأقل';});
  row.append(hdr,group,remove);box.appendChild(row);
 }
-for(const type of Object.keys(definitions)){
- $('add-'+type.slice(0,-1))?.addEventListener('click',()=>add(type));
-}
-// Explicit listeners prevent name-based coupling if UI captions change.
+// Explicit listeners preserve behavior when captions are translated.
 $('add-source').addEventListener('click',()=>add('sources'));
 $('add-claim').addEventListener('click',()=>add('claims'));
 $('add-evidence').addEventListener('click',()=>add('evidence'));
