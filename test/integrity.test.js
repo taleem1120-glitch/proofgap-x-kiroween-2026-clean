@@ -2,7 +2,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync, rmSync, linkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -172,3 +172,18 @@ test('CLI: --evidence-dir verification, --format text, bad dir exits 1, usage er
   for (const a of [[caseFile, '--format', 'xml'], [caseFile, '--evidence-dir'], [caseFile, '--evidence-dir', 'a', '--evidence-dir', 'b'], [caseFile, '--bogus', 'x']]) assert.equal(cli(...a).status, 2, JSON.stringify(a));
   assert.equal(readFileSync(caseFile, 'utf8'), JSON.stringify(c));
 });
+
+
+test('filesystem root is a valid evidence directory and containment uses path semantics', { skip: process.platform === 'win32' }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pgx-root-containment-'));
+  try {
+    const payload = 'root-directory-check';
+    writeFileSync(join(dir, 'evidence.txt'), payload);
+    const absolute = join(dir, 'evidence.txt');
+    const rel = relative('/', absolute).split(requirePathSeparator()).join('/');
+    const result = verifyEvidenceFiles([ev('rooted', rel, sha(payload))], { evidenceDir: '/' });
+    assert.equal(st(result, 'rooted').status, 'VERIFIED');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+function requirePathSeparator() { return process.platform === 'win32' ? '\\\\' : '/'; }
