@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { constants, fstatSync, lstatSync, openSync, readSync, closeSync, realpathSync } from 'node:fs';
+import { constants, fstatSync, lstatSync, statSync, openSync, readSync, closeSync, realpathSync } from 'node:fs';
 import { join, relative, isAbsolute, sep } from 'node:path';
 
 /**
@@ -127,6 +127,14 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       const fromRoot = relative(root, real);
       if (fromRoot === '' || fromRoot === '..' || fromRoot.startsWith('..' + sep) || isAbsolute(fromRoot)) {
         return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
+      }
+      // Bind the opened descriptor to the resolved pathname. A directory component may
+      // have changed between the lstat walk and openSync; checking realpath(cur) alone
+      // would then validate the new pathname while hashing the already-open old target.
+      // stat(real) follows the resolved absolute path, and dev/ino must match the fd.
+      const pathStat = statSync(real);
+      if (pathStat.dev !== st.dev || pathStat.ino !== st.ino) {
+        return { status: 'UNSAFE_PATH', reason: 'opened_file_path_mismatch' };
       }
       if (st.size > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
       if (totalBytes + st.size > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
