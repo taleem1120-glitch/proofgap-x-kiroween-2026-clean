@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {LOCALES,translate} from '../tools/case-builder-locale.js';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const required=['choose','home','investigation','citation','builder','case','sources','claims','evidence','analyze','exportReport','supportOrigins','sourceNotVerified','langScope'];
+const required=['choose','home','investigation','citation','builder','case','sources','claims','evidence','analyze','exportReport','supportOrigins','supportingEvidenceItems','contradictingEvidenceItems','totalEvidence','sourceNotVerified','langScope'];
 test('case builder has ten complete locale dictionaries without English/Arabic mixed labels',()=>{
  assert.deepEqual(LOCALES,['en','ar','fr','es','de','pt','tr','fa','hi','zh']);
  for(const code of LOCALES) for(const key of required){
@@ -13,6 +13,24 @@ test('case builder has ten complete locale dictionaries without English/Arabic m
  }
  assert.equal(translate('ar','analyze'),'تحليل القضية محليًا');
  assert.equal(translate('en','analyze'),'Analyze locally');
+});
+test('all ten locales distinguish supporting, contradicting and total evidence counts',()=>{
+ assert.equal(translate('en','supportingEvidenceItems'),'Supporting evidence items');
+ assert.equal(translate('en','contradictingEvidenceItems'),'Contradicting evidence items');
+ assert.equal(translate('en','totalEvidence'),'Total case evidence');
+ assert.equal(translate('ar','supportingEvidenceItems'),'عناصر الأدلة المؤيدة');
+ assert.equal(translate('ar','contradictingEvidenceItems'),'عناصر الأدلة المناقضة');
+ for(const code of LOCALES) for(const key of ['supportingEvidenceItems','contradictingEvidenceItems','totalEvidence']){
+  const value=translate(code,key);
+  assert.ok(value.trim()&&value!==key,code+':'+key);
+ }
+});
+test('builder summary labels support and contradiction counts separately and shows the case total',()=>{
+ const ui=read('tools/case-builder-ui.js');
+ assert.match(ui,/T\('supportingEvidenceItems'\)/);
+ assert.match(ui,/T\('contradictingEvidenceItems'\)/);
+ assert.match(ui,/T\('totalEvidence'\)/);
+ assert.doesNotMatch(ui,/T\('evidenceItems'\)\+': '\+String\(c\.corroboration\?\.supportingEvidenceItems/);
 });
 test('case builder provides main and both distinct app links with language selection',()=>{
  const page=read('tools/case-builder.html');
