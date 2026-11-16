@@ -151,7 +151,7 @@ $('run-analysis').addEventListener('click',async()=>{
     T('localResult')+': '+T(c.decision||c.status),
     T('supportOrigins')+': '+String(c.corroboration?.independentSupportOrigins ?? 0),
     T('supportingEvidenceItems')+': '+String(c.corroboration?.supportingEvidenceItems ?? 0),
-    T('contradictingEvidenceItems')+': '+String(c.corroboration?.contradictingEvidenceItems ?? 0)
+    T('contradictingEvidenceItems')+': '+String(new Set((c.corroboration?.clusters?.contradicts || []).flatMap(group=>group.evidenceIds || [])).size)
   ].join(' | '));
   $('analysis-result').textContent=T('uncertainty')+'\n'+
    T('case')+': '+report.caseId+'\n'+
