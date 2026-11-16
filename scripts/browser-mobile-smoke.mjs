@@ -1,7 +1,7 @@
 // Browser-level smoke checks: rendered DOM, mobile geometry, RTL, and byte-identical JSON download.
 // Run with an explicitly installed Playwright Chromium in the CI environment.
 import { chromium } from 'playwright';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 const browser = await chromium.launch({headless:true});
@@ -10,6 +10,7 @@ const pages=[
   'apps/proofgap-cite/showcase.html'
 ];
 const all=[];
+mkdirSync('artifacts/browser-visual-review',{recursive:true});
 try {
  for(const file of pages) {
   for(const viewport of [{width:360,height:800},{width:411,height:914},{width:1280,height:900}]) {
@@ -40,6 +41,12 @@ try {
      }));
      if (scrollWidth>clientWidth+2)
        throw new Error(file+' '+code+' body overflows at '+viewport.width+': '+scrollWidth+'/'+clientWidth);
+   }
+   if(viewport.width!==1280) {
+     for(const lang of ['ar','en']) {
+       await language.selectOption(lang);
+       await page.screenshot({path:'artifacts/browser-visual-review/'+file.split('/').slice(-2).join('-').replace('.html','')+'-'+viewport.width+'-'+lang+'.png',fullPage:false,animations:'disabled'});
+     }
    }
    await language.selectOption('ar');
    assert.match(await page.locator('#pg-translation-scope').innerText(),/الواجهة/);
