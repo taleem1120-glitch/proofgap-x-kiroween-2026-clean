@@ -90,6 +90,7 @@ function clearReport(){
  latestReport=null;
  $('export-report').disabled=true;
  $('analysis-result').textContent='';
+ $('status').textContent='';
 }
 for (const id of ['case-id','case-title','sources','claims','evidence']) {
  $(id).addEventListener('input',clearReport);
