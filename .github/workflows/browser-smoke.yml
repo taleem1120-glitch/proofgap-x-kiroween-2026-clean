@@ -5,6 +5,7 @@ on:
     paths:
       - scripts/browser-mobile-smoke.mjs
       - scripts/browser-case-builder-smoke.mjs
+      - scripts/browser-graph-cap-smoke.mjs
       - tools/case-builder.html
       - tools/case-builder-core.js
       - tools/case-builder-ui.js
@@ -31,6 +32,8 @@ jobs:
         run: node scripts/browser-mobile-smoke.mjs
       - name: Exercise offline case authoring in real mobile Chromium
         run: node scripts/browser-case-builder-smoke.mjs
+      - name: Verify bounded graph visualization and honest localized disclosure
+        run: node scripts/browser-graph-cap-smoke.mjs
       - name: Preserve review-only mobile screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
