@@ -42,6 +42,28 @@ try{
  assert.equal(data.sources.length,2);
  assert.equal(data.sources[1].derivedFrom[0],'s1');
  assert.equal(analyzeCase(data).claims.length,1);
+ // Delayed engine loading: edit the case while an asynchronous import is pending.
+ // A stale report must not become downloadable when the previous request finishes.
+ let engineReleased;
+ const releaseEngine=new Promise(resolve=>{engineReleased=resolve;});
+ let engineRequested;
+ const requestSeen=new Promise(resolve=>{engineRequested=resolve;});
+ await page.route('**/tools/browser-engine.bundle.js',async route=>{
+   engineRequested();
+   await releaseEngine;
+   await route.continue();
+ });
+ await page.locator('#run-analysis').click();
+ await requestSeen;
+ assert.equal(await page.locator('#run-analysis').isDisabled(),true,'duplicate analysis launch not blocked');
+ await page.locator('#case-title').fill('Changed while analysis is loading');
+ engineReleased();
+ await page.waitForFunction(()=>!document.getElementById('run-analysis').disabled);
+ assert.equal(await page.locator('#export-report').isDisabled(),true,'stale report was published after editing');
+ assert.equal((await page.locator('#analysis-result').innerText()).trim(),'','stale result was displayed');
+ await page.unroute('**/tools/browser-engine.bundle.js');
+ await page.locator('#case-title').fill('قضية افتراضية — مصدر واحد وتقارير متعددة');
+
  assert.ok(!(await page.locator('#status').innerText()).includes('تعذر'));
  // Run the actual shared core from Chromium and download its byte-identical report.
  await page.locator('#run-analysis').click();
