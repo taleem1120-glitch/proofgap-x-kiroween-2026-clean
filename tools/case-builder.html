@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -14,30 +14,30 @@ fieldset{border:1px solid #6d8299;border-radius:10px;padding:12px;margin:12px 0}
 legend{font-weight:bold;padding:0 8px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
 label{display:block;font-weight:600;font-size:.92rem}input,select,textarea{display:block;width:100%;max-width:100%;min-height:44px;padding:8px;margin:5px 0;background:#202c39;color:#fff;border:1px solid #96abc0;border-radius:6px;font:inherit}
 textarea{min-height:65px}button{min-height:44px;padding:8px 14px;margin:6px 0;background:#2c475a;color:#fff;border:1px solid #b4d7ed;border-radius:7px;font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffc76e}
-.row{border-bottom:1px solid #46576b;padding:9px 0}.row:last-child{border:0}.note{border-inline-start:4px solid #f0b429;padding-inline-start:12px}#status{min-height:1.5rem;color:#ffd88a;white-space:pre-wrap}a{color:#b3e4ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:#192532;border:1px solid #59728a;border-radius:8px;padding:12px;font:500 .94rem/1.65 system-ui,sans-serif}footer{margin-top:25px;border-top:1px solid #46576b;padding-top:16px;color:#c5d3e1}
+.row{border-bottom:1px solid #46576b;padding:9px 0}.row:last-child{border:0}.note{border-inline-start:4px solid #f0b429;padding-inline-start:12px}#status{min-height:1.5rem;color:#ffd88a;white-space:pre-wrap}a{color:#b3e4ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:#192532;border:1px solid #59728a;border-radius:8px;padding:12px;font:500 .94rem/1.65 system-ui,sans-serif}footer{margin-top:25px;border-top:1px solid #46576b;padding-top:16px;color:#c5d3e1}.nav{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0 20px}.app-nav{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 18px}.app-nav a{border:1px solid #83bbd8;background:#1d3546;border-radius:8px;padding:12px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}.nav label{display:flex;align-items:center;gap:9px}#language{min-width:145px;margin:0}html[dir=rtl] input[name=id],html[dir=rtl] input[name=sourceId],html[dir=rtl] input[name=claimId],html[dir=rtl] input[name=derivedFrom],html[dir=rtl] input[name=originGroup]{direction:ltr;text-align:start}
 </style>
 </head>
 <body><main>
-<a href="../index.html">العودة إلى الصفحة الرئيسية / Home</a>
-<h1>منشئ ملف القضية — ProofGap X</h1>
-<p class="note">تُنشئ هذه الأداة مدخل JSON لقضية منظمة، ثم تشغّل المحرك المشترك محليًا لتوليد تقرير التحليل. لا تُحمّل بيانات القضية إلى خادم، ولا تتحقق من حقيقة المصدر أو صحة الوقائع أو سلامة الملفات الأصلية. استخدم بيانات افتراضية في العرض العام.</p>
-<p>This offline tool now generates structured case inputs AND runs the original ProofGap analysis engine locally in the browser. Source ancestry and evidence strengths remain user declarations, not verified facts.</p>
+<nav class="nav" aria-label="Application navigation"><a href="../index.html" data-l10n="home">Home</a><label><span data-l10n="choose">Language</span><select id="language" aria-label="Interface language"><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="fa">فارسی</option><option value="hi">हिन्दी</option><option value="zh">中文</option></select></label></nav>
+<nav class="app-nav" aria-label="Applications"><a href="../viewer/showcase.html" data-l10n="investigation">ProofGap X — Investigation</a><a href="../apps/proofgap-cite/showcase.html" data-l10n="citation">ProofGap Cite — Citations</a></nav>
+<h1 data-l10n="builder">Case builder and local analysis</h1>
+<p class="note" data-l10n="intro">Enter structured claims, sources, and evidence. The original engine runs locally in your browser.</p><p data-l10n="note">Declared origins and strength are unverified.</p>
 <form id="case-form" novalidate>
-<fieldset><legend>بيانات القضية / Case</legend><div class="fields">
-<label>رمز القضية / Case ID<input id="case-id" value="DEMO-CASE-1" maxlength="64" required></label>
-<label>العنوان / Title<input id="case-title" value="قضية افتراضية — مصدر واحد وتقارير متعددة" maxlength="500" required></label>
+<fieldset><legend data-l10n="case">Case</legend><div class="fields">
+<label><span data-l10n="caseId">Case ID</span><input id="case-id" value="DEMO-CASE-1" maxlength="64" required></label>
+<label><span data-l10n="title">Title</span><input id="case-title" value="قضية افتراضية — مصدر واحد وتقارير متعددة" maxlength="500" required></label>
 </div></fieldset>
-<fieldset><legend>المصادر / Sources</legend><p class="hint">يجب أن تكون الرموز فريدة. إذا كان المصدر نسخة، أدخل رمز مصدره الأصلي في حقل «مشتق من».</p><div id="sources"></div><button type="button" id="add-source">+ إضافة مصدر</button></fieldset>
-<fieldset><legend>الادعاءات / Claims</legend><div id="claims"></div><button type="button" id="add-claim">+ إضافة ادعاء</button></fieldset>
-<fieldset><legend>عناصر الأدلة / Evidence</legend><p class="hint">قوة الدليل تقدير مدخل وليست احتمالًا مثبتًا. لا تثبت هذه الأداة الاستقلالية الفعلية.</p><div id="evidence"></div><button type="button" id="add-evidence">+ إضافة دليل</button></fieldset>
-<button type="submit">تنزيل مدخل القضية / Export Case JSON</button>
-<button type="button" id="run-analysis">تحليل القضية على الهاتف / Analyze Locally</button>
-<button type="button" id="export-report" disabled>تنزيل تقرير التحليل / Export Report JSON</button>
-<p class="note">يستخدم التحليل المحرك المشترك نفسه دون رفع البيانات. روابط المصادر والقوة التقديرية معلومات مصرّح بها من المستخدم وليست حقيقة مثبتة. فحص ملفات الأدلة الأصلية غير متاح في هذا المتصفح.</p>
+<fieldset><legend data-l10n="sources">Sources</legend><p class="hint" data-l10n="sourceHelp">Use unique IDs; copies may reference an upstream source.</p><div id="sources"></div><button type="button" id="add-source" data-l10n="addSource">Add source</button></fieldset>
+<fieldset><legend data-l10n="claims">Claims</legend><div id="claims"></div><button type="button" id="add-claim" data-l10n="addClaim">Add claim</button></fieldset>
+<fieldset><legend data-l10n="evidence">Evidence</legend><p class="hint" data-l10n="evidenceHelp">Strength is a user estimate, not a proven probability.</p><div id="evidence"></div><button type="button" id="add-evidence" data-l10n="addEvidence">Add evidence</button></fieldset>
+<button type="submit" data-l10n="exportCase">Export case input JSON</button>
+<button type="button" id="run-analysis" data-l10n="analyze">Analyze locally</button>
+<button type="button" id="export-report" disabled data-l10n="exportReport">Export analysis report JSON</button>
+<p class="note" data-l10n="sourceNotVerified">Original evidence files are not verified in browser mode.</p><p data-l10n="langScope">Interface language only; source narratives remain unchanged.</p>
 <pre id="analysis-result" role="status" aria-live="polite"></pre>
 <output id="status" role="status" aria-live="polite"></output>
 </form>
-<footer>Prototype helper • Offline only • No telemetry • Export only explicit structured data • لا تدخل أدلة حساسة في نسخة عامة</footer>
+<footer data-l10n="privacy">No case data is uploaded; scripts are served by this website.</footer>
 <script type="module" src="case-builder-ui.js"></script>
 </main></body>
 </html>

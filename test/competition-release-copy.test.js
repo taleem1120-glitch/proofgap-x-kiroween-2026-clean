@@ -5,8 +5,10 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('competition landing presents actual end-to-end mobile analysis with provenance warning',()=>{
  const page=read('index.html');
  assert.match(page,/href="tools\/case-builder\.html"/);
- assert.match(page,/same declared-provenance analysis core locally/);
- assert.match(page,/does not acquire or authenticate forensic files/);
+ assert.match(page,/data-i18n="openBuilder"/);
+ assert.match(page,/data-i18n="builderNote"/);
+ assert.match(page,/href="viewer\/showcase\.html"/);
+ assert.match(page,/href="apps\/proofgap-cite\/showcase\.html"/);
  assert.doesNotMatch(page,/Core case analysis still requires its CLI/);
 });
 test('judges quickstart states release branch limitation and direct phone analysis',()=>{
