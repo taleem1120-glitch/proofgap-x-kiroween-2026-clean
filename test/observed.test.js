@@ -17,7 +17,6 @@ before(() => {
   w('orig.txt', 'ATTACHMENT BYTES'); w('copy.txt', 'ATTACHMENT BYTES'); w('reenc.txt', 'ATTACHMENT BYTES\n');
   w('other.txt', 'UNRELATED RECORD'); w('empty1.txt', ''); w('empty2.txt', '');
   symlinkSync(join(dir, 'orig.txt'), join(dir, 'link.txt'));
-  linkSync(join(dir, 'orig.txt'), join(dir, 'hard.txt'));
 });
 after(() => rmSync(dir, { recursive: true, force: true }));
 
@@ -81,8 +80,18 @@ test('a symlink cannot create (or hide) a link: UNSAFE_PATH, no observed hash, r
   assert.equal(r.graph.basisCounts.verified, 0);
 });
 
-test('a hard link IS the same file and is linked (documented behaviour)', () => {
-  assert.equal(claim(run(mk([E('e1', 'a', 'orig.txt'), E('e2', 'b', 'hard.txt')]))).independentSupportOrigins.length, 1);
+test('hard-linked evidence is rejected and cannot create an observed-byte link', () => {
+  const hard = join(dir, 'hard.txt');
+  linkSync(join(dir, 'orig.txt'), hard);
+  try {
+    const r = run(mk([E('e1', 'a', 'orig.txt'), E('e2', 'b', 'hard.txt')]));
+    assert.ok(r.integrity.results.every(x=>x.status==='UNSAFE_PATH'&&x.reason==='hard_link'));
+    assert.ok(r.integrity.results.every(x=>x.observedSha256===undefined));
+    assert.equal(claim(r).independentSupportOrigins.length, 2);
+    assert.equal(r.graph.edges.filter(x=>x.relation==='same_bytes').length, 0);
+  } finally {
+    rmSync(hard,{force:true});
+  }
 });
 
 test('missing files and limit-skipped files produce no observed hash and no link', () => {

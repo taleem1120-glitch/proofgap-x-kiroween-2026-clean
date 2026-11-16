@@ -107,9 +107,24 @@ test('bad configuration fails loudly; reports never contain the absolute evidenc
   assert.ok(!JSON.stringify(r).includes(root) && !JSON.stringify(r).includes(outside));
 });
 
-test('hard links are a documented limitation: a hard link inside the directory IS a regular file and is hashed (NOT prevented)', () => {
-  linkSync(join(outside, 'secret.txt'), join(root, 'hard.txt'));
-  assert.equal(st(verify([ev('h', 'hard.txt', sha('SECRET-OUTSIDE'))]), 'h').status, 'VERIFIED');
+test('hard links are rejected conservatively, including links whose second name is inside evidenceDir', () => {
+  const outsideLink = join(root, 'hard-outside.txt');
+  const insideLink = join(root, 'hard-inside.txt');
+  linkSync(join(outside, 'secret.txt'), outsideLink);
+  linkSync(join(root, 'good.txt'), insideLink);
+  try {
+    const r = verify([ev('outside', 'hard-outside.txt', sha('SECRET-OUTSIDE')), ev('inside', 'hard-inside.txt', sha('hello'))]);
+    for (const id of ['outside','inside']) {
+      assert.equal(st(r, id).status, 'UNSAFE_PATH', id);
+      assert.equal(st(r, id).reason, 'hard_link', id);
+      assert.equal(st(r, id).computedSha256, undefined, id);
+    }
+    assert.equal(r.usage.filesRead, 0, 'hard-linked files must be rejected before reading');
+    assert.equal(r.usage.totalBytes, 0);
+  } finally {
+    rmSync(outsideLink, { force: true });
+    rmSync(insideLink, { force: true });
+  }
 });
 
 test('integration: MISMATCH excludes evidence from scoring; other states do not change scoring; results deterministic', () => {
