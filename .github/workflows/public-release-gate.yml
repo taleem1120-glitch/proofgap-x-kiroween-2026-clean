@@ -1,6 +1,9 @@
 name: Verify published Pages release bytes
 on:
   workflow_dispatch:
+  push:
+    branches: ['main']
+    paths: ['.github/workflows/public-release-gate.yml']
   workflow_run:
     workflows: ['pages build and deployment']
     types: [completed]
@@ -9,7 +12,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
