@@ -84,6 +84,8 @@ languageSelect.addEventListener('change',()=>{
  if(!LOCALES.includes(languageSelect.value))return;
  activeLanguage=languageSelect.value;
  localize();
+ // Labels switch language, but evidence text and canonical JSON must not be translated.
+ if(latestReport){$('analysis-result').textContent='';$('status').textContent=T('preview');}
  document.querySelectorAll('[data-row-kind]').forEach(node=>{const kind=node.getAttribute('data-row-kind');node.textContent=T(kind==='sources'?'source':kind==='claims'?'claim':'item')+' '+node.getAttribute('data-row-number');});
 });
 function rows(kind){return Array.from($(kind).querySelectorAll('.row'),row=>{
@@ -139,22 +141,14 @@ $('run-analysis').addEventListener('click',async()=>{
   latestReport={reportText,caseId:report.caseId};
   $('export-report').disabled=false;
   const counts=report.summary?.decisionCounts||{};
-  const labels={
-    supported_by_independent_origins:'مدعوم وفق الأصول المعلنة / Supported under declared assumptions',
-    insufficient_support:'دعم مستقل غير كافٍ / Insufficient independent support',
-    abstain_possible_undeclared_dependence:'النتيجة غير محسومة: احتمال تبعية خفية / Abstains',
-    contradicted:'توجد أدلة مضادة / Contradicted',
-    conflicting:'أدلة متعارضة / Conflicting',
-    no_evidence:'لا توجد أدلة / No evidence'
-  };
   const perClaim=report.claims.map(c=>[
     c.claimId,
-    T('localResult')+': '+(labels[c.decision]||labels[c.status]||String(c.decision)),
+    T('localResult')+': '+T(c.decision||c.status),
     T('supportOrigins')+': '+String(c.corroboration?.independentSupportOrigins),
     T('evidenceItems')+': '+String(c.corroboration?.supportingEvidenceItems)
   ].join(' | '));
   $('analysis-result').textContent=T('uncertainty')+'\n'+
-   'Case: '+report.caseId+'\n'+perClaim.join('\n')+'\n'+
+   T('case')+': '+report.caseId+'\n'+perClaim.join('\n')+'\n'+
    T('decisionCounts')+': '+JSON.stringify(counts)+'\n'+
    T('preview');
   $('status').textContent=T('analysisDone');
