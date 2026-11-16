@@ -73,3 +73,13 @@ test('schema issues and semantic issues are merged, one per path, within cap', (
     assert.equal(new Set(ps).size, ps.length);
   }
 });
+
+
+test('public case validation APIs reject malformed resource limits and merge partial overrides', () => {
+  const c = base();
+  for (const limits of [null, [], 'bad', { maxBytes: 0 }, { maxSources: -1 }, { maxEvidence: 1.5 }, { maxClaims: Number.NaN }, { maxIssues: Number.POSITIVE_INFINITY }, { maxLinksPerEvidence: Number.MAX_SAFE_INTEGER + 1 }, { maxSourcs: 10 }]) {
+    assert.throws(() => validateCase(c, limits), /limits|limit/i);
+    assert.throws(() => parseCaseText(JSON.stringify(c), limits), /limits|limit/i);
+  }
+  assert.doesNotThrow(() => validateCase(c, { maxSources: 1 }));
+});
