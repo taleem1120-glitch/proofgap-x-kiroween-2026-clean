@@ -9,6 +9,7 @@ import {serializeReport} from '../src/report.js';
 const roots=new Map([
  ['/tools/case-builder.html','tools/case-builder.html'],
  ['/tools/case-builder-ui.js','tools/case-builder-ui.js'],
+ ['/tools/case-builder-locale.js','tools/case-builder-locale.js'],
  ['/tools/case-builder-core.js','tools/case-builder-core.js'],
  ['/tools/browser-engine.bundle.js','tools/browser-engine.bundle.js']
 ]);
@@ -27,8 +28,10 @@ try{
  const page=await context.newPage();
  const exceptions=[];
  page.on('pageerror',e=>exceptions.push(String(e)));
- await page.goto('http://127.0.0.1:'+port+'/tools/case-builder.html');
+ await page.goto('http://127.0.0.1:'+port+'/tools/case-builder.html?lang=ar');
  assert.equal(await page.locator('#sources .row').count(),1);
+ assert.equal(await page.locator('#language').inputValue(),'ar');
+ assert.match(await page.locator('h1').innerText(),/قضية/);
  await page.locator('#add-source').click();
  assert.equal(await page.locator('#sources .row').count(),2,'one tap must create exactly one source row');
  await page.locator('#sources .row').nth(1).locator('[name=name]').fill('Derived screenshot');
@@ -71,13 +74,13 @@ try{
  assert.match(await page.locator('#status').innerText(),/اكتمل التحليل/);
  assert.equal(await page.locator('#export-report').isEnabled(),true);
  const caseDecision=await page.locator('#analysis-result').innerText();
- assert.match(caseDecision,/Declared independent support origins: 1/);
+ assert.match(caseDecision,/أصول الدعم المعلنة: 1/);
  const reportReady=page.waitForEvent('download');
  await page.locator('#export-report').click();
  const reportDownload=await reportReady;
  const reportText=readFileSync(await reportDownload.path(),'utf8');
  assert.equal(reportText,serializeReport(analyzeCase(data)),'browser/core hash or policy drift');
- assert.match(await page.locator('#analysis-result').innerText(),/دعم مستقل غير كافٍ|النتيجة \/ Result/);
+ assert.match(await page.locator('#analysis-result').innerText(),/أصول الدعم المعلنة/);
  // A user adding then removing a source must not leave a stale downloadable report.
  await page.locator('#add-source').click();
  assert.equal(await page.locator('#export-report').isDisabled(),true);
@@ -87,6 +90,16 @@ try{
  await page.locator('#run-analysis').click();
  await page.waitForFunction(()=>/اكتمل التحليل|تعذر تحليل القضية/.test(document.getElementById('status').textContent));
  assert.equal(await page.locator('#export-report').isEnabled(),true);
+ const rawStatement=await page.locator('#claims [name=statement]').inputValue();
+ for(const language of ['en','fr','es','de','pt','tr','fa','hi','zh','ar']){
+   await page.locator('#language').selectOption(language);
+   assert.equal(await page.locator('html').getAttribute('lang'),language);
+   assert.equal(await page.locator('html').getAttribute('dir'),['ar','fa'].includes(language)?'rtl':'ltr');
+   assert.equal(await page.locator('#claims [name=statement]').inputValue(),rawStatement,'switch must not mutate evidence text');
+   assert.equal(await page.locator('#export-report').isEnabled(),true,'language switch must not alter validated report');
+   const navs=await page.locator('.app-nav a').evaluateAll(links=>links.map(link=>link.getAttribute('href')));
+   assert.ok(navs.every(x=>x.includes('?lang='+language)),'navigation locale was not forwarded');
+ }
  mkdirSync('artifacts/browser-visual-review',{recursive:true});
  await page.screenshot({path:'artifacts/browser-visual-review/mobile-end-to-end-analysis-360-ar.png',animations:'disabled',fullPage:true});
  const {w,screen}=await page.evaluate(()=>({w:document.documentElement.scrollWidth,screen:document.documentElement.clientWidth}));
