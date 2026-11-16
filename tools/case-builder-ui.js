@@ -59,6 +59,11 @@ const definitions={
   ]
  }
 };
+// Starter examples follow the initial locale only; switching later never rewrites entered evidence.
+$('case-title').value=T('demoTitle');
+definitions.sources.fields[1][2]=T('demoSource');
+definitions.claims.fields[1][2]=T('demoStatement');
+definitions.evidence.fields[3][2]=T('demoEvidence');
 function add(kind,values){
  const box=$(kind),def=definitions[kind],count=++sequence[kind];
  if(count>80){$('status').textContent=T('limitReached');return;}
