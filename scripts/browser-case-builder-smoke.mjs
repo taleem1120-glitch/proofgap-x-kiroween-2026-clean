@@ -45,6 +45,7 @@ try{
  assert.ok(!(await page.locator('#status').innerText()).includes('تعذر'));
  // Run the actual shared core from Chromium and download its byte-identical report.
  await page.locator('#run-analysis').click();
+ await page.waitForFunction(()=>/اكتمل التحليل|تعذر تحليل القضية/.test(document.getElementById('status').textContent),{timeout:10000});
  assert.match(await page.locator('#status').innerText(),/اكتمل التحليل/);
  assert.equal(await page.locator('#export-report').isEnabled(),true);
  const caseDecision=await page.locator('#analysis-result').innerText();
