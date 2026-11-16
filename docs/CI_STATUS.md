@@ -1,20 +1,37 @@
 # CI status
 
-**GitHub Actions: `BLOCKED_BY_BILLING`.** This is neither `PASSED` nor `CODE_FAILED`.
+**Current verified state (2026-11-17): pull-request CI is running successfully.** Earlier billing-blocked runs remain historical facts, but they no longer describe the latest workflow state.
 
-- Workflow: `.github/workflows/ci.yml` (Node 20 and 22, `npm ci --ignore-scripts`, `npm test`, demo smoke test). **Preserved unchanged for future execution.**
-- Observed (GitHub API, commit `356953f`): runs 43509421759 (push) and 43509432406 (pull_request). Both matrix jobs executed **zero steps** and had no runner. Annotation: "The job was not started because recent account payments have failed or your spending limit needs to be increased."
-- No remote CI result exists. Do not cite any CI result for this project until the owner resolves billing and a run actually executes.
-- Billing settings were not changed; blocked jobs were not re-run; later commits use `[skip ci]` so no further blocked runs are queued. To resume CI, the owner fixes billing and re-runs the workflow (or pushes without `[skip ci]`).
+## Successful review runs
 
-## What substitutes for CI meanwhile (local only, not equivalent)
-`npm run validate:local` runs the full suite, focused security / provenance / file-integrity groups and the deterministic benchmark, and records results under `validation/<UTC-id>/` (commands, exact counts, Node/npm/OS/CPU, git commit, lockfile and schema hashes, raw logs). Local runs are on one Linux machine. Since Phase 7 the suite has also been run locally on **Node 20.20.2 and 24.22.1** (159/159 each), in addition to 22.23.4. That is not a CI result, and Windows/macOS remain NOT TESTED.
+All results below are for PR #17, branch `fix/integrity-root-containment-2026-11-17`, commit `c0dc3517744c01827e593541239674d319d23499`. They are review-branch results, not a claim that the same change is on `main`.
 
-## Reproduce
+| Workflow | Run | Result | Details |
+|---|---:|---|---|
+| CI | [43969811457](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/43969811457) | **success** | Node 20 and Node 22 jobs both completed successfully |
+| Browser smoke for multilingual offline viewers | [43969811822](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/43969811822) | **success** | Chromium job completed; mobile visual-review artifact uploaded |
+
+The CI workflow includes the repository's test and validation steps. The browser workflow exercises the offline viewers. These results establish that the configured jobs passed on this commit; they are not an independent penetration test, forensic validation, cross-browser certification, or proof of real-world accuracy.
+
+## Historical billing-blocked runs
+
+Earlier runs 43509421759 and 43509432406 on commit `356953f` did not start because GitHub reported an account billing/spending-limit issue. Those runs were **BLOCKED_BY_BILLING**, not code failures and not passes. The later successful PR #17 runs supersede the old statement that no remote CI result exists.
+
+## Scope and remaining gaps
+
+- PR #17 remains an open draft and has **not** been merged into `main`.
+- Do not describe PR #17 as released or as part of the default branch until it is merged by the owner.
+- Windows/macOS and Firefox/Safari remain untested.
+- No independent security review or penetration test has been performed.
+- Synthetic benchmark results are not real-world accuracy evidence.
+
+## Reproduce locally
+
 ```sh
 npm ci
 npm test
-npm run validate:local        # writes validation/<id>/ (fails if the directory exists; never overwrites)
-npm run bench                 # benchmark only
+npm run validate:local
+npm run bench
 ```
-Benchmark accuracy is deterministic (seeded) and is compared with `bench/results/phase3-run1.json`; latency and memory vary by machine and are not compared.
+
+Local validation is useful additional evidence, but is not interchangeable with CI or independent review.
