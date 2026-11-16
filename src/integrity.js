@@ -131,7 +131,12 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       const h = createHash('sha256');
       const buf = Buffer.allocUnsafe(CHUNK);
       let n = 0, r;
-      while ((r = readSync(fd, buf, 0, CHUNK, null)) > 0) {
+      // Check before every read and after each observed chunk. This also catches a slow
+      // final read: the next iteration checks the deadline before accepting EOF.
+      while (true) {
+        if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+        r = readSync(fd, buf, 0, CHUNK, null);
+        if (r === 0) break;
         n += r;
         // Check resource budgets on observed bytes rather than only the initial stat size.
         // A file can grow while it is being read, and a slow read can outlast the deadline.
