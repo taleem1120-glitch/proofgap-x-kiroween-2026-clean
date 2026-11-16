@@ -10,6 +10,13 @@ on:
       - 'test/browser-core-parity.test.js'
   pull_request:
     branches: ['main']
+    paths:
+      - '.github/workflows/browser-core-reproducibility.yml'
+      - 'src/**'
+      - 'tools/**'
+      - 'scripts/build-browser-engine.mjs'
+      - 'test/browser-core-parity.test.js'
+
   workflow_dispatch:
 permissions:
   contents: read
