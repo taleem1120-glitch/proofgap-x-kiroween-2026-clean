@@ -1,7 +1,7 @@
 name: Browser core reproducibility
 on:
   push:
-    branches: ['feature/global-i18n-2026-11-15']
+    branches: ['main', 'feature/global-i18n-2026-11-15']
     paths:
       - '.github/workflows/browser-core-reproducibility.yml'
       - 'src/analyze.js'
@@ -14,6 +14,8 @@ on:
       - 'tools/browser-*'
       - 'tools/case-builder-core.js'
       - 'scripts/build-browser-engine.mjs'
+  pull_request:
+    branches: ['main']
   workflow_dispatch:
 permissions:
   contents: read
