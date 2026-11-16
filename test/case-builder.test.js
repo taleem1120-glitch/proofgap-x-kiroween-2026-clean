@@ -51,3 +51,11 @@ test('browser authoring tool remains entirely local with a restrictive CSP',()=>
  assert.match(html,/script type="module" src="case-builder-ui.js"/);
  assert.doesNotMatch(ui,/fetch\(|XMLHttpRequest|innerHTML|eval\(/);
 });
+
+test('case builder rejects lone Unicode surrogate units before hashing or exporting',()=>{
+ const malformed=template();
+ malformed.claims[0].statement='report with unpaired '+String.fromCharCode(0xd800)+' code unit';
+ assert.throws(()=>buildCaseFromRows(malformed),/Claim statement required/);
+ const valid=template();valid.title='ملف عربي مع رمز صالح 😀';
+ assert.equal(validateCase(buildCaseFromRows(valid)).caseId,'COMP-DEMO');
+});
