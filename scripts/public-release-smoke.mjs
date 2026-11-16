@@ -11,6 +11,7 @@ export const DEPLOYMENT_FILES=Object.freeze([
  'apps/proofgap-cite/showcase.html',
  'tools/case-builder.html',
  'tools/case-builder-ui.js',
+ 'tools/case-builder-locale.js',
  'tools/case-builder-core.js',
  'tools/browser-engine.bundle.js'
 ]);
