@@ -32,6 +32,9 @@ try {
      await language.selectOption(code);
      assert.equal(await page.locator('html').getAttribute('lang'),code);
      assert.equal(await page.locator('html').getAttribute('dir'),['ar','fa'].includes(code)?'rtl':'ltr');
+     const heading=await page.locator('.top h1').innerText();
+     assert.ok(heading.trim().length>8,'empty application heading '+code);
+     if(code==='ar')assert.match(heading,/استقلال الأدلة|سلسلة الاستشهادات/,'untranslated app identity '+file);
      assert.equal(await reports.count(),count,'switching '+code+' lost report');
      assert.ok((await page.locator('.panel').first().innerText()).includes(key),'case ID changed in '+code);
      assert.ok((await page.locator('#pg-translation-scope').innerText()).trim().length>20);
