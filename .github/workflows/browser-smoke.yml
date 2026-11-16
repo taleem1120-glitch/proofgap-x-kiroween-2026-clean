@@ -4,6 +4,10 @@ on:
     branches: ['feature/global-i18n-2026-11-15']
     paths:
       - scripts/browser-mobile-smoke.mjs
+      - scripts/browser-case-builder-smoke.mjs
+      - tools/case-builder.html
+      - tools/case-builder-core.js
+      - tools/case-builder-ui.js
       - .github/workflows/browser-smoke.yml
   workflow_dispatch:
 permissions:
@@ -25,6 +29,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify two offline apps at desktop and mobile widths
         run: node scripts/browser-mobile-smoke.mjs
+      - name: Exercise offline case authoring in real mobile Chromium
+        run: node scripts/browser-case-builder-smoke.mjs
       - name: Preserve review-only mobile screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
