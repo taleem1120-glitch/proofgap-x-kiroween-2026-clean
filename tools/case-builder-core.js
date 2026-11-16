@@ -3,7 +3,8 @@
 const safeId=/^[A-Za-z0-9_.-]{1,64}$/;
 const forbidden=/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/;
 function id(x){return typeof x==='string'&&safeId.test(x)}
-function name(x){return typeof x==='string'&&x.trim().length>0&&x.length<=2000&&!forbidden.test(x)}
+const loneSurrogate=/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+function name(x){return typeof x==='string'&&x.trim().length>0&&x.length<=2000&&!forbidden.test(x)&&!loneSurrogate.test(x)}
 function reject(message){throw new Error(message)}
 function unique(items,label){const all=new Set();for(const x of items){if(!id(x.id))reject(label+' ID must use Latin letters, numbers, period, dash or underscore');if(all.has(x.id))reject('Duplicate '+label+' ID: '+x.id);all.add(x.id);}return all}
 export function buildCaseFromRows(input){
