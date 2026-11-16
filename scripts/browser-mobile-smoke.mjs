@@ -54,6 +54,7 @@ try {
    await language.selectOption('ar');
    assert.match(await page.locator('#pg-translation-scope').innerText(),/الواجهة/);
    assert.equal(await page.locator('.graphwrap').count(),count);
+   assert.ok((await page.locator('.top h1').innerText()).length>12,'app heading lost after locale changes');
    const downloaded=page.waitForEvent('download');
    await page.locator('.panel').first().getByRole('button').click();
    const download=await downloaded;
