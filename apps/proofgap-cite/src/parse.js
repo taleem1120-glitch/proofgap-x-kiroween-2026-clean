@@ -45,6 +45,15 @@ const ATTR_KEYS = new Set(['kind', 'url', 'doi', 'saved', 'cites']);
 const CONTROL_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/;
 const FORBIDDEN_IDS = new Set(['__proto__', 'constructor', 'prototype']);
 
+function normalizeCiteLimits(limits = CITE_LIMITS) {
+  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be an object');
+  const allowed = new Set(Object.keys(CITE_LIMITS));
+  for (const key of Object.keys(limits)) if (!allowed.has(key)) throw new TypeError('unknown Cite limit: ' + key);
+  const normalized = { ...CITE_LIMITS, ...limits };
+  for (const [key, value] of Object.entries(normalized)) if (!Number.isSafeInteger(value) || value < 1) throw new TypeError('limits.' + key + ' must be a positive safe integer');
+  return normalized;
+}
+
 /** Normalise an identifier for the SAME-IDENTIFIER heuristic only (never for trust). */
 export function normalizeUrl(u) {
   try {
@@ -62,6 +71,7 @@ export const normalizeDoi = (d) => (/^10\.\d{4,9}\/\S+$/i.test(d) ? d.toLowerCas
  * @returns {{ title: string, claims: Array, references: Map, notes: Array }}
  */
 export function parseNote(text, limits = CITE_LIMITS) {
+  limits = normalizeCiteLimits(limits);
   const issues = [];
   const add = (line, message) => { if (issues.length < limits.maxIssues) issues.push({ line, message }); };
   if (typeof text !== 'string') throw new CiteValidationError([{ line: 0, message: 'note must be text' }]);
