@@ -77,7 +77,7 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 ## Known limitations (read before relying on anything)
 - **Declared provenance cannot be verified.** If a case author hides that two sources share an origin, the hard classification cannot know (synthetic benchmark: 88/88 such claims). The decision abstains only when a cue exists. With local files, byte-identical copies are now caught; re-encoded copies are not (file-backed heldout3: 24/47 still asserted).
 - Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
-- A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed. Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
+- A SHA-256 match proves byte equality only. Hard-linked files are rejected conservatively (including when both names are inside the evidence directory). Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
 - No independent security review. In-repo schema validator (Ajv could not be installed in the sandbox).
 - Viewer tested in headless Chromium only; no screen-reader or cross-browser testing.
