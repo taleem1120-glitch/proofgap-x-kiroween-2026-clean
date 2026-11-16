@@ -275,10 +275,13 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     ProofGapLocale.set(ProofGapLocale.detect());
+    var appHeading = document.querySelector('.top h1');
+    var citationApp = appHeading && /ProofGap Cite/i.test(appHeading.textContent);
     function translateStatic(){
       [['pg-translation-scope','translationScope'],['pg-offline','headerOffline'],['pg-intro','headerCaveat'],['pg-footer','footerCaveat'],['pg-skip','skipReports']].forEach(function(pair){
         var node=document.getElementById(pair[0]); if(node)node.textContent=L(pair[1]);
       });
+      if (appHeading) appHeading.textContent=L(citationApp?'titleCitation':'titleInvestigation');
     }
     translateStatic();
     var fileCaption = document.getElementById('pg-open-files');
