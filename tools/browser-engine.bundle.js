@@ -1168,8 +1168,9 @@ var forbidden = /[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/;
 function id(x) {
   return typeof x === "string" && safeId.test(x);
 }
+var loneSurrogate = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 function name(x) {
-  return typeof x === "string" && x.trim().length > 0 && x.length <= 2e3 && !forbidden.test(x);
+  return typeof x === "string" && x.trim().length > 0 && x.length <= 2e3 && !forbidden.test(x) && !loneSurrogate.test(x);
 }
 function reject(message) {
   throw new Error(message);
