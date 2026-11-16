@@ -107,6 +107,16 @@ test('bad configuration fails loudly; reports never contain the absolute evidenc
   assert.ok(!JSON.stringify(r).includes(root) && !JSON.stringify(r).includes(outside));
 });
 
+
+test('opened descriptor is accepted only when it resolves to the same regular file identity', () => {
+  // This exercises the descriptor/path identity gate on a stable file. The check
+  // protects against a parent-directory swap between lstat and open; a deterministic
+  // race injector is not available in this synchronous filesystem test harness.
+  const r = verify([ev('identity', 'good.txt', sha('hello'))]);
+  assert.equal(st(r, 'identity').status, 'VERIFIED');
+  assert.equal(st(r, 'identity').observedSha256, sha('hello'));
+});
+
 test('hard links are rejected conservatively, including links whose second name is inside evidenceDir', () => {
   const outsideLink = join(root, 'hard-outside.txt');
   const insideLink = join(root, 'hard-inside.txt');
