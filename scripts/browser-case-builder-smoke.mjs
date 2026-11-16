@@ -100,6 +100,49 @@ try{
    const navs=await page.locator('.app-nav a').evaluateAll(links=>links.map(link=>link.getAttribute('href')));
    assert.ok(navs.every(x=>x.includes('?lang='+language)),'navigation locale was not forwarded');
  }
+ // End-to-end regression for the previously ambiguous evidence summary:
+ // total case evidence must not be confused with supporting evidence only.
+ const summaryPage=await context.newPage();
+ summaryPage.on('pageerror',e=>exceptions.push(String(e)));
+ await summaryPage.goto('http://127.0.0.1:'+port+'/tools/case-builder.html?lang=en');
+ await summaryPage.locator('#case-id').fill('DEMO-COUNT-3');
+ await summaryPage.locator('#case-title').fill('Three evidence count regression');
+ for(const [index,id,name] of [[1,'s2','Independent CCTV'],[2,'s3','Independent access log']]){
+   await summaryPage.locator('#add-source').click();
+   const row=summaryPage.locator('#sources .row').nth(index);
+   await row.locator('[name=id]').fill(id);
+   await row.locator('[name=name]').fill(name);
+   await row.locator('[name=derivedFrom]').fill('');
+   await row.locator('[name=originGroup]').fill('');
+ }
+ for(const [index,id,source,stance,strength,description] of [
+   [1,'e2','s2','supports','0.7','Independent CCTV supports the claim'],
+   [2,'e3','s3','contradicts','0.9','Independent access log contradicts the claim']
+ ]){
+   await summaryPage.locator('#add-evidence').click();
+   const row=summaryPage.locator('#evidence .row').nth(index);
+   await row.locator('[name=id]').fill(id);
+   await row.locator('[name=sourceId]').fill(source);
+   await row.locator('[name=claimId]').fill('c1');
+   await row.locator('[name=description]').fill(description);
+   await row.locator('[name=strength]').fill(strength);
+   await row.locator('[name=stance]').selectOption(stance);
+ }
+ await summaryPage.locator('#run-analysis').click();
+ await summaryPage.waitForFunction(()=>document.getElementById('status').textContent.includes('Local analysis complete'),{timeout:10000});
+ const summaryText=await summaryPage.locator('#analysis-result').innerText();
+ assert.match(summaryText,/Total case evidence: 3/);
+ assert.match(summaryText,/Supporting evidence items: 2/);
+ assert.match(summaryText,/Contradicting evidence items: 1/);
+ assert.match(summaryText,/Conflicting evidence/);
+ const summaryReportReady=summaryPage.waitForEvent('download');
+ await summaryPage.locator('#export-report').click();
+ const summaryDownload=await summaryReportReady;
+ const summaryReport=JSON.parse(readFileSync(await summaryDownload.path(),'utf8'));
+ assert.equal(summaryReport.summary.evidence,3);
+ assert.equal(summaryReport.claims[0].corroboration.supportingEvidenceItems,2);
+ assert.equal(new Set(summaryReport.claims[0].corroboration.clusters.contradicts.flatMap(x=>x.evidenceIds)).size,1);
+ await summaryPage.close();
  mkdirSync('artifacts/browser-visual-review',{recursive:true});
  await page.screenshot({path:'artifacts/browser-visual-review/mobile-end-to-end-analysis-360-ar.png',animations:'disabled',fullPage:true});
  const {w,screen}=await page.evaluate(()=>({w:document.documentElement.scrollWidth,screen:document.documentElement.clientWidth}));
