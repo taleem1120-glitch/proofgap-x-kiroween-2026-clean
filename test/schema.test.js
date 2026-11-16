@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { caseSchema, validateSchema, DEFAULT_LIMITS, validateCase, CaseValidationError } from '../src/index.js';
+import { caseSchema, validateSchema, DEFAULT_LIMITS, validateCase, parseCaseText, CaseValidationError } from '../src/index.js';
 import { base, ev } from './helpers.js';
 
 const paths = (data) => validateSchema(data).map((i) => i.path);
