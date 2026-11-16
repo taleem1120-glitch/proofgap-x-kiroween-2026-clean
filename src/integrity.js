@@ -70,8 +70,9 @@ export function integrityNotRequested(evidence) {
 
 /**
  * Verify declared hashes against files under `evidenceDir` (explicit opt-in).
- * Never follows symlinks, never leaves the directory, never reads non-regular files,
- * and enforces file-count / per-file / total-byte / time limits.
+ * Never follows symlinks, rejects hard-linked files (conservatively, even when all links
+ * are inside the evidence directory), never reads non-regular files, and enforces
+ * file-count / per-file / total-byte / time limits.
  */
 export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_INTEGRITY_LIMITS, now = Date.now } = {}) {
   if (typeof evidenceDir !== 'string' || evidenceDir.length === 0) throw new IntegrityConfigError('evidenceDir must be a non-empty string');
@@ -118,6 +119,9 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       fd = openSync(cur, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
       const st = fstatSync(fd);
       if (!st.isFile()) return { status: 'UNSAFE_PATH', reason: 'not_a_regular_file' };
+      // Hard links can name the same inode from outside evidenceDir; reject all multi-link
+      // files rather than pretending a pathname check establishes directory containment.
+      if (st.nlink > 1) return { status: 'UNSAFE_PATH', reason: 'hard_link' };
       // Defence against a directory component swapped for a symlink after the lstat walk.
       const real = realpathSync(cur);
       if (!real.startsWith(root + sep)) return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
@@ -127,8 +131,8 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       const h = createHash('sha256');
       const buf = Buffer.allocUnsafe(CHUNK);
       let n = 0, r;
-      // Limits are checked during streaming, not only against the initial stat.
-      // A file can grow after fstat, or a slow read can exceed the deadline.
+      // Check before every read and after each observed chunk. This also catches a slow
+      // final read: the next iteration checks the deadline before accepting EOF.
       while (true) {
         if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
         r = readSync(fd, buf, 0, CHUNK, null);
@@ -138,6 +142,8 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
         if (totalBytes + n > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
         h.update(buf.subarray(0, r));
       }
+      // Re-check link count after reading to catch a hard link added during the read.
+      if (fstatSync(fd).nlink > 1) return { status: 'UNSAFE_PATH', reason: 'hard_link' };
       totalBytes += n;
       return { status: 'HASHED', computed: h.digest('hex'), size: n };
     } catch (e) {
