@@ -28,6 +28,20 @@ const ev = (id, file, hash, extra = {}) => ({ id, sourceId: 's1', description: `
 const verify = (evidence, limits) => verifyEvidenceFiles(evidence, { evidenceDir: root, limits: limits && { ...DEFAULT_INTEGRITY_LIMITS, ...limits } });
 const st = (res, id) => res.results.find((r) => r.evidenceId === id);
 
+
+test('integrity limit configuration is validated before filesystem work', () => {
+  for (const limits of [null, [], 'bad', { maxFiles: 0 }, { maxMillis: -1 }, { maxPathDepth: 1.5 },
+    { maxFileBytes: Number.NaN }, { maxTotalBytes: Number.POSITIVE_INFINITY }, { maxFiles: Number.MAX_SAFE_INTEGER + 1 },
+    { maxFilse: 10 }]) {
+    assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits }), IntegrityConfigError);
+  }
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, now: 5 }), IntegrityConfigError);
+  // Partial overrides are merged with safe defaults rather than creating undefined budgets.
+  const r = verify([ev('partial', 'good.txt', sha('hello'))], { maxFiles: 1 });
+  assert.equal(st(r, 'partial').status, 'VERIFIED');
+  assert.equal(r.limits.maxFileBytes, DEFAULT_INTEGRITY_LIMITS.maxFileBytes);
+});
+
 test('exactly five distinct states exist', () => assert.deepEqual([...INTEGRITY_STATES], ['VERIFIED', 'MISMATCH', 'MISSING', 'UNSAFE_PATH', 'NOT_CHECKED']));
 
 test('VERIFIED / MISMATCH / MISSING / NOT_CHECKED are produced correctly', () => {
