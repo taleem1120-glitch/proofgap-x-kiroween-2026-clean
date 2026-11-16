@@ -1,12 +1,16 @@
 name: Verify published Pages release bytes
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ['pages build and deployment']
+    types: [completed]
 permissions:
   contents: read
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -14,5 +18,16 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '22'
-      - name: Verify deployed HTML/JS are byte-identical to checked-out release commit
-        run: node scripts/public-release-smoke.mjs
+      - name: Verify deployed HTML/JS are byte-identical to the main commit
+        shell: bash
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            if node scripts/public-release-smoke.mjs; then
+              echo 'Verified publicly served assets against this main revision.'
+              exit 0
+            fi
+            echo "Pages files not yet identical, retry $attempt/12"
+            sleep 10
+          done
+          echo 'Public deployment failed exact-byte verification.' >&2
+          exit 1
