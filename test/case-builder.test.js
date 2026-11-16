@@ -26,6 +26,16 @@ test('derivatives are not independently counted as additional corroboration',()=
  assert.equal(out.claims[0].corroboration.independentSupportOrigins,2);
  assert.equal(out.claims[0].corroboration.supportingEvidenceItems,3);
 });
+test('report exposes total, supporting and contradicting evidence counts without conflating them',()=>{
+ const input=template();
+ input.evidence[2].stance='contradicts';
+ const report=analyzeCase(buildCaseFromRows(input));
+ const claim=report.claims[0];
+ assert.equal(report.summary.evidence,3,'case total must include all three evidence items');
+ assert.equal(claim.corroboration.supportingEvidenceItems,2,'support count must include only supporting evidence');
+ assert.equal(claim.corroboration.contradictingEvidenceItems,1,'contradiction count must include the opposing item');
+ assert.equal(claim.decision,'conflicting');
+});
 test('builder rejects cycles, missing references and duplicate IDs before export',()=>{
  const a=template();a.sources[0].derivedFrom='s2';
  assert.throws(()=>buildCaseFromRows(a),/Circular/);
