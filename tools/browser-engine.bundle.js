@@ -1108,6 +1108,7 @@ function analyzeCase(c, opts = {}) {
       explanation: why,
       corroboration: {
         supportingEvidenceItems: supportItems.length,
+        contradictingEvidenceItems: contradictItems.length,
         independentSupportOrigins: sup.length,
         apparentExcess: Math.max(0, supportItems.length - sup.length),
         falseCorroboration: supportItems.length >= 2 && supportItems.length > sup.length,
