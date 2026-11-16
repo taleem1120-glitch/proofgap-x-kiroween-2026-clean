@@ -219,3 +219,12 @@ test('a self-citing "primary" is not an original source (only path where the pri
   assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 1);
   assert.equal(v(r), 'origin_unresolved');
 });
+
+
+test('Cite parser rejects malformed resource limits and merges partial overrides', () => {
+  const n = note(['A claim [^a]'], [P('a')]);
+  for (const limits of [null, [], 'bad', { maxBytes: 0 }, { maxLines: -1 }, { maxClaims: 1.5 }, { maxReferences: Number.NaN }, { maxIssues: Number.POSITIVE_INFINITY }, { maxCitesPerReference: Number.MAX_SAFE_INTEGER + 1 }, { maxReferenes: 10 }]) {
+    assert.throws(() => parseNote(n, limits), /limits|limit/i);
+  }
+  assert.equal(parseNote(n, { maxClaims: 1 }).claims.length, 1);
+});
