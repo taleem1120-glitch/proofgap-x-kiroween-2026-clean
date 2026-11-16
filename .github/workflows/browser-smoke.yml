@@ -25,3 +25,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify two offline apps at desktop and mobile widths
         run: node scripts/browser-mobile-smoke.mjs
+      - name: Preserve review-only mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mobile-visual-review
+          path: artifacts/browser-visual-review/*.png
+          if-no-files-found: warn
+          retention-days: 7
