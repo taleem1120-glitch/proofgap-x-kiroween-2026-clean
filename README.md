@@ -43,7 +43,7 @@ npm run demo                             # ProofGap X integrity demo
 rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite   # rebuild both showcases from the engine
 npm run validate:local                   # tests + focused groups + all benchmark reproductions, recorded under validation/<id>/
 ```
-Remote CI has not run (see below). The video storyboard is in `docs/DEMO.md`.
+Pull-request CI has run for the current review branches; see `docs/CI_STATUS.md` for exact commits, runs and limitations. The video storyboard is in `docs/DEMO.md`.
 
 ## What is new in 0.4.0
 - **Verified byte identity:** with `--evidence-dir`, every safely readable non-empty file is hashed by the tool, also when the case declares no hash. Byte-identical files are one artifact (basis *verified*, bytes only). Without `--evidence-dir`, nothing changes. Measured effect and limits: `docs/BENCHMARK.md`.
@@ -69,7 +69,7 @@ Exit codes: 0 ok, 1 invalid input/I-O failure, 2 usage. `--out` never overwrites
 ## Case format (schema 1.0, `schemas/case.v1.schema.json`)
 `schemaVersion: "1.0"`, `caseId`, `title`, `sources[]` (`id`, `name`, optional `derivedFrom[]`, `originGroup`), `claims[]` (`id`, `statement`), `evidence[]` (`id`, `sourceId`, `description`, optional `sha256`, optional `file` relative path used only with `--evidence-dir`, `links[]` of `{claimId, stance: supports|contradicts, strength 0..1}`). Unknown properties are rejected. IDs match `[A-Za-z0-9_.-]{1,64}`. See `examples/`.
 
-**CI status:** GitHub Actions is `BLOCKED_BY_BILLING` (jobs never started; not a code failure and not a pass). Only local results exist; see `docs/CI_STATUS.md`.
+**CI status:** PR #17 has successful Node 20, Node 22 and Chromium workflow runs on its review commit. This does not certify the default branch, eliminate all security risks, or replace independent review; see `docs/CI_STATUS.md`.
 
 ## Security defaults
 Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth limits; schema + semantic validation with `$`-paths; prototype-pollution keys, control/bidi characters and lone surrogates rejected; report output escaped; file verification restricted to an explicit directory (no symlinks, no traversal, regular files only, size/count/time limits). Threat model: `docs/THREAT_MODEL.md`.
@@ -77,11 +77,11 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 ## Known limitations (read before relying on anything)
 - **Declared provenance cannot be verified.** If a case author hides that two sources share an origin, the hard classification cannot know (synthetic benchmark: 88/88 such claims). The decision abstains only when a cue exists. With local files, byte-identical copies are now caught; re-encoded copies are not (file-backed heldout3: 24/47 still asserted).
 - Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
-- A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed. Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
+- A SHA-256 match proves byte equality only. Hard-linked files are rejected conservatively (including when both names are inside the evidence directory). Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
 - No independent security review. In-repo schema validator (Ajv could not be installed in the sandbox).
 - Viewer tested in headless Chromium only; no screen-reader or cross-browser testing.
-- **Not publishable yet:** private repository, and the default branch does not yet contain the code (owner decisions). See `docs/COMPETITION.md` (status) and `docs/APPROVALS.md` (owner actions).
+- **Submission is not complete:** the repository is public and the default branch contains the application code, but the public demo URL, public video, Devpost entry and final owner approvals still require verification. See `docs/COMPETITION.md` and `docs/APPROVALS.md`.
 
 ## Licence
 Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Copyright 2026 TAALEEM ALI HAJM SULTAN AL-SIYADI. Redistributions must keep both files (Apache-2.0 §4).
