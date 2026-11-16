@@ -20,8 +20,8 @@ textarea{min-height:65px}button{min-height:44px;padding:8px 14px;margin:6px 0;ba
 <body><main>
 <a href="../index.html">العودة إلى الصفحة الرئيسية / Home</a>
 <h1>منشئ ملف القضية — ProofGap X</h1>
-<p class="note">هذه أداة محلية لإنشاء مدخل JSON من مصادر وادعاءات وأدلة منظمة. لا تُحمّل أي بيانات إلى خادم، ولا تتحقق من حقيقة المصدر أو صحة الوقائع. يُرجى استخدام بيانات افتراضية في العرض العام.</p>
-<p>This offline authoring tool produces structured JSON for the ProofGap X engine. Source ancestry and evidence strengths are user declarations, not verified facts.</p>
+<p class="note">تُنشئ هذه الأداة مدخل JSON لقضية منظمة، ثم تشغّل المحرك المشترك محليًا لتوليد تقرير التحليل. لا تُحمّل بيانات القضية إلى خادم، ولا تتحقق من حقيقة المصدر أو صحة الوقائع أو سلامة الملفات الأصلية. استخدم بيانات افتراضية في العرض العام.</p>
+<p>This offline tool now generates structured case inputs AND runs the original ProofGap analysis engine locally in the browser. Source ancestry and evidence strengths remain user declarations, not verified facts.</p>
 <form id="case-form" novalidate>
 <fieldset><legend>بيانات القضية / Case</legend><div class="fields">
 <label>رمز القضية / Case ID<input id="case-id" value="DEMO-CASE-1" maxlength="64" required></label>
