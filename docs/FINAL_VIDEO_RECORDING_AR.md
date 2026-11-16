@@ -12,10 +12,10 @@
 | المدة | ما يجب إظهاره فعليًا | تعليق صوتي إنجليزي بسيط |
 |---|---|---|
 | 00:00–00:17 | عنوان المشروع، ثم لقطة قضية بها تقارير كثيرة | “Many reports can repeat one original source. Counting them as independent proof can mislead investigators.” |
-| 00:17–00:54 | افتح تطبيق التحقيق؛ أشر إلى عدد عناصر الأدلة وعدد أصولها المستقلة المعلنة | “ProofGap X maps declared source relationships and shows how supporting items collapse into fewer independent origins.” |
+| 00:17–00:39 | افتح منشئ القضية على الهاتف؛ أضف مصدرًا مشتقًا ثم اضغط «تحليل القضية على الهاتف» وأظهر نتيجة حقيقية | “From a phone, we can author a structured case and run the original evidence engine locally, without uploading case data.” |\n| 00:39–00:54 | افتح تطبيق التحقيق؛ أشر إلى عدد الأدلة مقابل أصولها المستقلة المعلنة | “ProofGap X shows how many reports may depend on fewer declared original sources.” |
 | 00:54–01:18 | حالة المقارنة، والعنوان الذي يوضح الامتناع عن الاستنتاج وعدم كفاية الأدلة | “When origin information is missing or uncertain, the system explains the limitation instead of claiming certainty.” |
 | 01:18–01:54 | افتح ProofGap Cite؛ أبرز الاستشهادات الدائرية والمصدر الواحد | “The same reusable core powers ProofGap Cite, which audits research references for repeated origins and citation loops.” |
-| 01:54–02:13 | تصدير JSON الحقيقي وفتح ملف التقرير إن كان متاحًا | “Both applications export inspectable reports. File hashes indicate byte identity, not source authenticity.” |
+| 01:54–02:13 | تنزيل تقرير حقيقي من منشئ القضية، ثم الإشارة إلى نسخة التقرير القابلة للفحص | “The generated report is deterministic and inspectable. Hash matching proves byte identity, not authenticity or truth.” |
 | 02:13–02:31 | نتيجة CI الأخيرة المثبتة فعليًا وسجل اختبار المتصفح؛ لا تعرض رقمًا قديمًا | “Our automated checks cover both applications, offline safety, mobile layouts, and Arabic right-to-left presentation.” |
 | 02:31–02:43 | ملف .kiro/KIRO_USAGE.md الحقيقي ثم خاتمة | “We document how Kiro supported the build. Count independent origins, not repeated reports.” |
 
@@ -32,11 +32,14 @@
 ## بوابات قبل إعلان “جاهز للتصوير”
 - [x] تخطيط سيناريو 2:43 يعرض تطبيقين لا تطبيقًا واحدًا
 - [x] تحديد ما يثبت في التقرير وما لا يثبت، وعدم الخلط بين هش البايتات والأصالة
-- [ ] تشغيل آخر نسخة من التطبيقين داخل متصفح مع اللغات العشر على 360 و411 و1280 بكسل
+- [x] تشغيل التطبيقين داخل Chromium مع عشر لغات، وأيضًا تشغيل التحليل المحلي على هاتف افتراضي بعرض 360 بكسل ومطابقة التقرير مع Node.js
 - [ ] فحص بصري بشري للعربية والإنجليزية وبقية اللغات، وإصلاح التداخلات والقص
-- [ ] التحقق من تحميل JSON وتصديره بدون تحريف البيانات
+- [x] التحقق آليًا من تنزيل JSON ومطابقة تقرير الهاتف لمخرجات المحرك الأصلي
 - [ ] مراجعة المصدر المفتوح وملكية المواد وملف استخدام Kiro
 - [ ] مراجعة ودمج الإصدار المرشح ونشره ثم اختبار روابط الحكام العامة
 - [ ] تسجيل الفيديو الحقيقي ونشره والتحقق منه وإكمال Devpost
 
 نجاح الاختبارات الآلية لا يعادل مراجعة لغوية بشرية ولا تقييمًا مستقلاً للدقة. ولا يلزم إتمام شهادة تدقيق تجاري خارجي قبل المسابقة ما لم تنص القواعد الرسمية على ذلك.
+
+## ملحوظة تقنية حديثة — التحليل المباشر على الهاتف
+منشئ القضية في `tools/case-builder.html` يتضمن الآن خيار «تحليل القضية على الهاتف». يستخدم ملف `tools/browser-engine.bundle.js` المبني من المحرك نفسه بواسطة esbuild ومكتبة SHA-256 مرخصة، ويتيح تصدير التقرير الكامل محليًا. نجحت اختبارات المتصفح في مقارنة تقرير الهاتف بتقرير Node.js حرفيًا للحالة الافتراضية. يجب التحقق من توفر هذه الملفات على GitHub Pages بعد الدمج والنشر، **ولا تصورها باعتبارها منشورة الآن**.
