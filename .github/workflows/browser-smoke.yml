@@ -12,6 +12,15 @@ on:
       - 'index.html'
   pull_request:
     branches: ['main']
+    paths:
+      - '.github/workflows/browser-smoke.yml'
+      - 'src/**'
+      - 'viewer/**'
+      - 'tools/**'
+      - 'apps/proofgap-cite/**'
+      - 'scripts/browser-*.mjs'
+      - 'index.html'
+
   workflow_dispatch:
 permissions:
   contents: read
