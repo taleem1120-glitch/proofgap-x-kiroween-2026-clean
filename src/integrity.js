@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { constants, fstatSync, lstatSync, openSync, readSync, closeSync, realpathSync } from 'node:fs';
-import { join, sep } from 'node:path';
+import { join, relative, isAbsolute, sep } from 'node:path';
 
 /**
  * Opt-in local evidence integrity verification.
@@ -124,7 +124,10 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       if (st.nlink > 1) return { status: 'UNSAFE_PATH', reason: 'hard_link' };
       // Defence against a directory component swapped for a symlink after the lstat walk.
       const real = realpathSync(cur);
-      if (!real.startsWith(root + sep)) return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
+      const fromRoot = relative(root, real);
+      if (fromRoot === '' || fromRoot === '..' || fromRoot.startsWith('..' + sep) || isAbsolute(fromRoot)) {
+        return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
+      }
       if (st.size > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
       if (totalBytes + st.size > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
       filesRead++;
