@@ -34,8 +34,26 @@ export class IntegrityConfigError extends Error {
 const SEGMENT_RE = /^[A-Za-z0-9_.-]{1,255}$/;
 const CHUNK = 64 * 1024;
 
+function normalizeIntegrityLimits(limits) {
+  if (limits === undefined) return DEFAULT_INTEGRITY_LIMITS;
+  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) {
+    throw new IntegrityConfigError('limits must be an object');
+  }
+  const allowed = new Set(Object.keys(DEFAULT_INTEGRITY_LIMITS));
+  for (const key of Object.keys(limits)) {
+    if (!allowed.has(key)) throw new IntegrityConfigError(`unknown integrity limit: ${key}`);
+  }
+  const normalized = { ...DEFAULT_INTEGRITY_LIMITS, ...limits };
+  for (const [key, value] of Object.entries(normalized)) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new IntegrityConfigError(`limits.${key} must be a positive safe integer`);
+    }
+  }
+  return normalized;
+}
+
 /** Returns null if the relative path is acceptable, else a fixed reason string. */
-export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
+function checkRelativePathUnchecked(p, limits) {
   if (typeof p !== 'string' || p.length === 0) return 'empty_or_non_string_path';
   if (p.length > limits.maxPathLength) return 'path_too_long';
   if (p.startsWith('/')) return 'absolute_path';
@@ -48,6 +66,10 @@ export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
     if (!SEGMENT_RE.test(s)) return 'disallowed_characters';
   }
   return null;
+}
+
+export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
+  return checkRelativePathUnchecked(p, normalizeIntegrityLimits(limits));
 }
 
 const entry = (e, status, reason, extra = {}) => ({
@@ -76,6 +98,8 @@ export function integrityNotRequested(evidence) {
  */
 export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_INTEGRITY_LIMITS, now = Date.now } = {}) {
   if (typeof evidenceDir !== 'string' || evidenceDir.length === 0) throw new IntegrityConfigError('evidenceDir must be a non-empty string');
+  limits = normalizeIntegrityLimits(limits);
+  if (typeof now !== 'function') throw new IntegrityConfigError('now must be a function');
   let root;
   try {
     root = realpathSync(evidenceDir);
@@ -88,7 +112,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
   const results = [];
 
   const checkFile = (rel, declared) => {
-    const bad = checkRelativePath(rel, limits);
+    const bad = checkRelativePathUnchecked(rel, limits);
     if (bad) return { status: 'UNSAFE_PATH', reason: bad };
     if (cache.has(rel)) return cache.get(rel);
     const out = hashFile(rel, declared);
