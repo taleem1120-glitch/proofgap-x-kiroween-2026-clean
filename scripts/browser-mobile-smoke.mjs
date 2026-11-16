@@ -26,24 +26,23 @@ try {
    const key=report.caseId;
    assert.ok((await page.locator('.panel').first().innerText()).includes(key),file+' report identity absent');
    const language=page.locator('#pg-language');
-   await language.selectOption('ar');
-   assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
-   assert.equal(await page.locator('html').getAttribute('lang'),'ar');
-   assert.equal(await reports.count(),count,'switching language lost report');
-   assert.match(await page.locator('#pg-translation-scope').innerText(),/الواجهة/);
-   const {scrollWidth,clientWidth}=await page.evaluate(()=>({
-    scrollWidth:document.documentElement.scrollWidth,
-    clientWidth:document.documentElement.clientWidth
-   }));
-   if (scrollWidth>clientWidth+2) {
-     const offenders=await page.evaluate(()=>Array.from(document.querySelectorAll('body *')).map(el=>({
-       tag:el.tagName,cls:typeof el.className==='string'?el.className:'',id:el.id,
-       right:Math.round(el.getBoundingClientRect().right),
-       left:Math.round(el.getBoundingClientRect().left),
-       scrollWidth:el.scrollWidth,clientWidth:el.clientWidth
-     })).filter(e=>e.right>document.documentElement.clientWidth+2||e.left < -2).slice(0,25));
-     throw new Error(file+' body overflows at '+viewport.width+': '+scrollWidth+'/'+clientWidth+' offenders '+JSON.stringify(offenders));
+   const codes=['en','ar','fr','es','de','pt','tr','fa','hi','zh'];
+   for (const code of codes) {
+     await language.selectOption(code);
+     assert.equal(await page.locator('html').getAttribute('lang'),code);
+     assert.equal(await page.locator('html').getAttribute('dir'),['ar','fa'].includes(code)?'rtl':'ltr');
+     assert.equal(await reports.count(),count,'switching '+code+' lost report');
+     assert.ok((await page.locator('.panel').first().innerText()).includes(key),'case ID changed in '+code);
+     assert.ok((await page.locator('#pg-translation-scope').innerText()).trim().length>20);
+     const {scrollWidth,clientWidth}=await page.evaluate(()=>({
+       scrollWidth:document.documentElement.scrollWidth,
+       clientWidth:document.documentElement.clientWidth
+     }));
+     if (scrollWidth>clientWidth+2)
+       throw new Error(file+' '+code+' body overflows at '+viewport.width+': '+scrollWidth+'/'+clientWidth);
    }
+   await language.selectOption('ar');
+   assert.match(await page.locator('#pg-translation-scope').innerText(),/الواجهة/);
    assert.equal(await page.locator('.graphwrap').count(),count);
    const downloaded=page.waitForEvent('download');
    await page.locator('.panel').first().getByRole('button').click();
@@ -52,10 +51,11 @@ try {
    assert.ok(filename.endsWith('.proofgap-report.json'));
    const downloadBytes=readFileSync(await download.path(),'utf8');
    assert.deepEqual(JSON.parse(downloadBytes),report,'exported JSON changed with localization');
+   assert.equal(downloadBytes,sourceJson.trim()+'\n','raw JSON bytes differ from original embedded report');
    await language.selectOption('en');
    assert.equal(await page.locator('html').getAttribute('dir'),'ltr');
    assert.ok(errors.length===0,file+' page JS errors '+errors.join('; '));
-   all.push({file,viewport:viewport.width,panels:count,rtlPassed:true,bodyOverflow:false,jsonStable:true});
+   all.push({file,viewport:viewport.width,panels:count,languagesChecked:codes.length,rtlPassed:true,bodyOverflow:false,jsonStable:true});
    await context.close();
   }
  }
