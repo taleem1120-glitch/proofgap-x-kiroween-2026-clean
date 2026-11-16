@@ -51,16 +51,28 @@ export function buildGraph({ c, classes, roots, integrityByEvidence, warnings, c
   }
   const originLabels = [...new Set(claims.flatMap((cl) => [...cl.independentSupportOrigins, ...cl.independentContradictOrigins].map((o) => o.origin)))].sort();
   for (const o of originLabels) nodes.push({ id: `origin:${o}`, type: 'origin', ref: o, label: o, roots: o.split('+') });
-  // unknown: pairs of distinct origins bearing on the same claim, with no declared link (policy treats them as independent)
+  // Unknown independence is a warning, not verified corroboration. Pairwise links grow
+  // quadratically: 1000 origins yield 499,500 links for one claim. Retain a deterministic
+  // inspectable prefix and explicitly report how many omitted pairs exist.
+  // Classification and independent-origin counts are computed earlier and never truncated.
+  const MAX_UNKNOWN_VISUAL_EDGES = 2000;
+  let retainedUnknownEdges = 0, omittedUnknownEdges = 0;
   for (const cl of claims) {
     const origins = [...cl.independentSupportOrigins, ...cl.independentContradictOrigins].map((o) => o.origin);
     const uniq = [...new Set(origins)].sort();
-    for (let i = 0; i < uniq.length; i++) for (let j = i + 1; j < uniq.length; j++) {
+    const pairs = uniq.length * (uniq.length - 1) / 2;
+    const remaining = MAX_UNKNOWN_VISUAL_EDGES - retainedUnknownEdges;
+    const retained = Math.min(pairs, remaining);
+    let n = 0;
+    for (let i = 0; i < uniq.length && n < retained; i++) for (let j = i + 1; j < uniq.length && n < retained; j++) {
       add(`origin:${uniq[i]}`, `origin:${uniq[j]}`, 'independence_not_established', 'unknown', { claimId: cl.claimId });
+      n++;
     }
+    retainedUnknownEdges += retained;
+    omittedUnknownEdges += pairs - retained;
   }
   edges.sort((a, b) => cmp(JSON.stringify([a.basis, a.relation, a.from, a.to, a.claimId ?? "", a.strength ?? -1, a.cue ?? "", a.discoveredBy ?? ""]), JSON.stringify([b.basis, b.relation, b.from, b.to, b.claimId ?? "", b.strength ?? -1, b.cue ?? "", b.discoveredBy ?? ""])));
   const basisCounts = { verified: 0, declared: 0, suspected: 0, unknown: 0 };
   for (const e of edges) basisCounts[e.basis]++;
-  return { nodes, edges, basisCounts };
+  return { nodes, edges, basisCounts, ...(omittedUnknownEdges ? { omittedUnknownEdges } : {}) };
 }
