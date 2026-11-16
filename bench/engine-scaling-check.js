@@ -33,7 +33,7 @@ console.log(JSON.stringify({
  kind:'author_generated_scaling_observation_not_hardware_normalized',
  node:process.version,
  platform:process.platform,
- peakRssBytes:process.memoryUsage().rss,
+ rssAtEndBytes:process.memoryUsage().rss,
  output:results,
  caution:'Machine-relative measurements; not evidence of field accuracy, vendor superiority, or a guaranteed latency SLA.'
 },null,2));
