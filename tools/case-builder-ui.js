@@ -149,11 +149,14 @@ $('run-analysis').addEventListener('click',async()=>{
   const perClaim=report.claims.map(c=>[
     c.claimId,
     T('localResult')+': '+T(c.decision||c.status),
-    T('supportOrigins')+': '+String(c.corroboration?.independentSupportOrigins),
-    T('evidenceItems')+': '+String(c.corroboration?.supportingEvidenceItems)
+    T('supportOrigins')+': '+String(c.corroboration?.independentSupportOrigins ?? 0),
+    T('supportingEvidenceItems')+': '+String(c.corroboration?.supportingEvidenceItems ?? 0),
+    T('contradictingEvidenceItems')+': '+String(c.corroboration?.contradictingEvidenceItems ?? 0)
   ].join(' | '));
   $('analysis-result').textContent=T('uncertainty')+'\n'+
-   T('case')+': '+report.caseId+'\n'+perClaim.join('\n')+'\n'+
+   T('case')+': '+report.caseId+'\n'+
+   T('totalEvidence')+': '+String(report.summary?.evidence ?? 0)+'\n'+
+   perClaim.join('\n')+'\n'+
    T('decisionCounts')+': '+JSON.stringify(counts)+'\n'+
    T('preview');
   $('status').textContent=T('analysisDone');
