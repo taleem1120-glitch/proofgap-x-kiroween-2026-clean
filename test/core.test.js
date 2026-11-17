@@ -1,7 +1,7 @@
 // Shared core interface (src/core.js) and the two-application boundary.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync, mkdtempSync, writeFileSync, rmSync, lstatSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, mkdtempSync, writeFileSync, rmSync, lstatSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -116,4 +116,16 @@ test('readInputFile rejects invalid limits before touching the filesystem', () =
     assert.throws(() => core.readInputFile('/definitely/not/a/real/path', max), RangeError);
   }
   assert.throws(() => core.readInputFile(''), TypeError);
+});
+
+test('writeNewFile refuses an existing symlink without changing its target', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pgx-core-symlink-'));
+  try {
+    const target = join(dir, 'target.txt');
+    const link = join(dir, 'link.txt');
+    writeFileSync(target, 'original');
+    symlinkSync(target, link);
+    assert.throws(() => core.writeNewFile(link, 'replacement'), { code: 'EEXIST' });
+    assert.equal(readFileSync(target, 'utf8'), 'original');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
