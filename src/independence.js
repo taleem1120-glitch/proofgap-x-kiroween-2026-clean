@@ -166,13 +166,17 @@ export function packOrigins(items, weightOf = () => 0) {
   // keep only minimal root sets (a strict superset can always be swapped for its subset without losing disjointness)
   const minimal = labels.filter((l) => !labels.some((m) => m !== l && byLabel.get(m).size < byLabel.get(l).size && isSubset(m, l)));
   const overlaps = (a, b) => { const A = byLabel.get(a), B = byLabel.get(b); for (const r of A) if (B.has(r)) return true; return false; };
-  const logw = (l) => {
-    const strength = weightOf(l);
+  // Evaluate and validate every retained label exactly once, including singleton
+  // components that never enter the exact-search comparator.
+  const logWeights = new Map();
+  for (const label of minimal) {
+    const strength = weightOf(label);
     if (typeof strength !== 'number' || !Number.isFinite(strength) || strength < 0 || strength > 1) {
       throw new TypeError('weightOf must return a finite strength in [0, 1]');
     }
-    return -Math.log(1 - Math.min(strength, 0.999999)); // noisy-OR is monotone in the sum of these
-  };
+    logWeights.set(label, -Math.log(1 - Math.min(strength, 0.999999)));
+  }
+  const logw = (l) => logWeights.get(l);
   const seen = new Set(), comps = [];
   for (const l of minimal) {
     if (seen.has(l)) continue;
