@@ -73,3 +73,15 @@ test('CLI: --format html writes once (never overwrites); --compare requires html
   assert.equal(run(root('examples/sample-case.json'), '--format', 'json', '--compare', root('examples/sample-case.json')).status, 2);
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('viewer exposes accessible relationship-basis filters for graph paths and text rows', () => {
+  const js = read('viewer/app.js');
+  for (const basis of ['all', 'verified', 'declared', 'suspected', 'unknown']) {
+    assert.ok(js.includes("value: '" + basis + "'"), 'missing graph filter: ' + basis);
+  }
+  assert.match(js, /aria-label': 'Filter provenance relationships'/);
+  assert.match(js, /x\.element\.style\.display = visible \? '' : 'none'/);
+  assert.match(js, /x\.element\.hidden = !visible/);
+  assert.match(js, /aria-live': 'polite'/);
+  assert.match(read('viewer/style.css'), /\.graphfilter:focus-visible/);
+});
