@@ -73,3 +73,31 @@ test('CLI: --format html writes once (never overwrites); --compare requires html
   assert.equal(run(root('examples/sample-case.json'), '--format', 'json', '--compare', root('examples/sample-case.json')).status, 2);
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('viewer exposes accessible relationship-basis filters for graph paths and text rows', () => {
+  const js = read('viewer/app.js');
+  for (const basis of ['all', 'verified', 'declared', 'suspected', 'unknown']) {
+    assert.ok(js.includes("value: '" + basis + "'"), 'missing graph filter: ' + basis);
+  }
+  assert.match(js, /aria-label': 'Filter provenance relationships'/);
+  assert.match(js, /x\.element\.style\.display = visible \? '' : 'none'/);
+  assert.match(js, /x\.element\.hidden = !visible/);
+  assert.match(js, /aria-live': 'polite'/);
+  assert.match(read('viewer/style.css'), /\.graphfilter:focus-visible/);
+});
+
+test('viewer supports keyboard-accessible node selection and direct provenance path inspection', () => {
+  const js = read('viewer/app.js');
+  assert.match(js, /role: 'group', 'aria-labelledby'/, 'interactive SVG must expose its child controls to assistive technology');
+  assert.match(js, /x\.element\.style\.display = ''/, 'selecting a node must clear stale edge filtering');
+  assert.match(js, /grp\.setAttribute\('role', 'button'\)/);
+  assert.match(js, /tabindex:\s*0/, 'graph nodes must be reachable by keyboard focus');
+  assert.match(js, /grp\.setAttribute\('aria-label', 'Inspect '/);
+  assert.match(js, /event\.key === 'Enter' \|\| event\.key === ' '/);
+  assert.match(js, /function selectNode\(id\)/);
+  assert.match(js, /x\.from === id \|\| x\.to === id/);
+  assert.match(js, /selected-edge/);
+  assert.match(js, /direct relationship\(s\)/i);
+  assert.match(js, /aria-live': 'polite'/);
+  assert.match(read('viewer/style.css'), /\.trace-panel/);
+});
