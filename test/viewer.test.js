@@ -85,3 +85,15 @@ test('viewer exposes accessible relationship-basis filters for graph paths and t
   assert.match(js, /aria-live': 'polite'/);
   assert.match(read('viewer/style.css'), /\.graphfilter:focus-visible/);
 });
+
+test('viewer supports keyboard-accessible node selection and direct provenance path inspection', () => {
+  const js = read('viewer/app.js');
+  assert.match(js, /grp\.setAttribute\('role', 'button'\)/);
+  assert.match(js, /event\.key === 'Enter' \|\| event\.key === ' '/);
+  assert.match(js, /function selectNode\(id\)/);
+  assert.match(js, /x\.from === id \|\| x\.to === id/);
+  assert.match(js, /selected-edge/);
+  assert.match(js, /Direct relationship\(s\)/);
+  assert.match(js, /aria-live': 'polite'/);
+  assert.match(read('viewer/style.css'), /\.trace-panel/);
+});
