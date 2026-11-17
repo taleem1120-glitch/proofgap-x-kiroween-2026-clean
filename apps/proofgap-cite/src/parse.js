@@ -36,20 +36,27 @@ export const CITE_LIMITS = Object.freeze({
 
 const ID = '[A-Za-z0-9_.-]{1,60}';
 const ID_RE = new RegExp(`^${ID}$`);
-const DEF_RE = new RegExp(`^\\[\\^(${ID})\\]:\\s*(.*)$`);
-const CITE_RE = new RegExp(`\\[(-?)\\^(${ID})\\]`, 'g');
-const ATTR_RE = /\{([^{}]*)\}\s*$/;
+const DEF_RE = new RegExp(`^\\\\[\\\\^(${ID})\\\\]:\\\\s*(.*)$`);
+const CITE_RE = new RegExp(`\\\\[(-?)\\\\^(${ID})\\\\]`, 'g');
+const ATTR_RE = /\\{([^{}]*)\\}\\s*$/;
 const KINDS = new Set(['primary', 'secondary', 'unknown']);
 const ATTR_KEYS = new Set(['kind', 'url', 'doi', 'saved', 'cites']);
 // eslint-disable-next-line no-control-regex
-const CONTROL_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/;
+const CONTROL_RE = /[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f\\u202a-\\u202e\\u2066-\\u2069]/;
 const FORBIDDEN_IDS = new Set(['__proto__', 'constructor', 'prototype']);
 
 function normalizeCiteLimits(limits = CITE_LIMITS) {
-  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be an object');
+  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be a plain object');
+  const proto = Object.getPrototypeOf(limits);
+  if (proto !== Object.prototype && proto !== null) throw new TypeError('limits must be a plain object');
+  const normalized = { ...CITE_LIMITS };
   const allowed = new Set(Object.keys(CITE_LIMITS));
-  for (const key of Object.keys(limits)) if (!allowed.has(key)) throw new TypeError('unknown Cite limit: ' + key);
-  const normalized = { ...CITE_LIMITS, ...limits };
+  for (const key of Reflect.ownKeys(limits)) {
+    if (typeof key !== 'string' || !allowed.has(key)) throw new TypeError('unknown Cite limit: ' + String(key));
+    const descriptor = Object.getOwnPropertyDescriptor(limits, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new TypeError('limits.' + key + ' must be a data property');
+    normalized[key] = descriptor.value;
+  }
   for (const [key, value] of Object.entries(normalized)) if (!Number.isSafeInteger(value) || value < 1) throw new TypeError('limits.' + key + ' must be a positive safe integer');
   return normalized;
 }
@@ -59,12 +66,12 @@ export function normalizeUrl(u) {
   try {
     const x = new URL(u);
     if (!['http:', 'https:'].includes(x.protocol)) return null;
-    const host = x.hostname.toLowerCase().replace(/^www\./, '');
-    const path = x.pathname.replace(/\/+$/, '') || '/';
+    const host = x.hostname.toLowerCase().replace(/^www\\./, '');
+    const path = x.pathname.replace(/\\/+$/, '') || '/';
     return `${host}${path}`; // query and fragment dropped (tracking parameters)
   } catch { return null; }
 }
-export const normalizeDoi = (d) => (/^10\.\d{4,9}\/\S+$/i.test(d) ? d.toLowerCase() : null);
+export const normalizeDoi = (d) => (/^10\\.\\d{4,9}\\/\\S+$/i.test(d) ? d.toLowerCase() : null);
 
 /**
  * @param {string} text Markdown note
@@ -77,7 +84,7 @@ export function parseNote(text, limits = CITE_LIMITS) {
   if (typeof text !== 'string') throw new CiteValidationError([{ line: 0, message: 'note must be text' }]);
   if (Buffer.byteLength(text, 'utf8') > limits.maxBytes) throw new CiteValidationError([{ line: 0, message: `note exceeds ${limits.maxBytes} bytes` }]);
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
-  const lines = text.split(/\r?\n/);
+  const lines = text.split(/\\r?\\n/);
   if (lines.length > limits.maxLines) throw new CiteValidationError([{ line: 0, message: `note exceeds ${limits.maxLines} lines` }]);
 
   let title = null, inFence = false, section = null, sawClaims = false;
@@ -85,10 +92,10 @@ export function parseNote(text, limits = CITE_LIMITS) {
   lines.forEach((raw, i) => {
     const ln = i + 1;
     if (raw.length > limits.maxLineLength) { add(ln, `line exceeds ${limits.maxLineLength} characters`); return; }
-    if (/^\s*(```|~~~)/.test(raw)) { inFence = !inFence; return; }
+    if (/^\\s*(```|~~~)/.test(raw)) { inFence = !inFence; return; }
     if (inFence) return;
     if (CONTROL_RE.test(raw)) { add(ln, 'line contains control or bidirectional characters'); return; }
-    const h = /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(raw);
+    const h = /^(#{1,6})\\s+(.*?)\\s*#*\\s*$/.exec(raw);
     if (h) {
       if (h[1].length === 1 && title === null) title = h[2];
       section = h[2].trim().toLowerCase();
@@ -111,7 +118,7 @@ export function parseNote(text, limits = CITE_LIMITS) {
           const k = part.slice(0, eq).trim(), v = part.slice(eq + 1).trim();
           if (!ATTR_KEYS.has(k)) { add(ln, `unknown attribute "${k}" (allowed: ${[...ATTR_KEYS].join(', ')})`); continue; }
           if (!v) { add(ln, `attribute "${k}" is empty`); continue; }
-          if (k === 'kind') { if (!KINDS.has(v)) add(ln, `kind must be primary, secondary or unknown`); else { ref.kind = v; ref.kindDeclared = true; } }
+          if (k === 'kind') { if (!KINDS.has(v)) add(ln, 'kind must be primary, secondary or unknown'); else { ref.kind = v; ref.kindDeclared = true; } }
           else if (k === 'cites') {
             const ids = v.split(';').map((x) => x.trim()).filter(Boolean);
             if (ids.length > limits.maxCitesPerReference) add(ln, `cites more than ${limits.maxCitesPerReference} references`);
@@ -126,7 +133,7 @@ export function parseNote(text, limits = CITE_LIMITS) {
       references.set(id, ref);
       return;
     }
-    const item = /^\s*(?:[-*+]|\d+[.)])\s+(.*)$/.exec(raw);
+    const item = /^\\s*(?:[-*+]|\\d+[.)])\\s+(.*)$/.exec(raw);
     if (item && section === 'claims') {
       if (claims.length >= limits.maxClaims) { add(ln, `more than ${limits.maxClaims} claims`); return; }
       const body = item[1];
@@ -135,7 +142,7 @@ export function parseNote(text, limits = CITE_LIMITS) {
         const stance = m[1] === '-' ? 'contradicts' : 'supports';
         if (!cites.some((c) => c.id === m[2] && c.stance === stance)) cites.push({ id: m[2], stance });
       }
-      const statement = body.replace(CITE_RE, '').replace(/\s+/g, ' ').trim();
+      const statement = body.replace(CITE_RE, '').replace(/\\s+/g, ' ').trim();
       if (!statement) { add(ln, 'claim has no text'); return; }
       if (statement.length > limits.maxTextLength) { add(ln, `claim exceeds ${limits.maxTextLength} characters`); return; }
       if (cites.length > limits.maxCitationsPerClaim) { add(ln, `claim has more than ${limits.maxCitationsPerClaim} citations`); return; }
