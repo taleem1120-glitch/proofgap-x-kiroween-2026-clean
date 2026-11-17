@@ -446,7 +446,15 @@ function packOrigins(items, weightOf = () => 0) {
     for (const r of A) if (B.has(r)) return true;
     return false;
   };
-  const logw = (l) => -Math.log(1 - Math.min(weightOf(l), 0.999999));
+  const logWeights = /* @__PURE__ */ new Map();
+  for (const label of minimal) {
+    const strength = weightOf(label);
+    if (typeof strength !== "number" || !Number.isFinite(strength) || strength < 0 || strength > 1) {
+      throw new TypeError("weightOf must return a finite strength in [0, 1]");
+    }
+    logWeights.set(label, -Math.log(1 - Math.min(strength, 0.999999)));
+  }
+  const logw = (l) => logWeights.get(l);
   const seen = /* @__PURE__ */ new Set(), comps = [];
   for (const l of minimal) {
     if (seen.has(l)) continue;
@@ -470,9 +478,14 @@ function packOrigins(items, weightOf = () => 0) {
       continue;
     }
     if (comp.length <= EXACT_LIMIT) {
+      const conflictMasks = comp.map((label, i) => {
+        let mask = 0;
+        for (let j = 0; j < comp.length; j++) if (i !== j && overlaps(label, comp[j])) mask |= 1 << j;
+        return mask;
+      });
+      const weights = comp.map(logw);
       let best = [], bestW = -1;
-      const rec = (i, picked, w) => {
-        if (picked.length + (comp.length - i) < best.length) return;
+      const rec = (i, picked, w, blocked) => {
         if (i === comp.length) {
           if (picked.length > best.length || picked.length === best.length && w > bestW + 1e-12) {
             best = [...picked];
@@ -480,14 +493,24 @@ function packOrigins(items, weightOf = () => 0) {
           }
           return;
         }
-        if (picked.every((p) => !overlaps(p, comp[i]))) {
+        let available = 0, upperWeight = w;
+        for (let j = i; j < comp.length; j++) {
+          if ((blocked & 1 << j) === 0) {
+            available++;
+            upperWeight += Math.max(0, weights[j]);
+          }
+        }
+        if (picked.length + available < best.length) return;
+        if (picked.length + available === best.length && upperWeight <= bestW + 1e-12) return;
+        const bit = 1 << i;
+        if ((blocked & bit) === 0) {
           picked.push(comp[i]);
-          rec(i + 1, picked, w + logw(comp[i]));
+          rec(i + 1, picked, w + weights[i], blocked | conflictMasks[i] | bit);
           picked.pop();
         }
-        rec(i + 1, picked, w);
+        rec(i + 1, picked, w, blocked);
       };
-      rec(0, [], 0);
+      rec(0, [], 0, 0);
       chosen.push(...best);
     } else {
       approximate = true;
