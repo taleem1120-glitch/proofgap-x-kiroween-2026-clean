@@ -179,14 +179,40 @@ export function packOrigins(items, weightOf = () => 0) {
   for (const comp of comps) {
     if (comp.length === 1) { chosen.push(comp[0]); continue; }
     if (comp.length <= EXACT_LIMIT) {
+      // Precompute conflict bitmasks once. The previous exact search repeatedly walked
+      // root Sets for every candidate/picked pair; this turns the hot inner loop into
+      // integer bit tests and adds a safe upper-bound prune.
+      const conflictMasks = comp.map((label, i) => {
+        let mask = 0;
+        for (let j = 0; j < comp.length; j++) if (i !== j && overlaps(label, comp[j])) mask |= (1 << j);
+        return mask;
+      });
+      const weights = comp.map(logw);
       let best = [], bestW = -1;
-      const rec = (i, picked, w) => {
-        if (picked.length + (comp.length - i) < best.length) return;
-        if (i === comp.length) { if (picked.length > best.length || (picked.length === best.length && w > bestW + 1e-12)) { best = [...picked]; bestW = w; } return; }
-        if (picked.every((p) => !overlaps(p, comp[i]))) { picked.push(comp[i]); rec(i + 1, picked, w + logw(comp[i])); picked.pop(); }
-        rec(i + 1, picked, w);
+      const rec = (i, picked, w, blocked) => {
+        if (i === comp.length) {
+          if (picked.length > best.length || (picked.length === best.length && w > bestW + 1e-12)) {
+            best = [...picked]; bestW = w;
+          }
+          return;
+        }
+        // Even if every remaining non-conflicting vertex were selected, could this
+        // branch beat the best? This is an admissible upper bound, never a heuristic.
+        let available = 0, upperWeight = w;
+        for (let j = i; j < comp.length; j++) {
+          if ((blocked & (1 << j)) === 0) { available++; upperWeight += weights[j]; }
+        }
+        if (picked.length + available < best.length) return;
+        if (picked.length + available === best.length && upperWeight <= bestW + 1e-12) return;
+        const bit = 1 << i;
+        if ((blocked & bit) === 0) {
+          picked.push(comp[i]);
+          rec(i + 1, picked, w + weights[i], blocked | conflictMasks[i] | bit);
+          picked.pop();
+        }
+        rec(i + 1, picked, w, blocked);
       };
-      rec(0, [], 0);
+      rec(0, [], 0, 0);
       chosen.push(...best);
     } else {
       approximate = true; // greedy: may under-count, never over-count
