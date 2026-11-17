@@ -40,6 +40,25 @@ test('integrity limit configuration is validated before filesystem work', () => 
   const r = verify([ev('partial', 'good.txt', sha('hello'))], { maxFiles: 1 });
   assert.equal(st(r, 'partial').status, 'VERIFIED');
   assert.equal(r.limits.maxFileBytes, DEFAULT_INTEGRITY_LIMITS.maxFileBytes);
+
+  // Exotic prototypes, symbols, and accessor properties are rejected without
+  // executing attacker-controlled getters.
+  const exotic = Object.create({ maxFiles: 1 });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: exotic }), IntegrityConfigError);
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: new Date() }), IntegrityConfigError);
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: { ...DEFAULT_INTEGRITY_LIMITS, [Symbol('hidden')]: 1 } }), IntegrityConfigError);
+  let getterCalled = false;
+  const accessor = Object.defineProperty({}, 'maxFiles', {
+    enumerable: true,
+    get() { getterCalled = true; throw new Error('getter must not execute'); },
+  });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: accessor }), IntegrityConfigError);
+  assert.equal(getterCalled, false);
+  const nonEnumerable = Object.defineProperty({}, 'maxFiles', { value: 1, enumerable: false });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: nonEnumerable }), IntegrityConfigError);
+  const nullPrototype = Object.assign(Object.create(null), { maxFiles: 1 });
+  const safe = verifyEvidenceFiles([ev('null-proto', 'good.txt', sha('hello'))], { evidenceDir: root, limits: nullPrototype });
+  assert.equal(st(safe, 'null-proto').status, 'VERIFIED');
 });
 
 test('exactly five distinct states exist', () => assert.deepEqual([...INTEGRITY_STATES], ['VERIFIED', 'MISMATCH', 'MISSING', 'UNSAFE_PATH', 'NOT_CHECKED']));

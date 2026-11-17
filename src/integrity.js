@@ -39,11 +39,26 @@ function normalizeIntegrityLimits(limits) {
   if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) {
     throw new IntegrityConfigError('limits must be an object');
   }
-  const allowed = new Set(Object.keys(DEFAULT_INTEGRITY_LIMITS));
-  for (const key of Object.keys(limits)) {
-    if (!allowed.has(key)) throw new IntegrityConfigError(`unknown integrity limit: ${key}`);
+  const prototype = Object.getPrototypeOf(limits);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new IntegrityConfigError('limits must be a plain object');
   }
-  const normalized = { ...DEFAULT_INTEGRITY_LIMITS, ...limits };
+
+  const allowed = new Set(Object.keys(DEFAULT_INTEGRITY_LIMITS));
+  const overrides = Object.create(null);
+  for (const key of Reflect.ownKeys(limits)) {
+    if (typeof key !== 'string' || !allowed.has(key)) {
+      throw new IntegrityConfigError('unknown integrity limit');
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(limits, key);
+    // Read only own data properties. Never invoke attacker-controlled getters.
+    if (!descriptor || !descriptor.enumerable || !Object.hasOwn(descriptor, 'value')) {
+      throw new IntegrityConfigError(`limits.${key} must be an enumerable data property`);
+    }
+    overrides[key] = descriptor.value;
+  }
+
+  const normalized = { ...DEFAULT_INTEGRITY_LIMITS, ...overrides };
   for (const [key, value] of Object.entries(normalized)) {
     if (!Number.isSafeInteger(value) || value < 1) {
       throw new IntegrityConfigError(`limits.${key} must be a positive safe integer`);
