@@ -43,7 +43,7 @@ npm run demo                             # ProofGap X integrity demo
 rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite   # rebuild both showcases from the engine
 npm run validate:local                   # tests + focused groups + all benchmark reproductions, recorded under validation/<id>/
 ```
-Remote CI has not run (see below). The video storyboard is in `docs/DEMO.md`.
+GitHub Actions CI passed on Node.js 20 and 22 for the interactive provenance review at [PR #25](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/25) (validated commit `ece2a016a85dccc1100c625cb005989bcbea97e4`; [CI run](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44070037609)). Re-run CI for any later commit before relying on this status. The video storyboard is in `docs/DEMO.md`.
 
 ## What is new in 0.4.0
 - **Verified byte identity:** with `--evidence-dir`, every safely readable non-empty file is hashed by the tool, also when the case declares no hash. Byte-identical files are one artifact (basis *verified*, bytes only). Without `--evidence-dir`, nothing changes. Measured effect and limits: `docs/BENCHMARK.md`.
