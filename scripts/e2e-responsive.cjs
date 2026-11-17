@@ -57,6 +57,22 @@ const widths = [320, 360, 390, 430, 768, 1024, 1440, 1920];
       }
     }
 
+    // Exercise pointer and keyboard provenance-node selection in both report viewers.
+    for (const pagePath of ['/viewer/showcase.html','/apps/proofgap-cite/showcase.html']) {
+      const page = await browser.newPage({ viewport:{width:1280,height:900} });
+      await page.goto('http://127.0.0.1:4173' + pagePath, {waitUntil:'networkidle'});
+      const nodes = page.locator('svg.graph .node[role="button"]');
+      assert.ok(await nodes.count() > 0, pagePath + ' should render interactive graph nodes');
+      await nodes.first().click();
+      assert.equal(await nodes.first().evaluate(node => node.classList.contains('selected-node')), true,
+        pagePath + ' pointer selection should mark the node');
+      await nodes.first().focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await nodes.first().evaluate(node => node.classList.contains('selected-node')), true,
+        pagePath + ' keyboard selection should keep the node selected');
+      await page.close();
+    }
+
     // Exercise the Arabic direction switch on both report viewers and the case builder.
     for (const pagePath of ['/viewer/showcase.html','/apps/proofgap-cite/showcase.html']) {
       const page = await browser.newPage({ viewport:{width:390,height:844} });
@@ -72,7 +88,9 @@ const widths = [320, 360, 390, 430, 768, 1024, 1440, 1920];
       await page.locator('#language').selectOption('ar');
       assert.equal(await page.locator('html').getAttribute('dir'), 'rtl', 'case builder should switch to RTL');
       await page.locator('#add-source').click();
-      assert.ok(await page.locator('#sources .row').count() > 0, 'case builder should add a source row');
+      assert.equal(await page.locator('#sources .row').count(), 2, 'case builder should add a source row');
+      await page.locator('#run-analysis').click();
+      await page.waitForFunction(() => document.querySelector('#analysis-result')?.textContent?.length > 0, null, {timeout:10000});
       await page.close();
     }
 
@@ -81,7 +99,7 @@ const widths = [320, 360, 390, 430, 768, 1024, 1440, 1920];
     await mobile.goto('http://127.0.0.1:4173/', {waitUntil:'networkidle'});
     assert.ok(await mobile.getByRole('link', {name:/Open investigation demo/i}).count() === 1);
     await mobile.close();
-    process.stdout.write('PASS: 32 page/viewport checks, RTL switches, case-builder add-source interaction, Pixel 7 emulation.\n');
+    process.stdout.write('PASS: 32 page/viewport checks, graph pointer/keyboard selection, RTL switches, case-builder add/analyze interaction, Pixel 7 emulation.\n');
   } catch (error) {
     failures.push(error);
   } finally {
