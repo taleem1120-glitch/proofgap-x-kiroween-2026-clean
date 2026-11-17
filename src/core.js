@@ -77,7 +77,12 @@ export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
       r = readSync(fd, buf, 0, wanted, null);
       if (r === 0) break;
       n += r;
-      if (n > maxBytes) throw new CaseValidationError([{ path: '
+      if (n > maxBytes) {
+        throw new CaseValidationError([{ path: '$', message: 'file exceeds ' + maxBytes + ' bytes' }]);
+      }
+      chunks.push(Buffer.from(buf.subarray(0, r)));
+    }
+    return Buffer.concat(chunks, n).toString('utf8');
   } finally { closeSync(fd); }
 }
 
