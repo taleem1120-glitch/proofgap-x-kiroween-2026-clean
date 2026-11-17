@@ -10,7 +10,7 @@ export const DEFAULT_LIMITS = Object.freeze({
   maxIssues: 100,
 });
 
-/** Merge caller overrides and reject malformed or accessor-backed budgets. */
+/** Merge caller overrides and reject malformed or unknown resource budgets. */
 export function normalizeCaseLimits(limits = DEFAULT_LIMITS) {
   if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be a plain object');
   const proto = Object.getPrototypeOf(limits);
