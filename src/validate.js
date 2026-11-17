@@ -1,4 +1,4 @@
-import { DEFAULT_LIMITS } from './limits.js';
+import { DEFAULT_LIMITS, normalizeCaseLimits } from './limits.js';
 import { validateSchema } from './schema.js';
 
 export class CaseValidationError extends Error {
@@ -22,6 +22,7 @@ const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 /** Parse JSON text with a size limit. Throws CaseValidationError. */
 export function parseCaseText(text, limits = DEFAULT_LIMITS) {
+  limits = normalizeCaseLimits(limits);
   if (typeof text !== 'string') throw new CaseValidationError([{ path: '$', message: 'input must be text' }]);
   if (Buffer.byteLength(text, 'utf8') > limits.maxBytes) {
     throw new CaseValidationError([{ path: '$', message: `input exceeds ${limits.maxBytes} bytes` }]);
@@ -41,6 +42,7 @@ export function parseCaseText(text, limits = DEFAULT_LIMITS) {
  * Issues are merged; the first issue reported for a path wins.
  */
 export function validateCase(data, limits = DEFAULT_LIMITS) {
+  limits = normalizeCaseLimits(limits);
   if (!isObj(data)) throw new CaseValidationError([{ path: '$', message: 'case must be an object' }]);
   const merged = [];
   const seen = new Set();

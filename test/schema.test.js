@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { caseSchema, validateSchema, DEFAULT_LIMITS, validateCase, CaseValidationError } from '../src/index.js';
+import { caseSchema, validateSchema, DEFAULT_LIMITS, validateCase, parseCaseText, CaseValidationError } from '../src/index.js';
 import { base, ev } from './helpers.js';
 
 const paths = (data) => validateSchema(data).map((i) => i.path);
@@ -72,4 +72,25 @@ test('schema issues and semantic issues are merged, one per path, within cap', (
     assert.ok(ps.includes('$.extra') && ps.includes('$.evidence[0].sourceId'));
     assert.equal(new Set(ps).size, ps.length);
   }
+});
+
+
+test('public case validation APIs reject malformed resource limits and merge partial overrides', () => {
+  const c = base();
+  for (const limits of [null, [], 'bad', { maxBytes: 0 }, { maxSources: -1 }, { maxEvidence: 1.5 }, { maxClaims: Number.NaN }, { maxIssues: Number.POSITIVE_INFINITY }, { maxLinksPerEvidence: Number.MAX_SAFE_INTEGER + 1 }, { maxSourcs: 10 }]) {
+    assert.throws(() => validateCase(c, limits), /limits|limit/i);
+    assert.throws(() => parseCaseText(JSON.stringify(c), limits), /limits|limit/i);
+  }
+  assert.doesNotThrow(() => validateCase(c, { maxSources: 1000 }));
+});
+
+ 
+test('case limits reject exotic prototypes and accessors without invoking getters', () => {
+  assert.throws(() => validateCase(base(), new Date()), /plain object/i);
+  let invoked = false;
+  const limits = Object.defineProperty({}, 'maxSources', { enumerable: true, get() { invoked = true; return 1; } });
+  assert.throws(() => validateCase(base(), limits), /data property/i);
+  assert.equal(invoked, false);
+  const symbolLimits = { maxSources: 1, [Symbol('unexpected')]: 2 };
+  assert.throws(() => validateCase(base(), symbolLimits), /unknown case limit/i);
 });

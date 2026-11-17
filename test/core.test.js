@@ -77,3 +77,12 @@ test('app 1 CLI shim and app folder produce identical bytes', async () => {
   const b = spawnSync(process.execPath, [join(root, 'apps/proofgap-x/cli.js'), join(root, 'examples/sample-case.json')], { encoding: 'utf8' });
   assert.equal(a.status, 0); assert.equal(a.stdout, b.stdout);
 });
+
+ 
+test('readInputFile validates caller-supplied byte limits before allocating or opening', () => {
+  for (const value of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER, '1024', null]) {
+    assert.throws(() => core.readInputFile('/definitely/not/opened', value), RangeError);
+  }
+  assert.throws(() => core.readInputFile('', 10), TypeError);
+  assert.throws(() => core.readInputFile(null, 10), TypeError);
+});
