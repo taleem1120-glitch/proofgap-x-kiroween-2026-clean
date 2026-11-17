@@ -43,3 +43,6 @@ Before recording: open both showcase files in a desktop browser about 1400 px wi
 
 ## What the demo does NOT show
 That any claim is true or false, that any file is authentic, or anyone's intent or guilt.
+
+## Interactive provenance review (both applications)
+In either offline showcase, select a source, evidence item or claim node in the graph (click, Enter or Space). The viewer highlights the node's direct relationships, dims unrelated visible links, and lists each relationship with its basis (verified, declared, suspected or unknown). The relationship table narrows to the selected node; choose "All relationship types" to clear the selection. This is a navigation aid over the report's existing graph, not a new verification step or an inference of authenticity. Unknown origin-pair links are kept textually inspectable and capped at 2,000 visual edges; omitted counts are reported.

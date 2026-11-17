@@ -62,20 +62,37 @@ export function analyze({ caseData, caseText, evidenceDir, limits = DEFAULT_LIMI
  * Errors are CaseValidationError with path "$", so CLIs can report them without stack traces.
  */
 export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
-  // O_NONBLOCK prevents a named pipe from hanging before fstat can reject it.
-  // O_NOFOLLOW rejects a symlink at the final component on supported POSIX systems.
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 64 * 1024 * 1024) {
+    throw new RangeError('maxBytes must be a positive safe integer no greater than 64 MiB');
+  }
+  if (typeof path !== 'string' || path.length === 0) throw new TypeError('path must be a non-empty string');
   const fd = openSync(path, constants.O_RDONLY | (constants.O_NONBLOCK ?? 0) | (constants.O_NOFOLLOW ?? 0));
   try {
     if (!fstatSync(fd).isFile()) throw new CaseValidationError([{ path: '$', message: 'input must be a regular file' }]);
-    const buf = Buffer.alloc(maxBytes + 1);
-    let n = 0, r;
-    while (n < buf.length && (r = readSync(fd, buf, n, buf.length - n, null)) > 0) n += r;
-    if (n > maxBytes) throw new CaseValidationError([{ path: '$', message: `file exceeds ${maxBytes} bytes` }]);
-    return buf.toString('utf8', 0, n);
-  } finally { closeSync(fd); }
+    const chunks = [];
+    const buf = Buffer.allocUnsafe(64 * 1024);
+    let n = 0;
+    while (n <= maxBytes) {
+      const wanted = Math.min(buf.length, maxBytes + 1 - n);
+      const count = readSync(fd, buf, 0, wanted, null);
+      if (count === 0) break;
+      n += count;
+      if (n > maxBytes) throw new CaseValidationError([{ path: '$', message: 'file exceeds ' + maxBytes + ' bytes' }]);
+      chunks.push(Buffer.from(buf.subarray(0, count)));
+    }
+    return Buffer.concat(chunks, n).toString('utf8');
+  } finally {
+    closeSync(fd);
+  }
 }
 
-/** Write a new output file; refuses to overwrite anything that exists, including symlinks ('wx'). Mode 0600. */
-export function writeNewFile(path, text) {
+/** Write a new output file exclusively, with owner-only permissions and a byte ceiling. */
+export function writeNewFile(path, text, maxBytes = 64 * 1024 * 1024) {
+  if (typeof path !== 'string' || path.length === 0) throw new TypeError('path must be a non-empty string');
+  if (typeof text !== 'string') throw new TypeError('text must be a string');
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 64 * 1024 * 1024) {
+    throw new RangeError('maxBytes must be a positive safe integer no greater than 64 MiB');
+  }
+  if (Buffer.byteLength(text, 'utf8') > maxBytes) throw new RangeError('output exceeds ' + maxBytes + ' bytes');
   writeFileSync(path, text, { flag: 'wx', mode: 0o600 });
 }
