@@ -166,7 +166,7 @@ export function packOrigins(items, weightOf = () => 0) {
   // keep only minimal root sets (a strict superset can always be swapped for its subset without losing disjointness)
   const minimal = labels.filter((l) => !labels.some((m) => m !== l && byLabel.get(m).size < byLabel.get(l).size && isSubset(m, l)));
   const overlaps = (a, b) => { const A = byLabel.get(a), B = byLabel.get(b); for (const r of A) if (B.has(r)) return true; return false; };
-  const logw = (l) => -Math.log(1 - Math.min(weightOf(l), 0.999999)); // noisy-OR is monotone in the sum of these
+  const logw = (l) => {\n    const strength = weightOf(l);\n    if (typeof strength !== 'number' || !Number.isFinite(strength) || strength < 0 || strength > 1) throw new TypeError('weightOf must return a finite strength in [0, 1]');\n    return -Math.log(1 - Math.min(strength, 0.999999)); // noisy-OR is monotone in the sum of these\n  };
   const seen = new Set(), comps = [];
   for (const l of minimal) {
     if (seen.has(l)) continue;
@@ -200,7 +200,7 @@ export function packOrigins(items, weightOf = () => 0) {
         // branch beat the best? This is an admissible upper bound, never a heuristic.
         let available = 0, upperWeight = w;
         for (let j = i; j < comp.length; j++) {
-          if ((blocked & (1 << j)) === 0) { available++; upperWeight += weights[j]; }
+          if ((blocked & (1 << j)) === 0) { available++; upperWeight += Math.max(0, weights[j]); }
         }
         if (picked.length + available < best.length) return;
         if (picked.length + available === best.length && upperWeight <= bestW + 1e-12) return;
