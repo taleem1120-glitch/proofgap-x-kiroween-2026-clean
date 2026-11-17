@@ -2,8 +2,23 @@
 // Run with an explicitly installed Playwright Chromium in the CI environment.
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, extname, sep } from 'node:path';
+import { createServer } from 'node:http';
 import assert from 'node:assert/strict';
+const root = resolve('.');
+const server = createServer((req, res) => {
+  const pathname = decodeURIComponent(new URL(req.url, 'http://127.0.0.1').pathname);
+  const file = resolve(root, '.' + pathname);
+  if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403); res.end(); return; }
+  try {
+    const body = readFileSync(file);
+    const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.svg':'image/svg+xml' }[extname(file)] || 'application/octet-stream';
+    res.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'no-store' });
+    res.end(body);
+  } catch { res.writeHead(404); res.end('Not found'); }
+});
+await new Promise(ok => server.listen(0, '127.0.0.1', ok));
+const baseUrl = 'http://127.0.0.1:' + server.address().port;
 const browser = await chromium.launch({headless:true});
 const pages=[
   'viewer/showcase.html',
@@ -18,7 +33,7 @@ try {
    const page=await context.newPage();
    const errors=[];
    page.on('pageerror',err=>errors.push(String(err)));
-   await page.goto('file://'+resolve(file));
+   await page.goto(baseUrl + '/' + file);
    const reports=page.locator('.panel');
    const count=await reports.count();
    assert.ok(count>=1, file+' no reports rendered');
@@ -55,8 +70,8 @@ try {
    assert.match(await page.locator('#pg-translation-scope').innerText(),/الواجهة/);
    assert.equal(await page.locator('.graphwrap').count(),count);
    assert.ok((await page.locator('.top h1').innerText()).length>12,'app heading lost after locale changes');
-   const downloaded=page.waitForEvent('download');
-   await page.locator('.panel').first().getByRole('button').click();
+   const downloaded = page.waitForEvent('download');
+   await page.locator('.panel').first().locator('button.export').click();
    const download=await downloaded;
    const filename=download.suggestedFilename();
    assert.ok(filename.endsWith('.proofgap-report.json'));
@@ -71,4 +86,4 @@ try {
   }
  }
  console.log(JSON.stringify({kind:'headless_browser_smoke_not_human_review',passed:all.length,scenarios:all},null,2));
-} finally { await browser.close(); }
+} finally { await browser.close(); await new Promise(ok => server.close(ok)); }
