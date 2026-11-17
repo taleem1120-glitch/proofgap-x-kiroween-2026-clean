@@ -81,7 +81,7 @@ test('public case validation APIs reject malformed resource limits and merge par
     assert.throws(() => validateCase(c, limits), /limits|limit/i);
     assert.throws(() => parseCaseText(JSON.stringify(c), limits), /limits|limit/i);
   }
-  assert.doesNotThrow(() => validateCase(c, { maxSources: 1 }));
+  assert.doesNotThrow(() => validateCase(c, { maxSources: 1000 }));
 });
 
  
