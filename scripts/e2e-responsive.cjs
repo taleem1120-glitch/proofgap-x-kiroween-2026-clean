@@ -4,7 +4,10 @@ const assert = require('node:assert/strict');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const { chromium, devices } = require('playwright');
+const { chromium, firefox, webkit, devices } = require('playwright');
+const browserName = process.env.PW_BROWSER || 'chromium';
+const browserType = { chromium, firefox, webkit }[browserName];
+if (!browserType) throw new Error('Unsupported PW_BROWSER: ' + browserName);
 
 const root = path.resolve(__dirname, '..');
 const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.svg':'image/svg+xml' };
@@ -32,7 +35,7 @@ const widths = [320, 360, 390, 430, 768, 1024, 1440, 1920];
 
 (async () => {
   await new Promise(resolve => server.listen(4173, '127.0.0.1', resolve));
-  const browser = await chromium.launch({ headless:true });
+  const browser = await browserType.launch({ headless:true });
   const failures = [];
   try {
     for (const pageSpec of pages) {
@@ -95,11 +98,13 @@ const widths = [320, 360, 390, 430, 768, 1024, 1440, 1920];
     }
 
     // Representative mobile-device emulation, not a claim of physical-device coverage.
-    const mobile = await browser.newPage({ ...devices['Pixel 7'] });
-    await mobile.goto('http://127.0.0.1:4173/', {waitUntil:'networkidle'});
-    assert.ok(await mobile.getByRole('link', {name:/Open investigation demo/i}).count() === 1);
-    await mobile.close();
-    process.stdout.write('PASS: 32 page/viewport checks, graph pointer/keyboard selection, RTL switches, case-builder add/analyze interaction, Pixel 7 emulation.\n');
+    if (browserName === 'chromium') {
+      const mobile = await browser.newPage({ ...devices['Pixel 7'] });
+      await mobile.goto('http://127.0.0.1:4173/', {waitUntil:'networkidle'});
+      assert.ok(await mobile.getByRole('link', {name:/Open investigation demo/i}).count() === 1);
+      await mobile.close();
+    }
+    process.stdout.write('PASS: ' + browserName + ': 32 page/viewport checks, graph pointer/keyboard selection, RTL switches, case-builder add/analyze interaction' + (browserName === 'chromium' ? ', Pixel 7 emulation' : '') + '.\n');
   } catch (error) {
     failures.push(error);
   } finally {
