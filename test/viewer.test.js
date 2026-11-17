@@ -90,7 +90,7 @@ test('viewer supports keyboard-accessible node selection and direct provenance p
   const js = read('viewer/app.js');
   assert.match(js, /grp\.setAttribute\('role', 'button'\)/);
   assert.match(js, /tabindex:\s*0/, 'graph nodes must be reachable by keyboard focus');
-  assert.match(js, /aria-label': 'Inspect '/);
+  assert.match(js, /grp\.setAttribute\('aria-label', 'Inspect '/);
   assert.match(js, /event\.key === 'Enter' \|\| event\.key === ' '/);
   assert.match(js, /function selectNode\(id\)/);
   assert.match(js, /x\.from === id \|\| x\.to === id/);
