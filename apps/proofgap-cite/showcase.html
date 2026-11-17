@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-emyux9cHukFBP6QIf8Du4mutoOKRUUBqOwKgsYFzDGc='; style-src 'sha256-hlTnBaPr5w4+Rfl0fGigFGfSINgdsYPgtk1WaZGXISc='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-GXzKO2rcs8tH8SfS6tXZaFEzF+1NGRa7cxkKSJN28mk='; style-src 'sha256-yfCwuk9qBnFYKEcVOAOwhyjlj2EUAeKIz6fPhiHId5c='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap Cite report viewer</title>
 <style>:root {
@@ -137,6 +137,17 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
 .graphfilter { min-height: 44px; max-width: 100%; padding: 8px 10px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
 .graphfilter:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .edges tr[hidden] { display: none; }
+
+/* Interactive provenance path inspection */
+.node { cursor: pointer; }
+.node:focus-visible rect, .node.selected-node rect { stroke: var(--accent); stroke-width: 3px; }
+.node.context-node rect { stroke: var(--accent); stroke-width: 2px; }
+.edge.selected-edge { stroke-width: 3.5px; opacity: 1; }
+.edge.muted-edge { opacity: .12; }
+.trace-panel { margin: 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.trace-panel h4 { margin: 0 0 6px; font-size: 1rem; }
+.trace-list { margin: 8px 0 0; padding-inline-start: 22px; overflow-wrap: anywhere; }
+.trace-list li { margin: 5px 0; font-size: .92rem; }
 </style>
 </head>
 <body>
@@ -2526,7 +2537,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
     });
     root.appendChild(defs);
     [[L('sources'), X.source], [L('evidence'), X.evidence], [L('claims'), X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
-    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {}), edgeElements = [];
+    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {}), edgeElements = [], nodeElements = [];
     root.appendChild(edgeLayer); root.appendChild(nodeLayer);
     g.edges.forEach(function (e) {
       var a = pos[e.from], b = pos[e.to];
@@ -2540,7 +2551,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       var p = svg('path', pa);
       p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
-      edgeElements.push({ basis: e.basis, element: p });
+      edgeElements.push({ basis: e.basis, from: e.from, to: e.to, element: p });
     });
     g.nodes.forEach(function (n) {
       var p = pos[n.id]; if (!p) return;
@@ -2551,7 +2562,14 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       grp.appendChild(svg('text', { y: -2, 'text-anchor': 'middle', class: 'nid' }, [clip(n.ref, 18)]));
       var sub = n.type === 'evidence' ? (observedOnly[n.ref] ? 'HASHED LOCALLY' : n.integrity) : n.type === 'claim' ? (DECISION_KEYS[n.decision] ? L(DECISION_KEYS[n.decision]) : n.decision) : n.role.replace(/_/g, ' ');
       grp.appendChild(svg('text', { y: 11, 'text-anchor': 'middle', class: 'nlabel' }, [clip(sub, 24)]));
+      grp.setAttribute('role', 'button');
+      grp.setAttribute('aria-label', 'Inspect ' + n.type + ' ' + n.ref);
+      grp.addEventListener('click', function () { selectNode(n.id); });
+      grp.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectNode(n.id); }
+      });
       nodeLayer.appendChild(grp);
+      nodeElements.push({ id: n.id, node: n, element: grp });
     });
     var wrap = el('figure', { class: 'graphwrap' }, [root]);
     var legend = el('figcaption', { class: 'legend' }, Object.keys(BASIS_HELP).map(function (b) {
@@ -2591,7 +2609,49 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
     });
     var det = el('details', { class: 'edgelist' }, [el('summary', {}, [L('graphText')]), tbl]);
     var graphControls = el('div', { class: 'graphcontrols' }, [filter, filterStatus]);
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
+    var traceTitle = el('h4', {}, ['Select a source, evidence item or claim to inspect its direct provenance links']);
+    var traceStatus = el('p', { class: 'note', role: 'status', 'aria-live': 'polite' }, ['No graph node selected']);
+    var traceList = el('ul', { class: 'trace-list' });
+    var tracePanel = el('section', { class: 'trace-panel', 'aria-label': 'Selected provenance path' }, [traceTitle, traceStatus, traceList]);
+    function selectNode(id) {
+      var selected = nodeElements.find(function (x) { return x.id === id; });
+      if (!selected) return;
+      var related = edgeElements.filter(function (x) { return x.from === id || x.to === id; });
+      nodeElements.forEach(function (x) {
+        x.element.classList.toggle('selected-node', x.id === id);
+        x.element.classList.toggle('context-node', related.some(function (e) { return e.from === x.id || e.to === x.id; }));
+      });
+      edgeElements.forEach(function (x) {
+        var active = x.from === id || x.to === id;
+        x.element.classList.toggle('selected-edge', active);
+        x.element.classList.toggle('muted-edge', !active);
+      });
+      relationRows.forEach(function (x, i) {
+        var e = g.edges[i];
+        x.element.hidden = !(e.from === id || e.to === id);
+      });
+      traceTitle.textContent = selected.node.type + ': ' + selected.node.ref;
+      traceStatus.textContent = related.length + ' direct relationship(s). Relationship basis is shown explicitly; it does not prove truth or authenticity.';
+      while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
+      related.forEach(function (x) {
+        var e = g.edges.find(function (candidate) { return candidate.from === x.from && candidate.to === x.to && candidate.basis === x.basis; });
+        if (!e) return;
+        traceList.appendChild(el('li', {}, [e.from + ' → ' + e.to + ' · ' + e.relation + ' · ' + e.basis + (e.cue ? ' · ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' · local byte hashing' : '')]));
+      });
+      filter.value = 'all';
+      filterStatus.textContent = related.length + ' direct relationships selected';
+    }
+    filter.addEventListener('change', function () {
+      if (filter.value === 'all') {
+        nodeElements.forEach(function (x) { x.element.classList.remove('selected-node', 'context-node'); });
+        edgeElements.forEach(function (x) { x.element.classList.remove('selected-edge', 'muted-edge'); });
+        relationRows.forEach(function (x) { x.element.hidden = false; });
+        traceTitle.textContent = 'Select a source, evidence item or claim to inspect its direct provenance links';
+        traceStatus.textContent = 'No graph node selected';
+        while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
+      }
+    });
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, tracePanel, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
   }
 
   // ---------- claims ----------
