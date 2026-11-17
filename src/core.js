@@ -67,8 +67,7 @@ export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
   const fd = openSync(path, constants.O_RDONLY | (constants.O_NONBLOCK ?? 0) | (constants.O_NOFOLLOW ?? 0));
   try {
     if (!fstatSync(fd).isFile()) throw new CaseValidationError([{ path: '$', message: 'input must be a regular file' }]);
-    // Read in fixed-size chunks so the configured maximum does not cause
-    // one large up-front allocation. Observe at most maxBytes + 1 bytes.
+    // Read in fixed-size chunks and observe at most maxBytes + 1 bytes.
     const chunks = [];
     const buf = Buffer.allocUnsafe(64 * 1024);
     let n = 0, r;
@@ -78,11 +77,7 @@ export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
       if (r === 0) break;
       n += r;
       if (n > maxBytes) {
-        throw new CaseValidationError([{ path: '$', message: 'file exceeds ' + maxBytes + ' bytes' }]);
-      }
-      chunks.push(Buffer.from(buf.subarray(0, r)));
-    }
-    return Buffer.concat(chunks, n).toString('utf8');
+        throw new CaseValidationError([{ path: '
   } finally { closeSync(fd); }
 }
 
@@ -94,10 +89,11 @@ export function writeNewFile(path, text, maxBytes = 64 * 1024 * 1024) {
     throw new RangeError('maxBytes must be a positive safe integer no greater than 64 MiB');
   }
   const size = Buffer.byteLength(text, 'utf8');
-  if (size > maxBytes) throw new RangeError(`output exceeds ${maxBytes} bytes`);
+  if (size > maxBytes) throw new RangeError('output exceeds ' + maxBytes + ' bytes');
   writeFileSync(path, text, { flag: 'wx', mode: 0o600 });
 }
-, message: `file exceeds ${maxBytes} bytes` }]);
+, message: 'file exceeds ' + maxBytes + ' bytes' }]);
+      }
       chunks.push(Buffer.from(buf.subarray(0, r)));
     }
     return Buffer.concat(chunks, n).toString('utf8');
