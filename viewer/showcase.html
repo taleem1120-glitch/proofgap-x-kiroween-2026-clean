@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ByWJMYNo1jNoAyxIwFdQWuc7LDbN8QCL/VMOKiJgaR8='; style-src 'sha256-hnGl/eA593wkFFyf5FDCi3RfBqY49P7QltuUZn0hPTU='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-8FuJcmH8Kwa9LUOoIEIQOCA/2GEnaKtCN0Nrm8MT1sw='; style-src 'sha256-fuHd+dJLIxheYZwYuZWPJhY+8C05TyCD5K5XnpLvwDA='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X report viewer</title>
 <style>:root {
@@ -2331,7 +2331,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       var p = svg('path', pa);
       p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
-      edgeElements.push({ basis: e.basis, from: e.from, to: e.to, element: p });
+      edgeElements.push({ edge: e, basis: e.basis, from: e.from, to: e.to, element: p });
     });
     g.nodes.forEach(function (n) {
       var p = pos[n.id]; if (!p) return;
@@ -2414,8 +2414,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       traceStatus.textContent = related.length + ' direct relationship(s). Relationship basis is shown explicitly; it does not prove truth or authenticity.';
       while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
       related.forEach(function (x) {
-        var e = g.edges.find(function (candidate) { return candidate.from === x.from && candidate.to === x.to && candidate.basis === x.basis; });
-        if (!e) return;
+        var e = x.edge;
         traceList.appendChild(el('li', {}, [e.from + ' → ' + e.to + ' · ' + e.relation + ' · ' + e.basis + (e.cue ? ' · ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' · local byte hashing' : '')]));
       });
       filter.value = 'all';
