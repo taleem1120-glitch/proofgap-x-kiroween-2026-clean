@@ -228,3 +228,15 @@ test('Cite parser rejects malformed resource limits and merges partial overrides
   }
   assert.equal(parseNote(n, { maxClaims: 1 }).claims.length, 1);
 });
+
+ 
+test('Cite limits reject exotic prototypes and accessors without invoking getters', () => {
+  const n = note(['A claim [^a]'], [P('a')]);
+  assert.throws(() => parseNote(n, new Date()), /plain object/i);
+  let invoked = false;
+  const limits = Object.defineProperty({}, 'maxClaims', { enumerable: true, get() { invoked = true; return 1; } });
+  assert.throws(() => parseNote(n, limits), /data property/i);
+  assert.equal(invoked, false);
+  const symbolLimits = { maxClaims: 1, [Symbol('unexpected')]: 2 };
+  assert.throws(() => parseNote(n, symbolLimits), /unknown Cite limit/i);
+});
