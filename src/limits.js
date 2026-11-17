@@ -10,12 +10,19 @@ export const DEFAULT_LIMITS = Object.freeze({
   maxIssues: 100,
 });
 
-/** Merge caller overrides and reject malformed or unknown resource budgets. */
+/** Merge caller overrides and reject malformed or accessor-backed budgets. */
 export function normalizeCaseLimits(limits = DEFAULT_LIMITS) {
-  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be an object');
+  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new TypeError('limits must be a plain object');
+  const proto = Object.getPrototypeOf(limits);
+  if (proto !== Object.prototype && proto !== null) throw new TypeError('limits must be a plain object');
+  const normalized = { ...DEFAULT_LIMITS };
   const allowed = new Set(Object.keys(DEFAULT_LIMITS));
-  for (const key of Object.keys(limits)) if (!allowed.has(key)) throw new TypeError('unknown case limit: ' + key);
-  const normalized = { ...DEFAULT_LIMITS, ...limits };
+  for (const key of Reflect.ownKeys(limits)) {
+    if (typeof key !== 'string' || !allowed.has(key)) throw new TypeError('unknown case limit: ' + String(key));
+    const descriptor = Object.getOwnPropertyDescriptor(limits, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new TypeError('limits.' + key + ' must be a data property');
+    normalized[key] = descriptor.value;
+  }
   for (const [key, value] of Object.entries(normalized)) if (!Number.isSafeInteger(value) || value < 1) throw new TypeError('limits.' + key + ' must be a positive safe integer');
   return normalized;
 }
