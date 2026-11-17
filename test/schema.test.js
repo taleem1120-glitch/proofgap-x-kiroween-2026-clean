@@ -83,3 +83,14 @@ test('public case validation APIs reject malformed resource limits and merge par
   }
   assert.doesNotThrow(() => validateCase(c, { maxSources: 1 }));
 });
+
+ 
+test('case limits reject exotic prototypes and accessors without invoking getters', () => {
+  assert.throws(() => validateCase(base(), new Date()), /plain object/i);
+  let invoked = false;
+  const limits = Object.defineProperty({}, 'maxSources', { enumerable: true, get() { invoked = true; return 1; } });
+  assert.throws(() => validateCase(base(), limits), /data property/i);
+  assert.equal(invoked, false);
+  const symbolLimits = { maxSources: 1, [Symbol('unexpected')]: 2 };
+  assert.throws(() => validateCase(base(), symbolLimits), /unknown case limit/i);
+});
