@@ -93,7 +93,7 @@
       var p = svg('path', pa);
       p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
-      edgeElements.push({ basis: e.basis, from: e.from, to: e.to, element: p });
+      edgeElements.push({ edge: e, basis: e.basis, from: e.from, to: e.to, element: p });
     });
     g.nodes.forEach(function (n) {
       var p = pos[n.id]; if (!p) return;
@@ -176,8 +176,7 @@
       traceStatus.textContent = related.length + ' direct relationship(s). Relationship basis is shown explicitly; it does not prove truth or authenticity.';
       while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
       related.forEach(function (x) {
-        var e = g.edges.find(function (candidate) { return candidate.from === x.from && candidate.to === x.to && candidate.basis === x.basis; });
-        if (!e) return;
+        var e = x.edge;
         traceList.appendChild(el('li', {}, [e.from + ' → ' + e.to + ' · ' + e.relation + ' · ' + e.basis + (e.cue ? ' · ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' · local byte hashing' : '')]));
       });
       filter.value = 'all';
