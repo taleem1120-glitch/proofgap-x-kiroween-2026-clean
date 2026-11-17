@@ -54,6 +54,22 @@ test('integrity limit configuration is validated before filesystem work', () => 
   });
   assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: accessor }), IntegrityConfigError);
   assert.equal(getterCalled, false);
+
+  for (const invalidClock of [NaN, Infinity, -Infinity, '123', null]) {
+    assert.throws(
+      () => verifyEvidenceFiles([], { evidenceDir: root, now: () => invalidClock }),
+      IntegrityConfigError,
+    );
+  }
+  let clockCalls = 0;
+  assert.throws(
+    () => verifyEvidenceFiles([ev('bad-clock-later', 'good.txt', sha('hello'))], {
+      evidenceDir: root,
+      now: () => (++clockCalls === 1 ? 0 : NaN),
+    }),
+    IntegrityConfigError,
+  );
+
   const nonEnumerable = Object.defineProperty({}, 'maxFiles', { value: 1, enumerable: false });
   assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: nonEnumerable }), IntegrityConfigError);
   const nullPrototype = Object.assign(Object.create(null), { maxFiles: 1 });

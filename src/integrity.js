@@ -121,7 +121,14 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
     if (!lstatSync(root).isDirectory()) throw new Error('not a directory');
   } catch { throw new IntegrityConfigError('evidence directory does not exist or is not a directory'); }
 
-  const deadline = now() + limits.maxMillis;
+  const readClock = () => {
+    const value = now();
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new IntegrityConfigError('now() must return a finite number');
+    }
+    return value;
+  };
+  const deadline = readClock() + limits.maxMillis;
   const cache = new Map(); // relPath -> outcome (a file is read at most once)
   let filesRead = 0, totalBytes = 0;
   const results = [];
@@ -136,7 +143,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
   };
 
   const hashFile = (rel) => {
-    if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+    if (readClock() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
     if (filesRead >= limits.maxFiles) return { status: 'NOT_CHECKED', reason: 'file_count_limit' };
     const segs = rel.split('/');
     let cur = root;
@@ -185,7 +192,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
         n += r;
         // Check resource budgets on observed bytes rather than only the initial stat size.
         // A file can grow while it is being read, and a slow read can outlast the deadline.
-        if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+        if (readClock() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
         if (n > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
         if (totalBytes + n > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
         h.update(buf.subarray(0, r));
@@ -195,6 +202,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       totalBytes += n;
       return { status: 'HASHED', computed: h.digest('hex'), size: n };
     } catch (e) {
+      if (e instanceof IntegrityConfigError) throw e;
       if (e.code === 'ELOOP') return { status: 'UNSAFE_PATH', reason: 'symlink' };
       if (e.code === 'ENOENT') return { status: 'MISSING', reason: 'file_not_found' };
       if (e.code === 'EACCES' || e.code === 'EPERM') return { status: 'NOT_CHECKED', reason: 'permission_denied' };
