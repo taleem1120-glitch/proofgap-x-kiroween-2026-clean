@@ -70,7 +70,7 @@
       list.forEach(function (n, i) { pos[n.id] = { x: X[t], y: offset + i * rowH }; });
     });
     var H = top + rows * rowH + 10;
-    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'img', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
+    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'group', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
     root.appendChild(svg('title', { id: uid + '-gt' }, ['Evidence independence graph for ' + report.caseId]));
     root.appendChild(svg('desc', { id: uid + '-gd' }, ['Sources on the left, evidence in the middle, claims on the right. A text version of every relationship follows the graph.']));
     var defs = svg('defs', {});
@@ -164,6 +164,7 @@
         x.element.classList.toggle('context-node', related.some(function (e) { return e.from === x.id || e.to === x.id; }));
       });
       edgeElements.forEach(function (x) {
+        x.element.style.display = ''; // selecting a node clears any previous basis filter
         var active = x.from === id || x.to === id;
         x.element.classList.toggle('selected-edge', active);
         x.element.classList.toggle('muted-edge', !active);
