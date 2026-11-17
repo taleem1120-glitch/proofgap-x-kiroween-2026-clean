@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-7YjqDMg3Jy/owVpGzmRScD35zUrJig0l8ypKkTW7RoQ='; style-src 'sha256-hnGl/eA593wkFFyf5FDCi3RfBqY49P7QltuUZn0hPTU='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+yTmlNG4M0JMKzU5bxe+1A//5LjgDSgjlm4GpwtkaWY='; style-src 'sha256-hnGl/eA593wkFFyf5FDCi3RfBqY49P7QltuUZn0hPTU='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap X report viewer</title>
 <style>:root {
@@ -2308,7 +2308,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
       list.forEach(function (n, i) { pos[n.id] = { x: X[t], y: offset + i * rowH }; });
     });
     var H = top + rows * rowH + 10;
-    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'img', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
+    var root = svg('svg', { viewBox: '0 0 800 ' + H, class: 'graph', role: 'group', 'aria-labelledby': uid + '-gt ' + uid + '-gd' });
     root.appendChild(svg('title', { id: uid + '-gt' }, ['Evidence independence graph for ' + report.caseId]));
     root.appendChild(svg('desc', { id: uid + '-gd' }, ['Sources on the left, evidence in the middle, claims on the right. A text version of every relationship follows the graph.']));
     var defs = svg('defs', {});
@@ -2402,6 +2402,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
         x.element.classList.toggle('context-node', related.some(function (e) { return e.from === x.id || e.to === x.id; }));
       });
       edgeElements.forEach(function (x) {
+        x.element.style.display = ''; // selecting a node clears any previous basis filter
         var active = x.from === id || x.to === id;
         x.element.classList.toggle('selected-edge', active);
         x.element.classList.toggle('muted-edge', !active);
@@ -2620,3 +2621,4 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
 </script>
 </body>
 </html>
+
