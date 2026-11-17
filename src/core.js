@@ -62,6 +62,12 @@ export function analyze({ caseData, caseText, evidenceDir, limits = DEFAULT_LIMI
  * Errors are CaseValidationError with path "$", so CLIs can report them without stack traces.
  */
 export function readInputFile(path, maxBytes = DEFAULT_LIMITS.maxBytes) {
+  // Keep the allocation bounded even when this public helper is called directly.
+  // The default and application-specific limits are much smaller than this hard ceiling.
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 64 * 1024 * 1024) {
+    throw new RangeError('maxBytes must be a positive safe integer no greater than 64 MiB');
+  }
+  if (typeof path !== 'string' || path.length === 0) throw new TypeError('path must be a non-empty string');
   // O_NONBLOCK prevents a named pipe from hanging before fstat can reject it.
   // O_NOFOLLOW rejects a symlink at the final component on supported POSIX systems.
   const fd = openSync(path, constants.O_RDONLY | (constants.O_NONBLOCK ?? 0) | (constants.O_NOFOLLOW ?? 0));
