@@ -54,3 +54,10 @@ test('components beyond the exact limit remain explicitly approximate', () => {
   assert.equal(result.approximate, true);
   assert.ok(result.origins.length <= EXACT_LIMIT + 1);
 });
+
+test('packing rejects invalid strength weights rather than corrupting the exact-search bound', () => {
+  const items = [{ key: 'a', roots: ['r1'] }, { key: 'b', roots: ['r2'] }];
+  for (const bad of [-0.1, 1.1, NaN, Infinity, '0.5']) {
+    assert.throws(() => packOrigins(items, () => bad), /weightOf must return/);
+  }
+});
