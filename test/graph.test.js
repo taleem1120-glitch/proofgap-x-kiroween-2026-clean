@@ -55,3 +55,18 @@ test('unknown edges: every pair of distinct origins bearing on a claim is marked
     assert.equal(n, (o.length * (o.length - 1)) / 2);
   }
 });
+
+test('unknown-origin graph rendering is bounded and reports every omitted pair', async () => {
+  const { buildGraph } = await import('../src/graph.js');
+  const origins = Array.from({ length: 100 }, (_, i) => ({ origin: 'root-' + String(i).padStart(3, '0') }));
+  const input = {
+    c: { sources: [], evidence: [] },
+    classes: [], roots: new Map(), integrityByEvidence: new Map(), warnings: [],
+    claims: [{ claimId: 'large-claim', independentSupportOrigins: origins, independentContradictOrigins: [] }],
+  };
+  const a = buildGraph(input), b = buildGraph(input);
+  assert.equal(a.edges.filter((e) => e.basis === 'unknown').length, 2000);
+  assert.equal(a.omittedUnknownEdges, 2950);
+  assert.deepEqual(a, b);
+  assert.equal(a.basisCounts.unknown, 2000);
+});

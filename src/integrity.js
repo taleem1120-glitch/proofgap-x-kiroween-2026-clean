@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { constants, fstatSync, lstatSync, openSync, readSync, closeSync, realpathSync } from 'node:fs';
-import { join, sep } from 'node:path';
+import { constants, fstatSync, lstatSync, statSync, openSync, readSync, closeSync, realpathSync } from 'node:fs';
+import { join, relative, isAbsolute, sep } from 'node:path';
 
 /**
  * Opt-in local evidence integrity verification.
@@ -34,8 +34,41 @@ export class IntegrityConfigError extends Error {
 const SEGMENT_RE = /^[A-Za-z0-9_.-]{1,255}$/;
 const CHUNK = 64 * 1024;
 
+function normalizeIntegrityLimits(limits) {
+  if (limits === undefined) return DEFAULT_INTEGRITY_LIMITS;
+  if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) {
+    throw new IntegrityConfigError('limits must be an object');
+  }
+  const prototype = Object.getPrototypeOf(limits);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new IntegrityConfigError('limits must be a plain object');
+  }
+
+  const allowed = new Set(Object.keys(DEFAULT_INTEGRITY_LIMITS));
+  const overrides = Object.create(null);
+  for (const key of Reflect.ownKeys(limits)) {
+    if (typeof key !== 'string' || !allowed.has(key)) {
+      throw new IntegrityConfigError('unknown integrity limit');
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(limits, key);
+    // Read only own data properties. Never invoke attacker-controlled getters.
+    if (!descriptor || !descriptor.enumerable || !Object.hasOwn(descriptor, 'value')) {
+      throw new IntegrityConfigError(`limits.${key} must be an enumerable data property`);
+    }
+    overrides[key] = descriptor.value;
+  }
+
+  const normalized = { ...DEFAULT_INTEGRITY_LIMITS, ...overrides };
+  for (const [key, value] of Object.entries(normalized)) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new IntegrityConfigError(`limits.${key} must be a positive safe integer`);
+    }
+  }
+  return normalized;
+}
+
 /** Returns null if the relative path is acceptable, else a fixed reason string. */
-export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
+function checkRelativePathUnchecked(p, limits) {
   if (typeof p !== 'string' || p.length === 0) return 'empty_or_non_string_path';
   if (p.length > limits.maxPathLength) return 'path_too_long';
   if (p.startsWith('/')) return 'absolute_path';
@@ -48,6 +81,10 @@ export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
     if (!SEGMENT_RE.test(s)) return 'disallowed_characters';
   }
   return null;
+}
+
+export function checkRelativePath(p, limits = DEFAULT_INTEGRITY_LIMITS) {
+  return checkRelativePathUnchecked(p, normalizeIntegrityLimits(limits));
 }
 
 const entry = (e, status, reason, extra = {}) => ({
@@ -76,19 +113,28 @@ export function integrityNotRequested(evidence) {
  */
 export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_INTEGRITY_LIMITS, now = Date.now } = {}) {
   if (typeof evidenceDir !== 'string' || evidenceDir.length === 0) throw new IntegrityConfigError('evidenceDir must be a non-empty string');
+  limits = normalizeIntegrityLimits(limits);
+  if (typeof now !== 'function') throw new IntegrityConfigError('now must be a function');
   let root;
   try {
     root = realpathSync(evidenceDir);
     if (!lstatSync(root).isDirectory()) throw new Error('not a directory');
   } catch { throw new IntegrityConfigError('evidence directory does not exist or is not a directory'); }
 
-  const deadline = now() + limits.maxMillis;
+  const readClock = () => {
+    const value = now();
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new IntegrityConfigError('now() must return a finite number');
+    }
+    return value;
+  };
+  const deadline = readClock() + limits.maxMillis;
   const cache = new Map(); // relPath -> outcome (a file is read at most once)
   let filesRead = 0, totalBytes = 0;
   const results = [];
 
   const checkFile = (rel, declared) => {
-    const bad = checkRelativePath(rel, limits);
+    const bad = checkRelativePathUnchecked(rel, limits);
     if (bad) return { status: 'UNSAFE_PATH', reason: bad };
     if (cache.has(rel)) return cache.get(rel);
     const out = hashFile(rel, declared);
@@ -97,7 +143,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
   };
 
   const hashFile = (rel) => {
-    if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+    if (readClock() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
     if (filesRead >= limits.maxFiles) return { status: 'NOT_CHECKED', reason: 'file_count_limit' };
     const segs = rel.split('/');
     let cur = root;
@@ -124,7 +170,18 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       if (st.nlink > 1) return { status: 'UNSAFE_PATH', reason: 'hard_link' };
       // Defence against a directory component swapped for a symlink after the lstat walk.
       const real = realpathSync(cur);
-      if (!real.startsWith(root + sep)) return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
+      const fromRoot = relative(root, real);
+      if (fromRoot === '' || fromRoot === '..' || fromRoot.startsWith('..' + sep) || isAbsolute(fromRoot)) {
+        return { status: 'UNSAFE_PATH', reason: 'escapes_evidence_directory' };
+      }
+      // Bind the opened descriptor to the resolved pathname. A directory component may
+      // have changed between the lstat walk and openSync; checking realpath(cur) alone
+      // would then validate the new pathname while hashing the already-open old target.
+      // stat(real) follows the resolved absolute path, and dev/ino must match the fd.
+      const pathStat = statSync(real);
+      if (pathStat.dev !== st.dev || pathStat.ino !== st.ino) {
+        return { status: 'UNSAFE_PATH', reason: 'opened_file_path_mismatch' };
+      }
       if (st.size > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
       if (totalBytes + st.size > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
       filesRead++;
@@ -135,7 +192,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
         n += r;
         // Check resource budgets on observed bytes rather than only the initial stat size.
         // A file can grow while it is being read, and a slow read can outlast the deadline.
-        if (now() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
+        if (readClock() > deadline) return { status: 'NOT_CHECKED', reason: 'time_limit' };
         if (n > limits.maxFileBytes) return { status: 'NOT_CHECKED', reason: 'file_size_limit' };
         if (totalBytes + n > limits.maxTotalBytes) return { status: 'NOT_CHECKED', reason: 'total_bytes_limit' };
         h.update(buf.subarray(0, r));
@@ -145,6 +202,7 @@ export function verifyEvidenceFiles(evidence, { evidenceDir, limits = DEFAULT_IN
       totalBytes += n;
       return { status: 'HASHED', computed: h.digest('hex'), size: n };
     } catch (e) {
+      if (e instanceof IntegrityConfigError) throw e;
       if (e.code === 'ELOOP') return { status: 'UNSAFE_PATH', reason: 'symlink' };
       if (e.code === 'ENOENT') return { status: 'MISSING', reason: 'file_not_found' };
       if (e.code === 'EACCES' || e.code === 'EPERM') return { status: 'NOT_CHECKED', reason: 'permission_denied' };

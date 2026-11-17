@@ -2,7 +2,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync, rmSync, linkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +27,55 @@ after(() => { rmSync(root, { recursive: true, force: true }); rmSync(outside, { 
 const ev = (id, file, hash, extra = {}) => ({ id, sourceId: 's1', description: `d-${id}`, ...(file !== undefined ? { file } : {}), ...(hash ? { sha256: hash } : {}), links: [], ...extra });
 const verify = (evidence, limits) => verifyEvidenceFiles(evidence, { evidenceDir: root, limits: limits && { ...DEFAULT_INTEGRITY_LIMITS, ...limits } });
 const st = (res, id) => res.results.find((r) => r.evidenceId === id);
+
+
+test('integrity limit configuration is validated before filesystem work', () => {
+  for (const limits of [null, [], 'bad', { maxFiles: 0 }, { maxMillis: -1 }, { maxPathDepth: 1.5 },
+    { maxFileBytes: Number.NaN }, { maxTotalBytes: Number.POSITIVE_INFINITY }, { maxFiles: Number.MAX_SAFE_INTEGER + 1 },
+    { maxFilse: 10 }]) {
+    assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits }), IntegrityConfigError);
+  }
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, now: 5 }), IntegrityConfigError);
+  // Partial overrides are merged with safe defaults rather than creating undefined budgets.
+  const r = verify([ev('partial', 'good.txt', sha('hello'))], { maxFiles: 1 });
+  assert.equal(st(r, 'partial').status, 'VERIFIED');
+  assert.equal(r.limits.maxFileBytes, DEFAULT_INTEGRITY_LIMITS.maxFileBytes);
+
+  // Exotic prototypes, symbols, and accessor properties are rejected without
+  // executing attacker-controlled getters.
+  const exotic = Object.create({ maxFiles: 1 });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: exotic }), IntegrityConfigError);
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: new Date() }), IntegrityConfigError);
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: { ...DEFAULT_INTEGRITY_LIMITS, [Symbol('hidden')]: 1 } }), IntegrityConfigError);
+  let getterCalled = false;
+  const accessor = Object.defineProperty({}, 'maxFiles', {
+    enumerable: true,
+    get() { getterCalled = true; throw new Error('getter must not execute'); },
+  });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: accessor }), IntegrityConfigError);
+  assert.equal(getterCalled, false);
+
+  for (const invalidClock of [NaN, Infinity, -Infinity, '123', null]) {
+    assert.throws(
+      () => verifyEvidenceFiles([], { evidenceDir: root, now: () => invalidClock }),
+      IntegrityConfigError,
+    );
+  }
+  let clockCalls = 0;
+  assert.throws(
+    () => verifyEvidenceFiles([ev('bad-clock-later', 'good.txt', sha('hello'))], {
+      evidenceDir: root,
+      now: () => (++clockCalls === 1 ? 0 : NaN),
+    }),
+    IntegrityConfigError,
+  );
+
+  const nonEnumerable = Object.defineProperty({}, 'maxFiles', { value: 1, enumerable: false });
+  assert.throws(() => verifyEvidenceFiles([], { evidenceDir: root, limits: nonEnumerable }), IntegrityConfigError);
+  const nullPrototype = Object.assign(Object.create(null), { maxFiles: 1 });
+  const safe = verifyEvidenceFiles([ev('null-proto', 'good.txt', sha('hello'))], { evidenceDir: root, limits: nullPrototype });
+  assert.equal(st(safe, 'null-proto').status, 'VERIFIED');
+});
 
 test('exactly five distinct states exist', () => assert.deepEqual([...INTEGRITY_STATES], ['VERIFIED', 'MISMATCH', 'MISSING', 'UNSAFE_PATH', 'NOT_CHECKED']));
 
@@ -107,6 +156,16 @@ test('bad configuration fails loudly; reports never contain the absolute evidenc
   assert.ok(!JSON.stringify(r).includes(root) && !JSON.stringify(r).includes(outside));
 });
 
+
+test('opened descriptor is accepted only when it resolves to the same regular file identity', () => {
+  // This exercises the descriptor/path identity gate on a stable file. The check
+  // protects against a parent-directory swap between lstat and open; a deterministic
+  // race injector is not available in this synchronous filesystem test harness.
+  const r = verify([ev('identity', 'good.txt', sha('hello'))]);
+  assert.equal(st(r, 'identity').status, 'VERIFIED');
+  assert.equal(st(r, 'identity').observedSha256, sha('hello'));
+});
+
 test('hard links are rejected conservatively, including links whose second name is inside evidenceDir', () => {
   const outsideLink = join(root, 'hard-outside.txt');
   const insideLink = join(root, 'hard-inside.txt');
@@ -172,3 +231,18 @@ test('CLI: --evidence-dir verification, --format text, bad dir exits 1, usage er
   for (const a of [[caseFile, '--format', 'xml'], [caseFile, '--evidence-dir'], [caseFile, '--evidence-dir', 'a', '--evidence-dir', 'b'], [caseFile, '--bogus', 'x']]) assert.equal(cli(...a).status, 2, JSON.stringify(a));
   assert.equal(readFileSync(caseFile, 'utf8'), JSON.stringify(c));
 });
+
+
+test('filesystem root is a valid evidence directory and containment uses path semantics', { skip: process.platform === 'win32' }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pgx-root-containment-'));
+  try {
+    const payload = 'root-directory-check';
+    writeFileSync(join(dir, 'evidence.txt'), payload);
+    const absolute = join(dir, 'evidence.txt');
+    const rel = relative('/', absolute).split(requirePathSeparator()).join('/');
+    const result = verifyEvidenceFiles([ev('rooted', rel, sha(payload))], { evidenceDir: '/' });
+    assert.equal(st(result, 'rooted').status, 'VERIFIED');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+function requirePathSeparator() { return process.platform === 'win32' ? '\\\\' : '/'; }
