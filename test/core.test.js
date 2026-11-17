@@ -110,3 +110,10 @@ test('writeNewFile validates arguments and byte limits, creates private files, a
     assert.equal(readFileSync(path, 'utf8'), '✓');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('readInputFile rejects invalid limits before touching the filesystem', () => {
+  for (const max of [0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER, '10', null]) {
+    assert.throws(() => core.readInputFile('/definitely/not/a/real/path', max), RangeError);
+  }
+  assert.throws(() => core.readInputFile(''), TypeError);
+});
