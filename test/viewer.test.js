@@ -88,6 +88,8 @@ test('viewer exposes accessible relationship-basis filters for graph paths and t
 
 test('viewer supports keyboard-accessible node selection and direct provenance path inspection', () => {
   const js = read('viewer/app.js');
+  assert.match(js, /role: 'group', 'aria-labelledby'/, 'interactive SVG must expose its child controls to assistive technology');
+  assert.match(js, /x\.element\.style\.display = ''/, 'selecting a node must clear stale edge filtering');
   assert.match(js, /grp\.setAttribute\('role', 'button'\)/);
   assert.match(js, /tabindex:\s*0/, 'graph nodes must be reachable by keyboard focus');
   assert.match(js, /grp\.setAttribute\('aria-label', 'Inspect '/);
