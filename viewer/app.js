@@ -79,7 +79,7 @@
     });
     root.appendChild(defs);
     [[L('sources'), X.source], [L('evidence'), X.evidence], [L('claims'), X.claim]].forEach(function (h) { root.appendChild(svg('text', { x: h[1], y: 18, class: 'colhead', 'text-anchor': 'middle' }, [h[0]])); });
-    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {});
+    var edgeLayer = svg('g', {}), nodeLayer = svg('g', {}), edgeElements = [];
     root.appendChild(edgeLayer); root.appendChild(nodeLayer);
     g.edges.forEach(function (e) {
       var a = pos[e.from], b = pos[e.to];
@@ -93,6 +93,7 @@
       var p = svg('path', pa);
       p.appendChild(svg('title', {}, [e.relation + ' (' + e.basis + ')' + (e.cue ? ' — ' + e.cue : '') + (e.discoveredBy === 'local_hashing' ? ' — found by hashing local files; not declared by the case author' : '')]));
       edgeLayer.appendChild(p);
+      edgeElements.push({ basis: e.basis, element: p });
     });
     g.nodes.forEach(function (n) {
       var p = pos[n.id]; if (!p) return;
@@ -112,11 +113,38 @@
     wrap.appendChild(legend);
     // text alternative
     var tbl = el('table', { class: 'edges' }, [el('caption', {}, [L('allRelations',{n:g.edges.length})]), el('thead', {}, [el('tr', {}, [L('from'), L('relation'), L('to'), L('basis')].map(function (h) { return el('th', { scope: 'col' }, [h]); }))])]);
-    var tb = el('tbody');
-    g.edges.forEach(function (e) { tb.appendChild(el('tr', { class: 'b-' + e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])])); });
+    var tb = el('tbody'), relationRows = [];
+    g.edges.forEach(function (e) {
+      var tr = el('tr', { class: 'b-' + e.basis, 'data-basis': e.basis }, [el('td', {}, [e.from]), el('td', {}, [e.relation + (e.cue ? ' (' + e.cue + ')' : '') + (e.discoveredBy ? ' (found by local hashing)' : '')]), el('td', {}, [e.to]), el('td', {}, [e.basis])]);
+      relationRows.push({ basis: e.basis, element: tr });
+      tb.appendChild(tr);
+    });
     tbl.appendChild(tb);
+    var filter = el('select', { class: 'graphfilter', 'aria-label': 'Filter provenance relationships', 'aria-controls': uid + '-relations' }, [
+      el('option', { value: 'all' }, ['All relationship types']),
+      el('option', { value: 'verified' }, ['Verified']),
+      el('option', { value: 'declared' }, ['Declared']),
+      el('option', { value: 'suspected' }, ['Suspected']),
+      el('option', { value: 'unknown' }, ['Unknown']),
+    ]);
+    tbl.setAttribute('id', uid + '-relations');
+    var filterStatus = el('span', { class: 'note', role: 'status', 'aria-live': 'polite' }, [L('allRelations',{n:g.edges.length})]);
+    filter.addEventListener('change', function () {
+      var selected = filter.value, shown = 0;
+      edgeElements.forEach(function (x) {
+        var visible = selected === 'all' || x.basis === selected;
+        x.element.style.display = visible ? '' : 'none';
+        if (visible) shown++;
+      });
+      relationRows.forEach(function (x) {
+        var visible = selected === 'all' || x.basis === selected;
+        x.element.hidden = !visible;
+      });
+      filterStatus.textContent = shown + ' / ' + g.edges.length + ' relationships shown';
+    });
     var det = el('details', { class: 'edgelist' }, [el('summary', {}, [L('graphText')]), tbl]);
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), wrap, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
+    var graphControls = el('div', { class: 'graphcontrols' }, [filter, filterStatus]);
+    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
   }
 
   // ---------- claims ----------
