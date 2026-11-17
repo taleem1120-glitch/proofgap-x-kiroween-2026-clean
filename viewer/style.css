@@ -123,3 +123,9 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
   .top .controls label.file { padding-block: 4px; }
   .phead h2 { line-height: 1.35; }
 }
+
+/* Interactive provenance review controls */
+.graphcontrols { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; }
+.graphfilter { min-height: 44px; max-width: 100%; padding: 8px 10px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.graphfilter:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.edges tr[hidden] { display: none; }
