@@ -1,7 +1,8 @@
 // Shared core interface (src/core.js) and the two-application boundary.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, mkdtempSync, writeFileSync, rmSync, lstatSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as core from '../src/core.js';
@@ -76,4 +77,36 @@ test('app 1 CLI shim and app folder produce identical bytes', async () => {
   const a = spawnSync(process.execPath, [join(root, 'src/cli.js'), join(root, 'examples/sample-case.json')], { encoding: 'utf8' });
   const b = spawnSync(process.execPath, [join(root, 'apps/proofgap-x/cli.js'), join(root, 'examples/sample-case.json')], { encoding: 'utf8' });
   assert.equal(a.status, 0); assert.equal(a.stdout, b.stdout);
+});
+
+
+test('readInputFile reads bounded UTF-8 input in chunks and detects a byte beyond the limit', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pgx-core-io-'));
+  try {
+    const path = join(dir, 'input.txt');
+    const content = 'x'.repeat(150_000) + '✓';
+    writeFileSync(path, content);
+    assert.equal(core.readInputFile(path, Buffer.byteLength(content)), content);
+    assert.throws(() => core.readInputFile(path, Buffer.byteLength(content) - 1), core.CaseValidationError);
+    writeFileSync(path, '');
+    assert.equal(core.readInputFile(path, 1), '');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('writeNewFile validates arguments and byte limits, creates private files, and never overwrites', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pgx-core-write-'));
+  try {
+    const path = join(dir, 'out.txt');
+    assert.throws(() => core.writeNewFile('', 'x'), TypeError);
+    assert.throws(() => core.writeNewFile(path, Buffer.from('x')), TypeError);
+    for (const max of [0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER]) {
+      assert.throws(() => core.writeNewFile(path, 'x', max), RangeError);
+    }
+    assert.throws(() => core.writeNewFile(path, '✓', 2), RangeError);
+    core.writeNewFile(path, '✓', 3);
+    assert.equal(readFileSync(path, 'utf8'), '✓');
+    assert.equal(lstatSync(path).mode & 0o777, 0o600);
+    assert.throws(() => core.writeNewFile(path, 'replacement'), { code: 'EEXIST' });
+    assert.equal(readFileSync(path, 'utf8'), '✓');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
