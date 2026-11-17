@@ -93,7 +93,7 @@ test('viewer supports keyboard-accessible node selection and direct provenance p
   assert.match(js, /function selectNode\(id\)/);
   assert.match(js, /x\.from === id \|\| x\.to === id/);
   assert.match(js, /selected-edge/);
-  assert.match(js, /Direct relationship\(s\)/);
+  assert.match(js, /direct relationship\(s\)/i);
   assert.match(js, /aria-live': 'polite'/);
   assert.match(read('viewer/style.css'), /\.trace-panel/);
 });
