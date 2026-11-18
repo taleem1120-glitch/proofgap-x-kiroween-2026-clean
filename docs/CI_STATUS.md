@@ -1,20 +1,32 @@
-# CI status
+# CI status — 18 November 2026
 
-**GitHub Actions: `BLOCKED_BY_BILLING`.** This is neither `PASSED` nor `CODE_FAILED`.
+## Current verified state
 
-- Workflow: `.github/workflows/ci.yml` (Node 20 and 22, `npm ci --ignore-scripts`, `npm test`, demo smoke test). **Preserved unchanged for future execution.**
-- Observed (GitHub API, commit `356953f`): runs 43509421759 (push) and 43509432406 (pull_request). Both matrix jobs executed **zero steps** and had no runner. Annotation: "The job was not started because recent account payments have failed or your spending limit needs to be increased."
-- No remote CI result exists. Do not cite any CI result for this project until the owner resolves billing and a run actually executes.
-- Billing settings were not changed; blocked jobs were not re-run; later commits use `[skip ci]` so no further blocked runs are queued. To resume CI, the owner fixes billing and re-runs the workflow (or pushes without `[skip ci]`).
+- The pre-merge head of PR #28 (`c92a48a24de34e9613b55ba6047f733e7f0ade35`) passed the standard CI workflow on Node.js 20 and 22.
+- The same PR head passed the cross-browser and security workflow:
+  - Chromium compatibility: success
+  - Firefox compatibility: success
+  - WebKit compatibility: success
+  - Dependency and security regression audit: success
+- PR #28 was merged into `main` with merge commit `0be10c760f295de094f5934f81a45c31cfd5719e`.
+- Post-merge runs on `main` were started on 18 November 2026 and were still queued / in progress when this file was updated:
+  - [CI](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373432)
+  - [Cross-browser compatibility and security audit](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373400)
+  - [GitHub Pages deployment](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373102)
 
-## What substitutes for CI meanwhile (local only, not equivalent)
-`npm run validate:local` runs the full suite, focused security / provenance / file-integrity groups and the deterministic benchmark, and records results under `validation/<UTC-id>/` (commands, exact counts, Node/npm/OS/CPU, git commit, lockfile and schema hashes, raw logs). Local runs are on one Linux machine. Since Phase 7 the suite has also been run locally on **Node 20.20.2 and 24.22.1** (159/159 each), in addition to 22.23.4. That is not a CI result, and Windows/macOS remain NOT TESTED.
+Do not describe the post-merge `main` checks or deployment as passed until those runs complete successfully. The earlier `BLOCKED_BY_BILLING` observations below are historical and do not describe the latest PR #28 validation.
 
-## Reproduce
+## Historical billing-blocked runs
+
+Earlier runs on November 15–16 were blocked before jobs started because of an account billing/spending-limit restriction. Those runs were neither code failures nor successful CI results. They are retained in GitHub history but have been superseded by the successful PR #28 validation.
+
+## Reproduce locally
+
 ```sh
-npm ci
+npm ci --ignore-scripts
 npm test
-npm run validate:local        # writes validation/<id>/ (fails if the directory exists; never overwrites)
-npm run bench                 # benchmark only
+npm run validate:local
+npm run bench
 ```
-Benchmark accuracy is deterministic (seeded) and is compared with `bench/results/phase3-run1.json`; latency and memory vary by machine and are not compared.
+
+Local validation is useful but is not a substitute for CI or independent security review. Benchmark inputs are synthetic and author-built. Latency and memory vary by machine.
