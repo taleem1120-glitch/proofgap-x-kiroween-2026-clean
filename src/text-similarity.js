@@ -1,0 +1,71 @@
+/**
+ * Bounded, conservative near-duplicate text cue.
+ *
+ * This is a REVIEW SIGNAL only. It never merges artifacts, source roots, or scores.
+ * NFKC + case/punctuation/whitespace folding + character shingles tolerates small
+ * formatting/encoding changes, but cannot establish copying, authorship, or lineage.
+ */
+const fold = (value) => String(value).normalize('NFKC').toLowerCase()
+  .replace(/[^\p{L}\p{N}]+/gu, '');
+
+function shingles(value, width) {
+  const out = new Set();
+  if (value.length < width) return out;
+  for (let i = 0; i <= value.length - width; i++) out.add(value.slice(i, i + width));
+  return out;
+}
+
+function jaccard(a, b) {
+  let intersection = 0;
+  const [small, large] = a.size <= b.size ? [a, b] : [b, a];
+  for (const x of small) if (large.has(x)) intersection++;
+  const union = a.size + b.size - intersection;
+  return union ? intersection / union : 0;
+}
+
+/**
+ * Find bounded near-duplicate pairs in deterministic order.
+ * Items: [{ id, text }]. Returns { pairs, comparisons, truncated }.
+ */
+export function findNearDuplicatePairs(items, {
+  minLength = 120, minSimilarity = 0.92, shingleWidth = 5,
+  maxComparisons = 25000, maxResults = 100,
+} = {}) {
+  if (!Array.isArray(items)) throw new TypeError('items must be an array');
+  if (!Number.isInteger(minLength) || minLength < 1 ||
+      !Number.isFinite(minSimilarity) || minSimilarity <= 0 || minSimilarity > 1 ||
+      !Number.isInteger(shingleWidth) || shingleWidth < 2 ||
+      !Number.isInteger(maxComparisons) || maxComparisons < 1 ||
+      !Number.isInteger(maxResults) || maxResults < 1) {
+    throw new TypeError('invalid near-duplicate options');
+  }
+  const prepared = items.map((item) => {
+    if (!item || typeof item.id !== 'string' || typeof item.text !== 'string') {
+      throw new TypeError('each item needs string id and text');
+    }
+    const text = fold(item.text);
+    return { id: item.id, text, grams: text.length >= minLength ? shingles(text, shingleWidth) : null };
+  }).filter((x) => x.grams && x.grams.size > 0)
+    .sort((a, b) => a.text.length - b.text.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  const pairs = [];
+  let comparisons = 0, truncated = false;
+  outer: for (let i = 0; i < prepared.length; i++) {
+    const a = prepared[i];
+    for (let j = i + 1; j < prepared.length; j++) {
+      const b = prepared[j];
+      if (b.text.length > a.text.length / (1 - minSimilarity)) break;
+      if (a.id === b.id || a.text === b.text) continue; // exact duplicates have their own stronger path
+      if (comparisons >= maxComparisons) { truncated = true; break outer; }
+      comparisons++;
+      const ratio = a.text.length / b.text.length;
+      if (ratio < 1 - minSimilarity) continue;
+      const similarity = jaccard(a.grams, b.grams);
+      if (similarity >= minSimilarity) {
+        pairs.push({ left: a.id, right: b.id, similarity: Math.round(similarity * 10000) / 10000 });
+        if (pairs.length >= maxResults) { truncated = true; break outer; }
+      }
+    }
+  }
+  return { pairs, comparisons, truncated };
+}
