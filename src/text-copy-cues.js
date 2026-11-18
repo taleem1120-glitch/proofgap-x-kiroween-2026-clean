@@ -96,12 +96,16 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
   if (!A || !B) return { review: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const width = Math.min(minRunTokens, 60);
   const aIndex = new Map();
-  // Token-position index; bounded by the same 200k-character per-text input guard.
+  // Keep only a few positions per seed to bound repetitive-text work. If any
+  // seed is capped, the result must disclose that candidate coverage is partial.
+  let indexTruncated = false;
   for (let i = 0; i + width <= A.length; i++) {
     const key = A.slice(i, i + width).join(' ');
     const positions = aIndex.get(key);
-    if (positions) { if (positions.length < 4) positions.push(i); }
-    else aIndex.set(key, [i]);
+    if (positions) {
+      if (positions.length < 4) positions.push(i);
+      else indexTruncated = true;
+    } else aIndex.set(key, [i]);
   }
   let longest = 0;
   let work = 0;
@@ -135,7 +139,7 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     review: longest >= minRunTokens || truncated,
     incomplete: truncated,
     longestRunTokens: longest,
-    basis: truncated ? 'comparison_budget_exceeded_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage'),
+    basis: truncated ? 'comparison_budget_exceeded_manual_review' : (indexTruncated ? 'candidate_index_truncated_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage')),
     candidates
   };
 }
