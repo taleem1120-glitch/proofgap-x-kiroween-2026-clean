@@ -207,6 +207,7 @@ test('CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with l
   r = cli(ex, '--sources', join(EX, 'sources'), '--review-text-copies', '--format', 'json');
   assert.equal(r.status, 0); assert.equal(JSON.parse(r.stdout).cite.textCopyReview.mode, 'local_saved_text_opt_in');
   for (const a of [[], [ex, '--format', 'xml'], [ex, '--bogus', 'x'], [ex, '--fail-on-gaps', '--fail-on-gaps'], [ex, '--sources']]) assert.equal(cli(...a).status, 2, JSON.stringify(a));
+  assert.equal(cli(ex, '--review-text-copies').status, 2, 'text review requires an explicit --sources directory');
   const bad = join(dir, 'bad.md'); writeFileSync(bad, '# T\n## Claims\n- c [^x]\n');
   r = cli(bad); assert.equal(r.status, 1); assert.match(r.stderr, /bad\.md:3: citation \[\^x\]/); assert.doesNotMatch(r.stderr, /\n\s+at /);
   const out = join(dir, 'o.html');
