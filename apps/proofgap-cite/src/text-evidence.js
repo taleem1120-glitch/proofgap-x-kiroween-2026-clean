@@ -60,14 +60,14 @@ export function extractTextEvidence(evidence, { evidenceDir, now = Date.now, lim
       if (pathStat.dev !== st.dev || pathStat.ino !== st.ino) { fail('UNSAFE_PATH', 'opened_file_path_mismatch'); continue; }
       if (st.size > cfg.maxFileBytes) { fail('NOT_CHECKED', 'file_size_limit'); continue; }
       if (totalBytes + st.size > cfg.maxTotalBytes) { fail('NOT_CHECKED', 'total_bytes_limit'); continue; }
-      const chunks = []; let size = 0; const buf = Buffer.allocUnsafe(16 * 1024); let n;
+      const chunks = []; let size = 0, rejected = false; const buf = Buffer.allocUnsafe(16 * 1024); let n;
       while ((n = readSync(fd, buf, 0, buf.length, null)) > 0) {
         size += n;
-        if (size > cfg.maxFileBytes || totalBytes + size > cfg.maxTotalBytes) { chunks.length = 0; fail('NOT_CHECKED', 'observed_size_limit'); break; }
-        if (now() - start > cfg.maxMillis) { chunks.length = 0; fail('NOT_CHECKED', 'time_limit'); break; }
+        if (size > cfg.maxFileBytes || totalBytes + size > cfg.maxTotalBytes) { chunks.length = 0; rejected = true; fail('NOT_CHECKED', 'observed_size_limit'); break; }
+        if (now() - start > cfg.maxMillis) { chunks.length = 0; rejected = true; fail('NOT_CHECKED', 'time_limit'); break; }
         chunks.push(Buffer.from(buf.subarray(0, n)));
       }
-      if (!chunks.length && size > 0) continue;
+      if (rejected) continue;
       if (fstatSync(fd).nlink > 1) { fail('UNSAFE_PATH', 'hard_link'); continue; }
       const bytes = Buffer.concat(chunks, size);
       let text;
