@@ -2,16 +2,21 @@
  * Bounded, conservative near-duplicate text cue.
  *
  * This is a REVIEW SIGNAL only. It never merges artifacts, source roots, or scores.
- * NFKC + case/punctuation/whitespace folding + character shingles tolerates small
- * formatting/encoding changes, but cannot establish copying, authorship, or lineage.
+ * NFKC + case/punctuation/whitespace folding + Unicode code-point shingles tolerates
+ * small formatting/encoding changes, but cannot establish copying, authorship, or lineage.
+ * Combining marks are retained: in scripts such as Arabic they can be semantically significant.
  */
-const fold = (value) => String(value).normalize('NFKC').toLowerCase()
-  .replace(/[^\p{L}\p{N}]+/gu, '');
+const fold = (value) => Array.from(
+  String(value).normalize('NFKC').toLowerCase()
+    .replace(/[^\\p{L}\\p{N}\\p{M}]+/gu, ''),
+);
 
 function shingles(value, width) {
   const out = new Set();
   if (value.length < width) return out;
-  for (let i = 0; i <= value.length - width; i++) out.add(value.slice(i, i + width));
+  for (let i = 0; i <= value.length - width; i++) {
+    out.add(value.slice(i, i + width).join(''));
+  }
   return out;
 }
 
@@ -55,7 +60,7 @@ export function findNearDuplicatePairs(items, {
     for (let j = i + 1; j < prepared.length; j++) {
       const b = prepared[j];
       if (b.text.length > a.text.length / minSimilarity) break;
-      if (a.id === b.id || a.text === b.text) continue; // exact duplicates have their own stronger path
+      if (a.id === b.id || a.text.join('') === b.text.join('')) continue;
       if (comparisons >= maxComparisons) { truncated = true; break outer; }
       comparisons++;
       const ratio = a.text.length / b.text.length;
