@@ -5,7 +5,7 @@ import { analyzeCase } from '../src/analyze.js';
 
 const original = ('The independent review records the same sequence of events and observations, ' +
   'including the original publication details and the evidence references for this report. ').repeat(4);
-const altered = original.replaceAll('observations', 'observationS');
+const altered = original.replaceAll('observations', 'observation');
 
 const source = (id) => ({ id, name: 'Distinct outlet ' + id });
 const evidence = (id, sourceId, description) => ({
