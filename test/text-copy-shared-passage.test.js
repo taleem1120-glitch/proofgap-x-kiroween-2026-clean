@@ -15,7 +15,8 @@ test('a verified long contiguous match is a human-review cue, not an origin verd
 
 test('truncated repetitive-seed index forces review and discloses incomplete coverage', () => {
   const repeated = Array.from({ length: 6 }, () => seed).join(' ');
-  const result = detectSharedPassage(repeated, seed);
+  const unrelated = Array.from({ length: 60 }, (_, i) => `unrelated review token${i} distinct`).join(' ');
+  const result = detectSharedPassage(repeated, unrelated);
   assert.equal(result.review, true);
   assert.equal(result.incomplete, true);
   assert.equal(result.basis, 'candidate_index_truncated_manual_review');
