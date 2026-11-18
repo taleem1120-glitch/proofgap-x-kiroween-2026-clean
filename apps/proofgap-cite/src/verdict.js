@@ -65,16 +65,19 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     // Full saved-text comparison is opt-in via --sources and uses only safely extracted UTF-8 files.
     // Pair count is bounded by the extractor (30 documents); each pair has a 1,000-comparison budget.
     const textRefs = cited.filter((c) => textById.has(c.id));
+    const sharedPassageCues = [];
+    let sharedPassageIncomplete = false;
     for (let i = 0; i < textRefs.length; i++) {
       for (let j = i + 1; j < textRefs.length; j++) {
         const left = textRefs[i].id, right = textRefs[j].id;
         const cue = detectSharedPassage(textById.get(left), textById.get(right), { maxComparisons: 1000 });
         if (cue.longestRunTokens >= 60) {
+          sharedPassageCues.push({ left, right, tokens: cue.longestRunTokens });
           const locations = cue.candidates.slice(0, 2).map((x) => `tokens ${x.startA}-${x.startA + x.tokens - 1} in [^${left}] / ${x.startB}-${x.startB + x.tokens - 1} in [^${right}]`).join('; ');
           F('SHARED_PASSAGE_TEXT_OVERLAP', 'heuristic', 'medium',
             `A contiguous shared passage of ${cue.longestRunTokens} normalized tokens was found between [^${left}] and [^${right}] (${locations || 'locations unavailable'}). This is a review cue only; quotations, templates and syndication can explain overlap.`, [left, right]);
         }
-        if (cue.incomplete) F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
+        if (cue.incomplete) { sharedPassageIncomplete = true; F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
           `The shared-passage scan for [^${left}] and [^${right}] was incomplete (${cue.basis}); absence of a detected passage is not informative.`, [left, right]);
       }
     }
@@ -113,13 +116,15 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         : `A primary source behind ${roots.length ? q(roots) : `origin ${o.origin}`}, plus a second, independent primary source.`);
     } else if (primaryOrigins.length >= 2) {
       const coreCues = cl.abstentionCues ?? [];
-      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated) {
+      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated || sharedPassageCues.length || sharedPassageIncomplete) {
         verdict = 'abstain_suspected_shared_origin';
         const reviewRefs = [
           ...idCues.flatMap((g) => g.refs),
           ...nearTextCues.flatMap((p) => [p.left, p.right]),
         ].map((r) => `[^${r}]`);
         const reasons = [...new Set([...reviewRefs, ...coreCues])];
+        if (sharedPassageCues.length) reasons.push(...sharedPassageCues.map((x) => `shared passage (${x.tokens} tokens) between [^${x.left}] and [^${x.right}]`));
+        if (sharedPassageIncomplete) reasons.push('one or more shared-passage scans were incomplete');
         if (nearText.truncated) reasons.push('the near-duplicate scan reached its comparison/result budget');
         missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text scan was ${nearText.truncated ? 'incomplete' : 'complete'}.`);
       } else verdict = 'independently_corroborated';
