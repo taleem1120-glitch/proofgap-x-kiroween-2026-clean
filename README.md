@@ -7,6 +7,7 @@ Explainable evidence-confidence stress testing for digital investigations (Kirow
 ## What it does
 Reads a structured JSON case and answers, per claim: *how many genuinely independent origins stand behind the support, and what exactly is missing?*
 - **Independence engine** – derived copies, shared origin groups, identical artifacts and bridge sources collapse into one origin, with plain-language reasons. Independence is always labelled **declared, not verified**.
+- **Near-duplicate text review cue** – bounded Unicode-normalized character-shingle similarity can flag long, highly similar evidence descriptions across declared-independent origins. It only triggers review/abstention; it never merges origins, changes scores, or proves copying.
 - **Proof-gap engine** – LOGICAL findings (e.g. `FALSE_CORROBORATION`, `CONFLICT_UNRESOLVED`) plus ranked HEURISTIC suggestions, each stating what it would show and what it would **not** show.
 - **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
 - **Reports** – deterministic JSON (`--format json`, default), human-readable text (`--format text`) and a self-contained offline HTML viewer (`--format html [--compare other.json]`).
