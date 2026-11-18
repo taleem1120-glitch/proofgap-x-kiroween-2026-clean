@@ -8,6 +8,7 @@ Explainable evidence-confidence stress testing for digital investigations (Kirow
 Reads a structured JSON case and answers, per claim: *how many genuinely independent origins stand behind the support, and what exactly is missing?*
 - **Independence engine** – derived copies, shared origin groups, identical artifacts and bridge sources collapse into one origin, with plain-language reasons. Independence is always labelled **declared, not verified**.
 - **Near-duplicate text review cue** – bounded Unicode-normalized character-shingle similarity in ProofGap Cite can flag long, highly similar reference labels across declared-independent citation origins. It only triggers review/abstention; it never merges origins, changes scores, or proves copying.
+- **Saved-text shared-passage review (opt-in)** – `proofgap-cite <note.md> --sources <dir> --review-text-copies` safely reads only cited, saved UTF-8 `.txt`, `.md`, `.csv` and `.json` files under the chosen directory. Bounded contiguous-passage overlap is a review cue only; unsupported/invalid files and incomplete scans are disclosed. No PDF/OCR, network access, origin merging, score changes or authorship claims.
 - **Proof-gap engine** – LOGICAL findings (e.g. `FALSE_CORROBORATION`, `CONFLICT_UNRESOLVED`) plus ranked HEURISTIC suggestions, each stating what it would show and what it would **not** show.
 - **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
 - **Reports** – deterministic JSON (`--format json`, default), human-readable text (`--format text`) and a self-contained offline HTML viewer (`--format html [--compare other.json]`).
@@ -39,6 +40,7 @@ From source (Node.js 20 or newer; zero dependencies):
 ```sh
 npm ci && npm test                       # full suite
 npm run cite                             # Cite lint output: file:line: [verdict] … missing: …
+node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --review-text-copies --format json
 node apps/proofgap-x/cli.js examples/showcase/deceptive.json --evidence-dir examples/showcase/evidence --format text
 npm run demo                             # ProofGap X integrity demo
 rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite   # rebuild both showcases from the engine
