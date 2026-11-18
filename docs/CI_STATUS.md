@@ -1,24 +1,21 @@
 # CI status — 18 November 2026
 
-## Current verified state
+## Verified pre-merge validation
 
-- The pre-merge head of PR #28 (`c92a48a24de34e9613b55ba6047f733e7f0ade35`) passed the standard CI workflow on Node.js 20 and 22.
-- The same PR head passed the cross-browser and security workflow:
-  - Chromium compatibility: success
-  - Firefox compatibility: success
-  - WebKit compatibility: success
-  - Dependency and security regression audit: success
+- PR #28 head `c92a48a24de34e9613b55ba6047f733e7f0ade35` passed the standard CI workflow on Node.js 20 and 22.
+- The same PR head passed the cross-browser and security workflow: Chromium, Firefox, WebKit, dependency audit, adversarial security regressions, and source/release gate.
 - PR #28 was merged into `main` with merge commit `0be10c760f295de094f5934f81a45c31cfd5719e`.
-- Post-merge runs on `main` were started on 18 November 2026 and were still queued / in progress when this file was updated:
-  - [CI](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373432)
-  - [Cross-browser compatibility and security audit](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373400)
-  - [GitHub Pages deployment](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/44268373102)
 
-Do not describe the post-merge `main` checks or deployment as passed until those runs complete successfully. The earlier `BLOCKED_BY_BILLING` observations below are historical and do not describe the latest PR #28 validation.
+## Post-merge status
+
+- The first standard CI and Pages runs for the merge commit were cancelled when subsequent documentation-only commits superseded the commit being built.
+- The cross-browser/security workflow for the merge commit was still in progress at the last check.
+- A new push of this status correction will trigger fresh checks on the current `main`. Treat those post-merge checks as pending until GitHub reports a final successful conclusion.
+- [GitHub Actions runs](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions).
 
 ## Historical billing-blocked runs
 
-Earlier runs on November 15–16 were blocked before jobs started because of an account billing/spending-limit restriction. Those runs were neither code failures nor successful CI results. They are retained in GitHub history but have been superseded by the successful PR #28 validation.
+Earlier runs on November 15–16 were blocked before jobs started because of an account billing/spending-limit restriction. Those runs were neither code failures nor successful CI results. They are historical and do not describe the successful PR #28 head validation.
 
 ## Reproduce locally
 
