@@ -5,6 +5,8 @@
  * the core from declared lineage and verified byte identity) each trace to a reference declared kind=primary that
  * declares no upstream of its own, and no heuristic cue links two of those origins. Everything else names exactly what is missing.
  */
+import { findNearDuplicatePairs } from './text-similarity.js';
+
 export const CITE_VERDICTS = Object.freeze({
   independently_corroborated: 'two or more independent origins that each trace to a declared primary source',
   abstain_suspected_shared_origin: 'enough declared primary origins, but a cue (same URL/DOI, same title, shared saved file) suggests they may be one',
@@ -61,6 +63,13 @@ export function citeVerdicts({ report, note, cycles, identifierGroups }) {
     // identifier cues linking two different support origins of this claim
     const originOfRef = new Map(sup.flatMap((o) => o.sourceIds.map((s) => [s, o.origin])));
     const idCues = identifierGroups.filter((g) => new Set(g.refs.map((r) => originOfRef.get(r)).filter(Boolean)).size >= 2);
+    // Compare reference labels as a bounded review cue. Similarity never merges citation origins.
+    const nearText = findNearDuplicatePairs(cited.map((ct) => ({ id: ct.id, text: refs.get(ct.id).label })));
+    const nearTextCues = nearText.pairs.filter((p) => originOfRef.has(p.left) && originOfRef.has(p.right) && originOfRef.get(p.left) !== originOfRef.get(p.right));
+    for (const p of nearTextCues) F('NEAR_DUPLICATE_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
+      `[^\u007b p.left \u007d] and [^\u007b p.right \u007d] have highly similar normalized reference text (shingle similarity ${p.similarity}); review publication history, but similarity does not prove a shared origin.`, [p.left, p.right]);
+    if (nearText.truncated) F('NEAR_DUPLICATE_SCAN_BOUNDED', 'heuristic', 'low',
+      'Near-duplicate text review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
     for (const g of idCues) F('SAME_IDENTIFIER_DIFFERENT_LINEAGE', 'heuristic', 'medium', `${q(g.refs)} share ${g.identifier.replace(':', ' ')} but are declared as separate lineages; they may be the same piece (syndication or reposting).`, g.refs);
 
     let verdict;
@@ -85,7 +94,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups }) {
         : `A primary source behind ${roots.length ? q(roots) : `origin ${o.origin}`}, plus a second, independent primary source.`);
     } else if (primaryOrigins.length >= 2) {
       const coreCues = cl.abstentionCues ?? [];
-      if (idCues.length || coreCues.length) {
+      if (idCues.length || coreCues.length || nearTextCues.length) {
         verdict = 'abstain_suspected_shared_origin';
         missing.push(`Confirmation that ${[...idCues.flatMap((g) => g.refs).map((r) => `[^${r}]`), ...coreCues].join(', ')} are genuinely separate pieces (check bylines, syndication notes, publication history).`);
       } else verdict = 'independently_corroborated';
