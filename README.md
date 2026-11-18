@@ -80,6 +80,7 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 - Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
 - A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed. Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
+- Near-duplicate text cues are heuristic and bounded (25,000 pair comparisons / 100 reported pairs per case). They may miss paraphrases, translations, OCR changes, or pairs beyond the comparison budget; similarity is not proof of shared origin.
 - No independent third-party security review or human screen-reader audit has been completed.
 - Chromium, Firefox and WebKit automated browser checks passed on the PR #28 head; Windows/macOS and assistive-technology testing remain unverified.
 - Synthetic benchmarks and browser automation do not establish real-world accuracy, legal admissibility, or production readiness.
