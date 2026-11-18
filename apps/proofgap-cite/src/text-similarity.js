@@ -28,7 +28,7 @@ function jaccard(a, b) {
  * Items: [{ id, text }]. Returns { pairs, comparisons, truncated }.
  */
 export function findNearDuplicatePairs(items, {
-  minLength = 120, minSimilarity = 0.92, shingleWidth = 5,
+  minLength = 120, minSimilarity = 0.88, shingleWidth = 5,
   maxComparisons = 25000, maxResults = 100,
 } = {}) {
   if (!Array.isArray(items)) throw new TypeError('items must be an array');
