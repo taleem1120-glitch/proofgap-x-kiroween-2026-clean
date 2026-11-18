@@ -6,7 +6,7 @@
  * declares no upstream of its own, and no heuristic cue links two of those origins. Everything else names exactly what is missing.
  */
 import { findNearDuplicatePairs } from './text-similarity.js';
-import { detectSharedPassage } from '../../../src/text-copy-cues.js';
+import { detectSharedPassage } from './shared-passage.js';
 
 export const CITE_VERDICTS = Object.freeze({
   independently_corroborated: 'two or more independent origins that each trace to a declared primary source',
