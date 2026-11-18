@@ -6,7 +6,7 @@ const base = ('The independent review records the same sequence of events and ob
   'including the original publication details and the evidence references for this report. ').repeat(4);
 
 test('near-duplicate cue tolerates encoding and formatting changes without asserting identity', () => {
-  const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replaceAll('observations', 'observationS');
+  const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replaceAll('observations', 'observation');
   const out = findNearDuplicatePairs([{ id: 'a', text: base }, { id: 'b', text: changed }]);
   assert.equal(out.pairs.length, 1);
   assert.ok(out.pairs[0].similarity >= 0.92);
