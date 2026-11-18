@@ -19,6 +19,8 @@ test('near-duplicate citation labels trigger abstention but never merge origins 
   assert.equal(r.claims[0].citeEvidence.independentOrigins, 2);
   assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 2);
   assert.ok(r.claims[0].findings.some((f) => f.code === 'NEAR_DUPLICATE_TEXT_DIFFERENT_LINEAGE' && f.basis === 'heuristic'));
+  assert.match(r.claims[0].missing.join(' '), /\[\^a\]/);
+  assert.match(r.claims[0].missing.join(' '), /\[\^b\]/);
 });
 
 test('unrelated citation labels do not trigger near-duplicate abstention', () => {
