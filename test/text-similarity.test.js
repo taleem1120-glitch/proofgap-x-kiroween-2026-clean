@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { findNearDuplicatePairs } from '../src/text-similarity.js';
+import { findNearDuplicatePairs } from '../apps/proofgap-cite/src/text-similarity.js';
 
 const base = ('The independent review records the same sequence of events and observations, ' +
   'including the original publication details and the evidence references for this report. ').repeat(4);
 
 test('near-duplicate cue tolerates encoding and formatting changes without asserting identity', () => {
-  const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replaceAll('observations', 'observation');
+  const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replace('observations', 'observation');
   const out = findNearDuplicatePairs([{ id: 'a', text: base }, { id: 'b', text: changed }]);
   assert.equal(out.pairs.length, 1);
   assert.ok(out.pairs[0].similarity >= 0.92);
