@@ -1,0 +1,72 @@
+name: Regenerate ProofGap Cite showcase
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "The only supported target is hardening/near-duplicate-text-cues"
+        required: true
+        type: string
+        default: "hardening/near-duplicate-text-cues"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: regenerate-cite-showcase
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    if: github.repository == 'taleem1120-glitch/proofgap-x-kiroween-2026-clean'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Validate target branch
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -euo pipefail
+          test "$TARGET_BRANCH" = "hardening/near-duplicate-text-cues" || {
+            echo "Refusing unexpected target branch."
+            exit 1
+          }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.target_branch }}
+          persist-credentials: true
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Rebuild the committed Cite showcase
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          rm -f apps/proofgap-cite/showcase.html
+          npm run showcase:cite
+          test -s apps/proofgap-cite/showcase.html
+
+      - name: Run full test suite before publishing
+        run: |
+          set -euo pipefail
+          npm test
+          git diff --check
+
+      - name: Commit generated artifact to the requested PR branch
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/proofgap-cite/showcase.html
+          if git diff --cached --quiet; then
+            echo "Generated showcase already matches; no commit required."
+            exit 0
+          fi
+          git commit -m "build: regenerate Cite showcase for near-duplicate cues"
+          git push origin "HEAD:${TARGET_BRANCH}"
