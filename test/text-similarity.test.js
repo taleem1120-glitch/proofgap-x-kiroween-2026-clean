@@ -47,8 +47,12 @@ test('supplementary-plane letters are compared as complete Unicode code points',
 });
 
 test('Arabic combining marks are retained during normalization', () => {
-  const withFatha = ('مُراجعة الأدلة وتوثيق المصدر وسلامة السجل والتحقق من البيانات. ').repeat(5);
-  const withDamma = withFatha.replaceAll('مُ', 'مَ');
-  const out = findNearDuplicatePairs([{ id: 'arabic-a', text: withFatha }, { id: 'arabic-b', text: withDamma }]);
-  assert.equal(out.pairs.length, 0);
+  const withFatha = ('مُرَاجَعَةُ الأَدِلَّةِ وَتَوْثِيقُ المَصْدَرِ وَسَلَامَةُ السِّجِلِّ. ').repeat(5);
+  const withDamma = withFatha.replaceAll('َ', 'ُ');
+  const out = findNearDuplicatePairs(
+    [{ id: 'arabic-a', text: withFatha }, { id: 'arabic-b', text: withDamma }],
+    { minSimilarity: 0.01, shingleWidth: 2 },
+  );
+  assert.equal(out.pairs.length, 1);
+  assert.ok(out.pairs[0].similarity < 1);
 });
