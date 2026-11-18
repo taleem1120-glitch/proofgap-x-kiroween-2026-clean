@@ -79,6 +79,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         }
         if (cue.incomplete) { sharedPassageIncomplete = true; F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
           `The shared-passage scan for [^${left}] and [^${right}] was incomplete (${cue.basis}); absence of a detected passage is not informative.`, [left, right]);
+        }
       }
     }
 
