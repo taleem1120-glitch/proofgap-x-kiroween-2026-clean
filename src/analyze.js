@@ -6,7 +6,6 @@ import { planClaim } from './planner.js';
 import { classify } from './classify.js';
 import { analyzeGaps, buildAssumptions } from './gaps.js';
 import { integrityNotRequested } from './integrity.js';
-import { findNearDuplicatePairs } from './text-similarity.js';
 
 export const ANALYSIS_VERSION = '0.4.0';
 export const POLICY = Object.freeze({
@@ -102,27 +101,6 @@ export function analyzeCase(c, opts = {}) {
     if (ids.length > 1 && independentPair) warnings.push({ code: 'SAME_NAME_DIFFERENT_ORIGINS', basis: 'heuristic', sourceIds: [...ids].sort(), message: `Sources ${[...ids].sort().map((i) => `"${i}"`).join(', ')} share the name "${n}" but are declared independent; check for an undeclared common origin.` });
   }
   const evById = new Map(c.evidence.map((e) => [e.id, e]));
-  // Bounded near-duplicate text cues are advisory only: they never merge artifacts or alter scores.
-  // Compare only distinct artifact classes with disjoint declared roots; short text is ignored.
-  const nearText = findNearDuplicatePairs(classes.map((k) => ({
-    id: k.canonical, text: evById.get(k.canonical).description,
-  })));
-  for (const pair of nearText.pairs) {
-    const left = classes.find((k) => k.canonical === pair.left);
-    const right = classes.find((k) => k.canonical === pair.right);
-    if (!left || !right) continue;
-    const leftRoots = footprint([...left.sources]), rightRoots = footprint([...right.sources]);
-    if (!disjoint(leftRoots, rightRoots)) continue;
-    warnings.push({
-      code: 'NEAR_DUPLICATE_TEXT_ACROSS_ORIGINS', basis: 'heuristic',
-      evidenceIds: [pair.left, pair.right].sort(),
-      sourceIds: [...new Set([...left.sources, ...right.sources])].sort(),
-      similarity: pair.similarity,
-      message: `Evidence "${pair.left}" and "${pair.right}" have highly similar normalized text (shingle similarity ${pair.similarity}); this is a review cue only, not proof of copying or shared origin.`,
-    });
-  }
-  if (nearText.truncated) notes.push('Near-duplicate text review was bounded; some candidate pairs may not have been compared.');
-
   const descGroups = new Map();
   for (const k of classes) { const d = norm(evById.get(k.canonical).description); descGroups.set(d, [...(descGroups.get(d) ?? []), k]); }
   for (const [, ks] of [...descGroups].sort(([a], [b]) => cmp(a, b))) {
