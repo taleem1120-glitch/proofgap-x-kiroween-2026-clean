@@ -68,6 +68,6 @@ Regression coverage includes multi-chunk UTF-8 input, exact and exceeded byte bo
 
 ## Phase 13 addition: near-duplicate text review cues
 
-Long evidence descriptions are compared using NFKC/case/punctuation/whitespace folding and character-shingle Jaccard similarity. The scan is bounded to 25,000 candidate comparisons and 100 emitted pairs per case. A high-similarity pair across disjoint declared roots emits a heuristic warning and may cause the existing decision layer to abstain; it never merges artifacts, roots, or scores.
+In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation/whitespace folding and character-shingle Jaccard similarity. The scan is bounded to 25,000 candidate comparisons and 100 emitted pairs per case. A high-similarity pair across disjoint declared roots emits a heuristic warning and may cause the existing decision layer to abstain; it never merges artifacts, roots, or scores.
 
 **Residual risk:** similarity is not proof of copying or common authorship. The cue can miss paraphrases, translations, OCR/re-encoding changes, short text, and pairs beyond the deterministic comparison budget. It can also flag independently written text using standard language. Review the original sources and publication history; do not treat the cue as an attribution finding. Tests cover a controlled near-duplicate, unrelated text, bounded execution, and the invariant that origin counts and scores do not change.
