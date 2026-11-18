@@ -46,7 +46,7 @@ test('repeated seed positions disclose incomplete candidate coverage',()=>{
  const result=detectSharedPassage(a,passage);
  assert.equal(result.review,true);
  assert.equal(result.incomplete,true);
- assert.equal(result.basis,'candidate_index_truncated_manual_review');
+ assert.equal(result.basis,'comparison_budget_exceeded_manual_review');
  assert.ok(result.longestRunTokens>=60);
 });
 test('Arabic diacritics are retained when detecting a shared passage',()=>{
