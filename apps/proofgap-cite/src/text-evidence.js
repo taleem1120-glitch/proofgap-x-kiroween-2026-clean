@@ -70,9 +70,9 @@ export function extractTextEvidence(evidence, { evidenceDir, now = Date.now, lim
       if (rejected) continue;
       if (fstatSync(fd).nlink > 1) { fail('UNSAFE_PATH', 'hard_link'); continue; }
       const bytes = Buffer.concat(chunks, size);
+      totalBytes += size; filesRead++;
       let text;
       try { text = decoder.decode(bytes); } catch { fail('UNSUPPORTED', 'invalid_utf8'); continue; }
-      totalBytes += size; filesRead++;
       documents.push({ id: item.id, text });
       results.push({ id: item.id, status: 'READ', bytes: size, basis: 'bounded_local_utf8_text' });
     } catch (e) {
