@@ -54,6 +54,12 @@ test('text extraction is not run unless local source verification is explicitly 
   assert.deepEqual(report.cite.textCopyReview.results, []);
 });
 
+test('malformed evidence entries and unknown extraction limits fail safely', () => {
+  const r = extractTextEvidence([null, { id: 7, file: 'a.txt' }, { id: 'ok', file: 'a.txt' }], { evidenceDir: dir });
+  assert.deepEqual(r.results.map(x => [x.id, x.status]), [[null, 'UNSUPPORTED'], [null, 'UNSUPPORTED'], ['ok', 'READ']]);
+  assert.throws(() => extractTextEvidence([], { evidenceDir: dir, limits: { maxFiles: 1, surprise: 2 } }), RangeError);
+});
+
 test('invalid UTF-8 and unsupported formats are never silently decoded', () => {
   const r = extractTextEvidence([{ id: 'pdf', file: 'bad.pdf' }, { id: 'bin', file: 'binary.txt' }], { evidenceDir: dir });
   assert.deepEqual(r.results.map(x => x.status), ['UNSUPPORTED', 'UNSUPPORTED']);
