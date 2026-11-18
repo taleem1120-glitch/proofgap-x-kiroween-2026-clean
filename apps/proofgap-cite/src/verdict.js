@@ -67,7 +67,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups }) {
     const nearText = findNearDuplicatePairs(cited.map((ct) => ({ id: ct.id, text: refs.get(ct.id).label })));
     const nearTextCues = nearText.pairs.filter((p) => originOfRef.has(p.left) && originOfRef.has(p.right) && originOfRef.get(p.left) !== originOfRef.get(p.right));
     for (const p of nearTextCues) F('NEAR_DUPLICATE_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
-      `[^\u007b p.left \u007d] and [^\u007b p.right \u007d] have highly similar normalized reference text (shingle similarity ${p.similarity}); review publication history, but similarity does not prove a shared origin.`, [p.left, p.right]);
+      `[^${p.left}] and [^${p.right}] have highly similar normalized reference text (shingle similarity ${p.similarity}); review publication history, but similarity does not prove a shared origin.`, [p.left, p.right]);
     if (nearText.truncated) F('NEAR_DUPLICATE_SCAN_BOUNDED', 'heuristic', 'low',
       'Near-duplicate text review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
     for (const g of idCues) F('SAME_IDENTIFIER_DIFFERENT_LINEAGE', 'heuristic', 'medium', `${q(g.refs)} share ${g.identifier.replace(':', ' ')} but are declared as separate lineages; they may be the same piece (syndication or reposting).`, g.refs);
