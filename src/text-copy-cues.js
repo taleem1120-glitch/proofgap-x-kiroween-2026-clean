@@ -135,9 +135,12 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     }
     if (truncated) break;
   }
+  // Any coverage truncation must force review and be reported as incomplete:
+  // a negative result is not meaningful when candidate positions were skipped.
+  const incomplete = truncated || indexTruncated;
   return {
-    review: longest >= minRunTokens || truncated,
-    incomplete: truncated,
+    review: longest >= minRunTokens || incomplete,
+    incomplete,
     longestRunTokens: longest,
     basis: truncated ? 'comparison_budget_exceeded_manual_review' : (indexTruncated ? 'candidate_index_truncated_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage')),
     candidates
