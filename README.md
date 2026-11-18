@@ -88,3 +88,7 @@ Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Copyright 2
 
 ## Layout
 `src/` core (`core.js` = application interface) · `apps/proofgap-x/` application 1 · `apps/proofgap-cite/` application 2 (CLI, examples, showcase) · `viewer/` shared offline viewer + app-1 showcase · `schemas/` JSON Schema · `test/` tests · `bench/` benchmark · `examples/` synthetic data · `docs/` threat model, benchmark, demo · `.kiro/specs/proofgap-x/` requirements, design, tasks, acceptance (all phases) · `.kiro/steering/proofgap-x.md` project rules (added in Phase 7) · `.kiro/KIRO_USAGE.md` factual Kiro usage log.
+
+## Judge presentation
+
+See [`docs/JUDGE_BRIEF.md`](docs/JUDGE_BRIEF.md) for the concise judge brief, reproducible demo sequence, engineering evidence and explicit limitations. The timed 2:50 narration is in [`docs/DEMO.md`](docs/DEMO.md).

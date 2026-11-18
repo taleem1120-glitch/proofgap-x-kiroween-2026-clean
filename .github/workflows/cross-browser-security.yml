@@ -1,0 +1,87 @@
+name: Cross-browser compatibility and security audit
+
+on:
+  push:
+    branches: ['main', 'audit/**']
+    paths:
+      - '.github/workflows/cross-browser-security.yml'
+      - 'scripts/e2e-responsive.cjs'
+      - 'src/**'
+      - 'viewer/**'
+      - 'tools/**'
+      - 'apps/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'test/security.test.js'
+      - 'docs/THREAT_MODEL.md'
+  pull_request:
+    branches: ['main']
+    paths:
+      - '.github/workflows/cross-browser-security.yml'
+      - 'scripts/e2e-responsive.cjs'
+      - 'src/**'
+      - 'viewer/**'
+      - 'tools/**'
+      - 'apps/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'test/security.test.js'
+      - 'docs/THREAT_MODEL.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-browser-security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-matrix:
+    name: ${{ matrix.browser }} compatibility
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install isolated pinned Playwright tooling
+        run: npm install --prefix /tmp/proofgap-playwright --no-save --ignore-scripts playwright@1.56.1
+      - name: Install browser and operating-system dependencies
+        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
+      - name: Run responsive layout, keyboard, RTL and case-authoring checks
+        env:
+          NODE_PATH: /tmp/proofgap-playwright/node_modules
+          PW_BROWSER: ${{ matrix.browser }}
+        run: node scripts/e2e-responsive.cjs
+
+  security-audit:
+    name: Dependency and security regression audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Verify lockfile and install without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Audit production and development dependency tree
+        run: npm audit --audit-level=high
+      - name: Run adversarial security regression suite
+        run: node --test test/security.test.js test/integrity.test.js test/observed.test.js test/fuzz.test.js
+      - name: Verify repository source and release gate
+        run: node scripts/release-source-gate.js
