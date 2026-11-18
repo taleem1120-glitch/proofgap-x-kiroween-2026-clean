@@ -24,7 +24,7 @@ test('bounded UTF-8 extraction reads only supported regular files beneath eviden
     ['a', 'READ'], ['binary', 'UNSUPPORTED'], ['escape', 'UNSAFE_PATH'],
     ['link', 'UNSAFE_PATH'], ['pdf', 'UNSUPPORTED'],
   ]);
-  assert.equal(r.usage.filesRead, 1);
+  assert.equal(r.usage.filesRead, 2); // both regular files were physically read; one failed UTF-8 decoding
   assert.equal(r.usage.totalBytes, Buffer.byteLength(text));
 });
 
@@ -39,7 +39,7 @@ test('shared saved passage creates a human-review finding and Cite abstains, wit
     '[^a]: First report {kind=primary, saved=first.txt}',
     '[^b]: Second report {kind=primary, saved=second.txt}',
   ].join('\n');
-  const report = analyzeNote(note, { sourcesDir: dir });
+  const report = analyzeNote(note, { sourcesDir: dir, reviewTextCopies: true });
   assert.equal(report.claims[0].citeEvidence.independentOrigins, 2);
   assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
   assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_TEXT_OVERLAP'));
@@ -49,7 +49,7 @@ test('shared saved passage creates a human-review finding and Cite abstains, wit
 
 test('text extraction is not run unless local source verification is explicitly requested', () => {
   const note = '# T\n## Claims\n- Claim [^a]\n## References\n[^a]: A {kind=primary, saved=first.txt}';
-  const report = analyzeNote(note);
+  const report = analyzeNote(note, { reviewTextCopies: true });
   assert.equal(report.cite.textCopyReview.mode, 'not_requested');
   assert.deepEqual(report.cite.textCopyReview.results, []);
 });
