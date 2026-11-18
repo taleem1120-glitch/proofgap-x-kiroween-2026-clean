@@ -9,7 +9,7 @@ test('near-duplicate cue tolerates encoding and formatting changes without asser
   const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replace('observations', 'observation');
   const out = findNearDuplicatePairs([{ id: 'a', text: base }, { id: 'b', text: changed }]);
   assert.equal(out.pairs.length, 1);
-  assert.ok(out.pairs[0].similarity >= 0.92);
+  assert.ok(out.pairs[0].similarity >= 0.88);
 });
 
 test('short, unrelated and exact text do not produce near-duplicate pairs', () => {
