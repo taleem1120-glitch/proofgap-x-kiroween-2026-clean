@@ -25,7 +25,7 @@ test('bounded UTF-8 extraction reads only supported regular files beneath eviden
     ['link', 'UNSAFE_PATH'], ['pdf', 'UNSUPPORTED'],
   ]);
   assert.equal(r.usage.filesRead, 2); // both regular files were physically read; one failed UTF-8 decoding
-  assert.equal(r.usage.totalBytes, Buffer.byteLength(text));
+  assert.equal(r.usage.totalBytes, Buffer.byteLength(text) + 3); // includes the physically read invalid UTF-8 bytes
 });
 
 test('shared saved passage creates a human-review finding and Cite abstains, without merging origins', () => {
