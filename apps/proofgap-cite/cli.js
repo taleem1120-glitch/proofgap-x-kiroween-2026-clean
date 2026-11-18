@@ -24,6 +24,7 @@ while (args.length) {
 }
 const format = opt['--format'] ?? 'lint';
 if (!['lint', 'json', 'html'].includes(format)) usage();
+if (reviewTextCopies && !opt['--sources']) usage();
 
 try {
   const report = analyzeNote(readInputFile(input, CITE_LIMITS.maxBytes), { sourcesDir: opt['--sources'], noteName: basename(input), reviewTextCopies });
