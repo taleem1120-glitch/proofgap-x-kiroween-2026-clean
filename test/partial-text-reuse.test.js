@@ -51,7 +51,7 @@ test('repeated seed positions disclose incomplete candidate coverage',()=>{
 });
 test('Arabic diacritics are retained when detecting a shared passage',()=>{
  const marked=Array.from({length:35},(_,i)=>'مُستندٌ أصليّ رقم'+i+' دليلٌ موثّق').join(' ');
- const plain=marked.replace(/[\\u064b-\\u065f]/g,'');
+ const plain=marked.normalize('NFD').replace(/\\p{M}/gu,'');
  const result=detectSharedPassage(marked,plain);
  assert.equal(result.review,false);
  assert.equal(result.basis,'no_long_shared_passage');
