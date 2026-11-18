@@ -36,3 +36,23 @@ test('invalid options and malformed items fail closed', () => {
   assert.throws(() => findNearDuplicatePairs([{ id: 1, text: 'x' }]), /string/);
   assert.throws(() => findNearDuplicatePairs([], { minSimilarity: 2 }), /options/);
 });
+
+
+test('supplementary-plane letters are compared as complete Unicode code points', () => {
+  const base = ('𐐀vidence provenance records independent investigative observations and source lineage. ').repeat(4);
+  const changed = base.replace('observations', 'observation');
+  const out = findNearDuplicatePairs([{ id: 'astral-a', text: base }, { id: 'astral-b', text: changed }]);
+  assert.equal(out.pairs.length, 1);
+  assert.ok(out.pairs[0].similarity >= 0.88);
+});
+
+test('Arabic combining marks are retained during normalization', () => {
+  const withFatha = ('مُرَاجَعَةُ الأَدِلَّةِ وَتَوْثِيقُ المَصْدَرِ وَسَلَامَةُ السِّجِلِّ. ').repeat(5);
+  const withDamma = withFatha.replaceAll('َ', 'ُ');
+  const out = findNearDuplicatePairs(
+    [{ id: 'arabic-a', text: withFatha }, { id: 'arabic-b', text: withDamma }],
+    { minSimilarity: 0.01, shingleWidth: 2 },
+  );
+  assert.equal(out.pairs.length, 1);
+  assert.ok(out.pairs[0].similarity < 1);
+});
