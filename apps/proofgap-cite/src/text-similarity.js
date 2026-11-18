@@ -8,7 +8,7 @@
  */
 const fold = (value) => Array.from(
   String(value).normalize('NFKC').toLowerCase()
-    .replace(/[^\\p{L}\\p{N}\\p{M}]+/gu, ''),
+    .replace(/[^\p{L}\p{N}\p{M}]+/gu, ''),
 );
 
 function shingles(value, width) {
