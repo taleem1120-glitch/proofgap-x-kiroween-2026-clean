@@ -64,7 +64,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     if (inCycle.length) F('CIRCULAR_REPORTING', 'logical', 'high', `${q(inCycle)} sit in a citation cycle (${cycles.filter((cy) => cy.some((x) => inCycle.includes(x))).map((cy) => cy.join(' → ') + ' → ' + cy[0]).join('; ')}); no original source is declared inside the loop.`, inCycle);
     // Full saved-text comparison is opt-in via --sources and uses only safely extracted UTF-8 files.
     // Pair count is bounded by the extractor (30 documents); each pair has a 1,000-comparison budget.
-    const textRefs = cited.filter((c) => textById.has(c.id));
+    const textRefs = cited.filter((c) => c.stance === 'supports' && textById.has(c.id));
     const sharedPassageCues = [];
     let sharedPassageIncomplete = false;
     for (let i = 0; i < textRefs.length; i++) {
