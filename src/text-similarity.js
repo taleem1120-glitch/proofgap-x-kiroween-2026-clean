@@ -54,12 +54,12 @@ export function findNearDuplicatePairs(items, {
     const a = prepared[i];
     for (let j = i + 1; j < prepared.length; j++) {
       const b = prepared[j];
-      if (b.text.length > a.text.length / (1 - minSimilarity)) break;
+      if (b.text.length > a.text.length / minSimilarity) break;
       if (a.id === b.id || a.text === b.text) continue; // exact duplicates have their own stronger path
       if (comparisons >= maxComparisons) { truncated = true; break outer; }
       comparisons++;
       const ratio = a.text.length / b.text.length;
-      if (ratio < 1 - minSimilarity) continue;
+      if (ratio < minSimilarity) continue;
       const similarity = jaccard(a.grams, b.grams);
       if (similarity >= minSimilarity) {
         pairs.push({ left: a.id, right: b.id, similarity: Math.round(similarity * 10000) / 10000 });
