@@ -1,3 +1,5 @@
+> **Historical snapshot — superseded 18 November 2026.** This file contains an earlier release-readiness checklist and outdated statements about repository visibility, licensing, CI, and category readiness. Do not use it as the current submission status. See the current [README](../README.md), [Judge Brief](JUDGE_BRIEF.md), and [CI status](CI_STATUS.md), together with the [official Kiroween 2026 rules](https://kiroween.devpost.com/rules).
+
 # Kiroween 2026 release-candidate readiness (factual; Phase 7, updated Phases 8, 9 and 11)
 
 **Owner actions are listed one by one, each separately authorized, in [`docs/APPROVALS.md`](APPROVALS.md)**, covering licensing, history, merging, visibility, Pages, category and video.
