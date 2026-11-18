@@ -93,7 +93,7 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       !Number.isInteger(maxComparisons) || maxComparisons < 1000 || maxComparisons > 1_000_000)
     throw new RangeError('invalid passage detection bounds');
   const A = normalizeCopyText(a), B = normalizeCopyText(b);
-  if (!A || !B) return { review: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (!A || !B) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const width = Math.min(minRunTokens, 60);
   const aIndex = new Map();
   // Keep only a few positions per seed to bound repetitive-text work. If any
