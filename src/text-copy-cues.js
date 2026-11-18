@@ -16,7 +16,7 @@ export function normalizeCopyText(value, policy = RESEMBLANCE_POLICY) {
   if (typeof value !== 'string' || value.length > policy.maxChars) return null;
   // Avoid inferring a match from short headlines or common legal boilerplate.
   const tokens = value.normalize('NFKC').toLocaleLowerCase('und')
-    .match(/[\p{L}\p{N}]+/gu) ?? [];
+    .match(/[\p{L}\p{M}\p{N}]+/gu) ?? [];
   if (tokens.length < policy.minTokens) return null;
   return tokens;
 }
