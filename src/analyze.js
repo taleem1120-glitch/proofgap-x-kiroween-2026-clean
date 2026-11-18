@@ -104,9 +104,8 @@ export function analyzeCase(c, opts = {}) {
   const evById = new Map(c.evidence.map((e) => [e.id, e]));
   // Bounded near-duplicate text cues are advisory only: they never merge artifacts or alter scores.
   // Compare only distinct artifact classes with disjoint declared roots; short text is ignored.
-  const evidenceById = new Map(c.evidence.map((e) => [e.id, e]));
   const nearText = findNearDuplicatePairs(classes.map((k) => ({
-    id: k.canonical, text: evidenceById.get(k.canonical).description,
+    id: k.canonical, text: evById.get(k.canonical).description,
   })));
   for (const pair of nearText.pairs) {
     const left = classes.find((k) => k.canonical === pair.left);
