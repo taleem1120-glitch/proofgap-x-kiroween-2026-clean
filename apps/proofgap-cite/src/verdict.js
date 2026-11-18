@@ -94,9 +94,15 @@ export function citeVerdicts({ report, note, cycles, identifierGroups }) {
         : `A primary source behind ${roots.length ? q(roots) : `origin ${o.origin}`}, plus a second, independent primary source.`);
     } else if (primaryOrigins.length >= 2) {
       const coreCues = cl.abstentionCues ?? [];
-      if (idCues.length || coreCues.length || nearTextCues.length) {
+      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated) {
         verdict = 'abstain_suspected_shared_origin';
-        missing.push(`Confirmation that ${[...idCues.flatMap((g) => g.refs).map((r) => `[^${r}]`), ...coreCues].join(', ')} are genuinely separate pieces (check bylines, syndication notes, publication history).`);
+        const reviewRefs = [
+          ...idCues.flatMap((g) => g.refs),
+          ...nearTextCues.flatMap((p) => [p.left, p.right]),
+        ].map((r) => `[^${r}]`);
+        const reasons = [...new Set([...reviewRefs, ...coreCues])];
+        if (nearText.truncated) reasons.push('the near-duplicate scan reached its comparison/result budget');
+        missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text scan was ${nearText.truncated ? 'incomplete' : 'complete'}.`);
       } else verdict = 'independently_corroborated';
     } else {
       verdict = 'origin_unresolved';
