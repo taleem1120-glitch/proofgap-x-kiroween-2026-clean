@@ -32,7 +32,7 @@ const safeCaseId = (s) => (String(s).replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/
  * @param {object} [opts] { sourcesDir, noteName, limits }
  * @returns {object} deterministic Cite report (a core report extended with Cite verdicts)
  */
-export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE_LIMITS } = {}) {
+export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE_LIMITS, reviewTextCopies = false } = {}) {
   if (!CORE_API_VERSION.startsWith(REQUIRED_CORE_API)) throw new Error(`ProofGap Cite needs core API ${REQUIRED_CORE_API}x, found ${CORE_API_VERSION}`);
   const note = parseNote(text, limits);
   const built = buildCase(note, safeCaseId(noteName));
@@ -46,7 +46,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
   const report = JSON.parse(serializeReport(core.report)); // plain, canonical copy we can extend
   const usedReferenceIds = new Set(note.claims.flatMap((claim) => claim.cites.map((cite) => cite.id)));
   const savedTextRefs = [...note.references.values()].filter((r) => r.saved && usedReferenceIds.has(r.id)).sort((a, b) => a.id.localeCompare(b.id));
-  const textExtraction = sourcesDir
+  const textExtraction = sourcesDir && reviewTextCopies
     ? extractTextEvidence(savedTextRefs.slice(0, 30).map((r) => ({ id: r.id, file: r.saved })), { evidenceDir: sourcesDir })
     : { documents: [], results: [], usage: { filesRead: 0, totalBytes: 0 }, limits: null };
   const verdicts = citeVerdicts({ report, note, cycles: built.cycles, identifierGroups: built.identifierGroups, textDocuments: textExtraction.documents });
@@ -69,7 +69,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
     citeVersion: CITE_VERSION, coreApiVersion: CORE_API_VERSION, note: { name: noteName, title: note.title, claims: note.claims.length, references: note.references.size },
     references: [...note.references.values()].sort((a, b) => (a.id < b.id ? -1 : 1)).map((r) => ({ id: r.id, line: r.line, label: r.label, kind: r.kind, kindDeclared: r.kindDeclared, url: r.url, doi: r.doi, saved: r.saved, cites: r.cites })),
     cycles: built.cycles, identifierGroups: built.identifierGroups, noteFindings: note.notes,
-    textCopyReview: {
+    ...(reviewTextCopies ? { textCopyReview: {
       mode: sourcesDir ? 'local_saved_text_opt_in' : 'not_requested',
       supportedFormats: ['.txt', '.md', '.csv', '.json'],
       unsupportedFormats: ['PDF', 'HTML', 'XML', 'images', 'OCR', 'binary'],
@@ -77,7 +77,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
       usage: textExtraction.usage,
       omittedBeyondFileLimit: Math.max(0, savedTextRefs.length - 30),
       policy: 'Shared passages and text resemblance are heuristic review cues only. They never merge origins, establish copying, or prove authorship. Files not safely extracted are not compared.',
-    },
+    } } : {}),
     policy: 'independently_corroborated requires >= 2 independent support origins (core), each tracing to a reference declared kind=primary with no declared upstream, and no cue linking them. Citation counts, URLs and DOIs never establish independence.',
   };
   return report;
