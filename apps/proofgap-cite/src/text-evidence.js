@@ -25,6 +25,7 @@ export function extractTextEvidence(evidence, { evidenceDir, now = Date.now, lim
   if (typeof evidenceDir !== 'string' || !evidenceDir) throw new TypeError('evidenceDir is required');
   if (!Array.isArray(evidence) || evidence.length > DEFAULTS.maxFiles) throw new RangeError('text extraction accepts at most 30 files');
   if (typeof now !== 'function') throw new TypeError('now must be a function');
+  if (!limits || typeof limits !== 'object' || Object.keys(limits).some((k) => !Object.hasOwn(DEFAULTS, k))) throw new RangeError('invalid text extraction limits');
   const cfg = { ...DEFAULTS, ...limits };
   for (const [k, v] of Object.entries(cfg)) if (!Number.isSafeInteger(v) || v < 1 || v > DEFAULTS[k]) throw new RangeError('invalid text extraction limits');
   const root = realpathSync(evidenceDir);
@@ -32,8 +33,10 @@ export function extractTextEvidence(evidence, { evidenceDir, now = Date.now, lim
   const start = now(), documents = [], results = [];
   let totalBytes = 0, filesRead = 0;
   const seen = new Set();
-  for (const item of [...evidence].sort((a,b)=>a.id.localeCompare(b.id))) {
-    const fail = (status, reason) => results.push({ id: item.id, status, reason });
+  const ordered = [...evidence].sort((a, b) => String(a?.id ?? '').localeCompare(String(b?.id ?? '')));
+  for (const item of ordered) {
+    const itemId = item && typeof item.id === 'string' ? item.id : null;
+    const fail = (status, reason) => results.push({ id: itemId, status, reason });
     if (!item || typeof item.id !== 'string' || !item.id || typeof item.file !== 'string') { fail('UNSUPPORTED', 'missing_id_or_file'); continue; }
     if (seen.has(item.id)) { fail('UNSUPPORTED', 'duplicate_id'); continue; }
     seen.add(item.id);
