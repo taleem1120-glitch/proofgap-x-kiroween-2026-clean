@@ -12,7 +12,7 @@ const SEGMENT = /^[A-Za-z0-9_.-]{1,255}$/;
 const decoder = new TextDecoder('utf-8', { fatal: true });
 
 function safeRelativePath(p, limits) {
-  if (typeof p !== 'string' || !p || p.length > limits.maxPathLength || p.startsWith('/') || p.includes('\\\\')) return false;
+  if (typeof p !== 'string' || !p || p.length > limits.maxPathLength || p.startsWith('/') || p.includes('\\')) return false;
   const parts = p.split('/');
   return parts.length <= limits.maxPathDepth && parts.every(x => x && x !== '.' && x !== '..' && SEGMENT.test(x));
 }
