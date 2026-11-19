@@ -57,7 +57,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
     cl.decision = v.verdict;
     cl.line = v.line;
     cl.missing = v.missing;
-    cl.citeEvidence = { citations: v.citations, independentOrigins: v.independentOrigins, primaryRootedOrigins: v.primaryRootedOrigins };
+    cl.citeEvidence = { citations: v.citations, independentOrigins: v.independentOrigins, primaryRootedOrigins: v.primaryRootedOrigins, supportStress: v.supportStress };
     cl.findings = [...v.findings, ...cl.findings];
     cl.explanation = [v.explanation, ...cl.explanation];
     counts[v.verdict] = (counts[v.verdict] ?? 0) + 1;
