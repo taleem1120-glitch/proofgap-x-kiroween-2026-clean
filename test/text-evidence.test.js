@@ -23,7 +23,7 @@ test('bounded UTF-8 extraction reads only supported regular files beneath eviden
   assert.deepEqual(r.documents.map(x => x.id), ['a']);
   assert.deepEqual(r.results.map(x => [x.id, x.status]), [
     ['a', 'READ'], ['binary', 'UNSUPPORTED'], ['escape', 'UNSAFE_PATH'],
-    ['link', 'UNSAFE_PATH'], ['pdf', 'UNSUPPORTED'],
+    ['link', 'UNSAFE_PATH'], ['pdf', 'UNSUPPORTED'], ['windows_escape', 'UNSAFE_PATH'],
   ]);
   assert.equal(r.usage.filesRead, 2); // both regular files were physically read; one failed UTF-8 decoding
   assert.equal(r.usage.totalBytes, Buffer.byteLength(text) + 3); // includes the physically read invalid UTF-8 bytes
