@@ -29,3 +29,10 @@ test('reject large collections and oversized input rather than score misleading 
   assert.throws(()=>findSuspectedTextCopies(Array.from({length:51},(_,i)=>({id:String(i),text:base}))),RangeError);
   assert.equal(compareTextCopies('x'.repeat(200001),base).reason,'insufficient_or_unsupported_text');
 });
+
+test('Arabic combining marks remain part of normalized tokens', () => {
+  const plain = 'كتاب';
+  const marked = 'كِتَاب';
+  assert.deepEqual(normalizeCopyText(marked, { ...({ minTokens: 1, maxChars: 200000 }) }).slice(0, 1), [marked]);
+  assert.notDeepEqual(normalizeCopyText(marked, { minTokens: 1, maxChars: 200000 }), normalizeCopyText(plain, { minTokens: 1, maxChars: 200000 }));
+});
