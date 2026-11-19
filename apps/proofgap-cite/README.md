@@ -47,6 +47,9 @@ Attributes, all optional: `kind=primary|secondary|unknown` (default unknown), `u
 | `conflicting` / `contradicted` / `unsupported` | as named |
 Every non-corroborated verdict lists **what is missing**.
 
+### Primary-origin leave-one-out stress metric
+Each claim also includes `citeEvidence.supportStress`: a deterministic structural counterfactual that reports the declared primary-rooted origin count, how many remain after removing one origin, and whether any single-origin removal would leave at least two. This is a redundancy measure over declared lineage—not a truth, reliability, or real-world independence assessment. It does not rerun or re-score the claim.
+
 ## What it does not trust
 - `kind`, `url`, `doi` and `cites` are the author's declarations.
 - **Different URLs or outlets never count as independence.** Identical URLs or DOIs are only a cue, never proof of sameness.
