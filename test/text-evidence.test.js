@@ -98,4 +98,5 @@ test('failed saved-text extraction forces review-only abstention rather than sil
   assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
   assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE' && /missing/.test(x.message)));
 });
-\ntest('cleanup', () => { rmSync(dir, { recursive: true, force: true }); });
+
+test('cleanup', () => { rmSync(dir, { recursive: true, force: true }); });
