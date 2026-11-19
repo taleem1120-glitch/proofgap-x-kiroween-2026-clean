@@ -70,7 +70,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     const unextractedSavedRefs = savedSupportingRefs.filter((c) => !textById.has(c.id));
     const sharedPassageCues = [];
     let sharedPassageIncomplete = unextractedSavedRefs.length > 0, sharedPassagePairs = 0;
-    if (unextractedSavedRefs.length) F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low,
+    if (unextractedSavedRefs.length) F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
       `Shared-passage review could not extract saved text for ${q(unextractedSavedRefs.map((x) => x.id))}; unsupported, missing, unsafe, or limit-skipped files cannot be treated as having no overlap.`, unextractedSavedRefs.map((x) => x.id));
     const maxSharedPassagePairsPerClaim = 50;
     outerPassage: for (let i = 0; i < textRefs.length; i++) {
