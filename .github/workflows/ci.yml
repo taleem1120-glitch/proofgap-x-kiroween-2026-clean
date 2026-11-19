@@ -71,8 +71,8 @@ jobs:
           package-manager-cache: false
       - name: Install isolated Playwright browser tooling
         run: npm install --prefix /tmp/proofgap-playwright --no-save playwright@1.56.1
-      - name: Install Chromium and system dependencies
-        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install --with-deps chromium
+      - name: Install Chromium browser (runner system libraries)
+        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install chromium
       - name: Test responsive pages and interactions
         env:
           NODE_PATH: /tmp/proofgap-playwright/node_modules

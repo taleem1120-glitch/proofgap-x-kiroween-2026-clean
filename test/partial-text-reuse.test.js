@@ -39,3 +39,20 @@ test('repeated-text resource limits return an inconclusive manual-review signal'
  assert.equal(x.incomplete,true);
  assert.equal(x.basis,'comparison_budget_exceeded_manual_review');
 });
+
+test('repeated seed positions disclose incomplete candidate coverage',()=>{
+ const passage=part('repeated-passage',60);
+ const a=Array.from({length:7},(_,i)=>passage+' separator'+i).join(' ');
+ const result=detectSharedPassage(a,passage);
+ assert.equal(result.review,true);
+ assert.equal(result.incomplete,true);
+ assert.equal(result.basis,'comparison_budget_exceeded_manual_review');
+ assert.ok(result.longestRunTokens>=60);
+});
+test('Arabic diacritics are retained when detecting a shared passage',()=>{
+ const marked=Array.from({length:35},(_,i)=>'مُستندٌ أصليّ رقم'+i+' دليلٌ موثّق').join(' ');
+ const plain=marked.normalize('NFD').replace(/\p{M}/gu,'');
+ const result=detectSharedPassage(marked,plain);
+ assert.equal(result.review,false);
+ assert.equal(result.basis,'no_long_shared_passage');
+});

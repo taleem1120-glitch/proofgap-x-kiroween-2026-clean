@@ -16,7 +16,7 @@ export function normalizeCopyText(value, policy = RESEMBLANCE_POLICY) {
   if (typeof value !== 'string' || value.length > policy.maxChars) return null;
   // Avoid inferring a match from short headlines or common legal boilerplate.
   const tokens = value.normalize('NFKC').toLocaleLowerCase('und')
-    .match(/[\p{L}\p{N}]+/gu) ?? [];
+    .match(/[\p{L}\p{M}\p{N}]+/gu) ?? [];
   if (tokens.length < policy.minTokens) return null;
   return tokens;
 }
@@ -93,15 +93,19 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       !Number.isInteger(maxComparisons) || maxComparisons < 1000 || maxComparisons > 1_000_000)
     throw new RangeError('invalid passage detection bounds');
   const A = normalizeCopyText(a), B = normalizeCopyText(b);
-  if (!A || !B) return { review: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (!A || !B) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const width = Math.min(minRunTokens, 60);
   const aIndex = new Map();
-  // Token-position index; bounded by the same 200k-character per-text input guard.
+  // Keep only a few positions per seed to bound repetitive-text work. If any
+  // seed is capped, the result must disclose that candidate coverage is partial.
+  let indexTruncated = false;
   for (let i = 0; i + width <= A.length; i++) {
     const key = A.slice(i, i + width).join(' ');
     const positions = aIndex.get(key);
-    if (positions) { if (positions.length < 4) positions.push(i); }
-    else aIndex.set(key, [i]);
+    if (positions) {
+      if (positions.length < 4) positions.push(i);
+      else indexTruncated = true;
+    } else aIndex.set(key, [i]);
   }
   let longest = 0;
   let work = 0;
@@ -131,11 +135,14 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     }
     if (truncated) break;
   }
+  // Any coverage truncation must force review and be reported as incomplete:
+  // a negative result is not meaningful when candidate positions were skipped.
+  const incomplete = truncated || indexTruncated;
   return {
-    review: longest >= minRunTokens || truncated,
-    incomplete: truncated,
+    review: longest >= minRunTokens || incomplete,
+    incomplete,
     longestRunTokens: longest,
-    basis: truncated ? 'comparison_budget_exceeded_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage'),
+    basis: truncated ? 'comparison_budget_exceeded_manual_review' : (indexTruncated ? 'candidate_index_truncated_manual_review' : (longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage')),
     candidates
   };
 }
