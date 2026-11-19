@@ -89,4 +89,13 @@ test('invalid UTF-8 and unsupported formats are never silently decoded', () => {
   assert.deepEqual(r.results.map(x => x.status), ['UNSUPPORTED', 'UNSUPPORTED']);
 });
 
-test('cleanup', () => { rmSync(dir, { recursive: true, force: true }); });
+test('failed saved-text extraction forces review-only abstention rather than silently clearing overlap risk', () => {
+  const note = ['# Missing text review', '## Claims', '- Claim supported by [^a] [^b] [^missing]', '## References',
+    '[^a]: First {kind=primary, saved=first.txt}',
+    '[^b]: Second {kind=primary, saved=second.txt}',
+    '[^missing]: Third {kind=primary, saved=missing.txt}'].join('\\n');
+  const report = analyzeNote(note, { sourcesDir: dir, reviewTextCopies: true });
+  assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
+  assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE' && /missing/.test(x.message)));
+});
+\ntest('cleanup', () => { rmSync(dir, { recursive: true, force: true }); });
