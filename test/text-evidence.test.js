@@ -18,6 +18,7 @@ test('bounded UTF-8 extraction reads only supported regular files beneath eviden
     { id: 'a', file: 'a.txt' }, { id: 'pdf', file: 'bad.pdf' },
     { id: 'binary', file: 'binary.txt' }, { id: 'link', file: 'link.txt' },
     { id: 'escape', file: '../outside.txt' },
+    { id: 'windows_escape', file: 'folder\\\\..\\\\outside.txt' },
   ], { evidenceDir: dir });
   assert.deepEqual(r.documents.map(x => x.id), ['a']);
   assert.deepEqual(r.results.map(x => [x.id, x.status]), [
