@@ -66,9 +66,17 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     // Pair count is bounded by the extractor (30 documents); each pair has a 1,000-comparison budget.
     const textRefs = cited.filter((c) => c.stance === 'supports' && textById.has(c.id));
     const sharedPassageCues = [];
-    let sharedPassageIncomplete = false;
-    for (let i = 0; i < textRefs.length; i++) {
+    let sharedPassageIncomplete = false, sharedPassagePairs = 0;
+    const maxSharedPassagePairsPerClaim = 50;
+    outerPassage: for (let i = 0; i < textRefs.length; i++) {
       for (let j = i + 1; j < textRefs.length; j++) {
+        if (sharedPassagePairs >= maxSharedPassagePairsPerClaim) {
+          sharedPassageIncomplete = true;
+          F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
+            `Shared-passage review stopped at its per-claim pair budget (${maxSharedPassagePairsPerClaim}); ${textRefs.length - i} citation(s) may remain unreviewed. No conclusion about their overlap is possible.`, textRefs.slice(i).map(x => x.id));
+          break outerPassage;
+        }
+        sharedPassagePairs++;
         const left = textRefs[i].id, right = textRefs[j].id;
         const cue = detectSharedPassage(textById.get(left), textById.get(right), { maxComparisons: 1000 });
         if (cue.longestRunTokens >= 60) {
