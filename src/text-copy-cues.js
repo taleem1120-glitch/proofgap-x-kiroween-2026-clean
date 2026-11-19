@@ -16,7 +16,7 @@ export function normalizeCopyText(value, policy = RESEMBLANCE_POLICY) {
   if (typeof value !== 'string' || value.length > policy.maxChars) return null;
   // Avoid inferring a match from short headlines or common legal boilerplate.
   const tokens = value.normalize('NFKC').toLocaleLowerCase('und')
-    .match(/[\p{L}\p{N}]+/gu) ?? [];
+    .match(/[\p{L}\p{N}\p{M}]+/gu) ?? [];
   if (tokens.length < policy.minTokens) return null;
   return tokens;
 }
@@ -93,7 +93,7 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       !Number.isInteger(maxComparisons) || maxComparisons < 1000 || maxComparisons > 1_000_000)
     throw new RangeError('invalid passage detection bounds');
   const A = normalizeCopyText(a), B = normalizeCopyText(b);
-  if (!A || !B) return { review: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (!A || !B) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const width = Math.min(minRunTokens, 60);
   const aIndex = new Map();
   // Token-position index; bounded by the same 200k-character per-text input guard.
