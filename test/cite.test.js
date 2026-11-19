@@ -264,3 +264,30 @@ test('support stress metric shows whether corroboration survives removing one pr
   assert.equal(three.claims[0].citeEvidence.supportStress.afterRemovingOnePrimaryOrigin, 2);
   assert.equal(three.claims[0].citeEvidence.supportStress.singleOriginRemovalKeepsTwoPrimaryOrigins, true);
 });
+
+test('adversarial benchmark: citation volume from one declared primary must not inflate origins', () => {
+  const refs = [P('root'), ...Array.from({length:12}, (_,i)=>S('echo'+i, ', cites=root'))];
+  const r = run(['Claim [^root] '+refs.slice(1).map((x,i)=>'[^echo'+i+']').join(' ')], refs);
+  assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 1);
+  assert.equal(v(r), 'single_origin');
+});
+
+test('adversarial benchmark: two apparent primaries with shared URL trigger abstention', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a', ', url=https://origin.example/story?utm_campaign=one'), P('b', ', url=https://www.origin.example/story/')]);
+  assert.equal(v(r), 'abstain_suspected_shared_origin');
+});
+
+test('adversarial benchmark: removing one primary leaves one origin and fails two-origin redundancy threshold', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a'), P('b')]);
+  const stress = r.claims[0].citeEvidence.supportStress;
+  assert.equal(stress.afterRemovingOnePrimaryOrigin, 1);
+  assert.equal(stress.singleOriginRemovalKeepsTwoPrimaryOrigins, false);
+});
+
+test('adversarial benchmark: reference order permutation preserves verdict and stress summary', () => {
+  const refs = [P('a'), P('b'), S('c', ', cites=a'), S('d', ', cites=b')];
+  const x = run(['Claim [^a] [^b] [^c] [^d]'], refs);
+  const y = run(['Claim [^d] [^c] [^b] [^a]'], [...refs].reverse());
+  assert.equal(v(x), v(y));
+  assert.deepEqual(x.claims[0].citeEvidence.supportStress, y.claims[0].citeEvidence.supportStress);
+});
