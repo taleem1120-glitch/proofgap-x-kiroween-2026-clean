@@ -24,7 +24,6 @@ const q = (xs) => xs.map((x) => `[^${x}]`).join(', ');
 export function citeVerdicts({ report, note, cycles, identifierGroups, textDocuments = [], textExtractionResults = [], textReviewEnabled = false }) {
   const textById = new Map(textDocuments.map((d) => [d.id, d.text]));
   const extractionById = new Map(textExtractionResults.map((r) => [r.id, r]));
-  const extractionById = new Map(textExtractionResults.map((r) => [r.id, r]));
   const refs = note.references;
   const isPrimaryRoot = (root) => {
     if (!root.startsWith('source:')) return false;
