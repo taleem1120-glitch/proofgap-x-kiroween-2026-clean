@@ -21,8 +21,9 @@ export const CITE_VERDICTS = Object.freeze({
 
 const q = (xs) => xs.map((x) => `[^${x}]`).join(', ');
 
-export function citeVerdicts({ report, note, cycles, identifierGroups, textDocuments = [] }) {
+export function citeVerdicts({ report, note, cycles, identifierGroups, textDocuments = [], textExtractionResults = [], textReviewEnabled = false }) {
   const textById = new Map(textDocuments.map((d) => [d.id, d.text]));
+  const extractionById = new Map(textExtractionResults.map((r) => [r.id, r]));
   const refs = note.references;
   const isPrimaryRoot = (root) => {
     if (!root.startsWith('source:')) return false;
@@ -65,8 +66,12 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     // Full saved-text comparison is opt-in via --sources and uses only safely extracted UTF-8 files.
     // Pair count is bounded by the extractor (30 documents); each pair has a 1,000-comparison budget.
     const textRefs = cited.filter((c) => c.stance === 'supports' && textById.has(c.id));
+    const savedSupportingRefs = textReviewEnabled ? cited.filter((c) => c.stance === 'supports' && refs.get(c.id)?.saved) : [];
+    const unextractedSavedRefs = savedSupportingRefs.filter((c) => !textById.has(c.id));
     const sharedPassageCues = [];
-    let sharedPassageIncomplete = false, sharedPassagePairs = 0;
+    let sharedPassageIncomplete = unextractedSavedRefs.length > 0, sharedPassagePairs = 0;
+    if (unextractedSavedRefs.length) F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low,
+      `Shared-passage review could not extract saved text for ${q(unextractedSavedRefs.map((x) => x.id))}; unsupported, missing, unsafe, or limit-skipped files cannot be treated as having no overlap.`, unextractedSavedRefs.map((x) => x.id));
     const maxSharedPassagePairsPerClaim = 50;
     outerPassage: for (let i = 0; i < textRefs.length; i++) {
       for (let j = i + 1; j < textRefs.length; j++) {
