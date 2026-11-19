@@ -52,8 +52,8 @@ test('per-pair shared-passage comparison exhaustion is surfaced and abstains', (
   writeFileSync(join(dir, 'long-a.txt'), passage);
   writeFileSync(join(dir, 'long-b.txt'), `opening ${passage} closing`);
   const note = ['# Comparison budget', '## Claims', '- Claim supported by [^a] [^b]', '## References',
-    [^a]: First {kind=primary, saved=long-a.txt}',
-    [^b]: Second {kind=primary, saved=long-b.txt}'].join('\n');
+    '[^a]: First {kind=primary, saved=long-a.txt}',
+    '[^b]: Second {kind=primary, saved=long-b.txt}'].join('\n');
   const report = analyzeNote(note, { sourcesDir: dir, reviewTextCopies: true });
   assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
   assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE' && /comparison_budget_exceeded_manual_review/.test(x.message)));
