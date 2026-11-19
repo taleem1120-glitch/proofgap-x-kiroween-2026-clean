@@ -52,7 +52,9 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
   }
   let longest = 0, work = 0, truncated = false;
   const candidates = [];
+  let coveredUntil = 0;
   outer: for (let j = 0; j < right.keys.length; j++) {
+    if (j < coveredUntil) continue;
     const positions = index.get(right.keys[j]);
     if (!positions) continue;
     for (const i of positions) {
@@ -76,6 +78,7 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       }
       const n = endA - startA;
       longest = Math.max(longest, n);
+      coveredUntil = Math.max(coveredUntil, endB - width + 1);
       if (n >= minRunTokens && candidates.length < maxCandidates &&
           !candidates.some(x => x.startA === startA && x.startB === startB)) {
         candidates.push({ startA, startB, tokens: n });
