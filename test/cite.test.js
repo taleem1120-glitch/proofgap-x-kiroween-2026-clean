@@ -32,7 +32,20 @@ const issues = (fn) => { try { fn(); } catch (e) { assert.ok(e instanceof CiteVa
 test('two independent primaries -> independently_corroborated; copies of them add no origin', () => {
   const r = run(['Claim [^a] [^b] [^c]'], [P('a'), P('b'), S('c', ', cites=a')]);
   assert.equal(v(r), 'independently_corroborated');
-  assert.deepEqual(r.claims[0].citeEvidence, { citations: 3, independentOrigins: 2, primaryRootedOrigins: 2 });
+  assert.deepEqual(r.claims[0].citeEvidence, {
+    citations: 3, independentOrigins: 2, primaryRootedOrigins: 2,
+    supportStress: {
+      metric: 'declared_primary_origin_leave_one_out',
+      baselinePrimaryOrigins: 2,
+      afterRemovingOnePrimaryOrigin: 1,
+      singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+      scenarios: [
+        { removedOrigin: 'source:a', remainingPrimaryOrigins: 1 },
+        { removedOrigin: 'source:b', remainingPrimaryOrigins: 1 },
+      ],
+      caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+    },
+  });
 });
 
 test('press-release echo: many secondaries citing one primary -> single_origin with exact missing item', () => {
@@ -172,7 +185,17 @@ test('unused references are reported as note findings', () => {
 test('example note: one claim per verdict, exactly as documented', () => {
   const r = analyzeNote(readFileSync(join(EX, 'water-note.md'), 'utf8'), { sourcesDir: join(EX, 'sources'), noteName: 'water-note.md' });
   assert.deepEqual(r.claims.map((c) => [c.line, c.decision]), [[6, 'single_origin'], [7, 'independently_corroborated'], [8, 'circular_reporting'], [9, 'origin_unresolved'], [10, 'abstain_suspected_shared_origin'], [11, 'unsupported']]);
-  assert.deepEqual(r.claims[0].citeEvidence, { citations: 6, independentOrigins: 1, primaryRootedOrigins: 1 });
+  assert.deepEqual(r.claims[0].citeEvidence, {
+    citations: 6, independentOrigins: 1, primaryRootedOrigins: 1,
+    supportStress: {
+      metric: 'declared_primary_origin_leave_one_out',
+      baselinePrimaryOrigins: 1,
+      afterRemovingOnePrimaryOrigin: 0,
+      singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+      scenarios: [{ removedOrigin: 'source:pr', remainingPrimaryOrigins: 0 }],
+      caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+    },
+  });
   const ag = r.integrity.results.find((x) => x.evidenceId === 'doc.ag');
   assert.deepEqual([ag.status, ag.reason], ['MISSING', 'file_not_found']);
 });
