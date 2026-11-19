@@ -7,6 +7,7 @@ Explainable evidence-confidence stress testing for digital investigations (Kirow
 ## What it does
 Reads a structured JSON case and answers, per claim: *how many genuinely independent origins stand behind the support, and what exactly is missing?*
 - **Independence engine** – derived copies, shared origin groups, identical artifacts and bridge sources collapse into one origin, with plain-language reasons. Independence is always labelled **declared, not verified**.
+- **Near-duplicate text review cue** – bounded Unicode-normalized character-shingle similarity in ProofGap Cite can flag long, highly similar reference labels across declared-independent citation origins. It only triggers review/abstention; it never merges origins, changes scores, or proves copying.
 - **Proof-gap engine** – LOGICAL findings (e.g. `FALSE_CORROBORATION`, `CONFLICT_UNRESOLVED`) plus ranked HEURISTIC suggestions, each stating what it would show and what it would **not** show.
 - **Local integrity (opt-in)** – `--evidence-dir` checks declared SHA-256 values against real files, returning `VERIFIED | MISMATCH | MISSING | UNSAFE_PATH | NOT_CHECKED`. Without it, declared hashes are shown as unverified.
 - **Reports** – deterministic JSON (`--format json`, default), human-readable text (`--format text`) and a self-contained offline HTML viewer (`--format html [--compare other.json]`).
@@ -79,6 +80,7 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 - Scores are an uncalibrated heuristic (noisy-OR over independent origins; threshold of 2), not probabilities.
 - A SHA-256 match proves byte equality only. Hard links inside the evidence directory are hashed. Byte-identical common files held by genuinely independent sources (a public PDF, a template) would be merged; that is a conservative error and is not measured. Windows/macOS and exotic filesystems are untested.
 - The benchmark is synthetic and written by the tool's author; see `docs/BENCHMARK.md`. No real-world accuracy claim is made.
+- Near-duplicate text cues are heuristic and bounded (25,000 pair comparisons / 100 reported pairs per case). They may miss paraphrases, translations, OCR changes, or pairs beyond the comparison budget; similarity is not proof of shared origin.
 - No independent third-party security review or human screen-reader audit has been completed.
 - Chromium, Firefox and WebKit automated browser checks passed on the PR #28 head; Windows/macOS and assistive-technology testing remain unverified.
 - Synthetic benchmarks and browser automation do not establish real-world accuracy, legal admissibility, or production readiness.

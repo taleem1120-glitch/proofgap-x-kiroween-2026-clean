@@ -64,3 +64,10 @@ The shared core's public file helpers are now explicitly bounded. `readInputFile
 Regression coverage includes multi-chunk UTF-8 input, exact and exceeded byte boundaries, empty input, invalid limits before filesystem access, invalid writer arguments, UTF-8 output byte accounting, no-overwrite behavior, and refusal to replace a symlink target.
 
 **Platform scope:** the active CI matrix runs Node 20 and Node 22 on Ubuntu 24.04. The POSIX-specific symlink/FIFO tests are skipped on Windows where applicable; this project does not claim Windows or macOS compatibility based on this CI. Mode `0600`, `O_NOFOLLOW`, `O_NONBLOCK`, device/inode identity and filesystem race behavior must be evaluated on each supported platform before making cross-platform security claims.
+
+
+## Phase 13 addition: near-duplicate text review cues
+
+In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation/whitespace folding and character-shingle Jaccard similarity. The scan is bounded to 25,000 candidate comparisons and 100 emitted pairs per case. A high-similarity pair across disjoint declared roots emits a heuristic warning and may cause the existing decision layer to abstain; it never merges artifacts, roots, or scores.
+
+**Residual risk:** similarity is not proof of copying or common authorship. The cue can miss paraphrases, translations, OCR/re-encoding changes, short text, and pairs beyond the deterministic comparison budget. It can also flag independently written text using standard language. Review the original sources and publication history; do not treat the cue as an attribution finding. Tests cover a controlled near-duplicate, unrelated text, bounded execution, and the invariant that origin counts and scores do not change.
