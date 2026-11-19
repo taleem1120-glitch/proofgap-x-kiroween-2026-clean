@@ -5,7 +5,7 @@ import { readInputFile, writeNewFile, IntegrityConfigError } from '../../src/cor
 import { analyzeNote, renderLint, serializeCiteReport, renderCiteHtml, allCorroborated, CiteValidationError, CITE_LIMITS } from './src/index.js';
 
 // Exit codes: 0 ok, 1 invalid input / I/O failure, 2 usage, 3 gaps found (only with --fail-on-gaps).
-const USAGE = 'Usage: proofgap-cite <note.md> [--sources dir] [--format lint|json|html] [--out file] [--fail-on-gaps]';
+const USAGE = 'Usage: proofgap-cite <note.md> [--sources dir] [--review-text-copies] [--format lint|json|html] [--out file] [--fail-on-gaps]';
 const usage = () => { console.error(USAGE); process.exit(2); };
 
 const args = process.argv.slice(2);
@@ -13,18 +13,21 @@ const input = args.shift();
 if (!input || input.startsWith('-')) usage();
 const opt = {};
 let failOnGaps = false;
+let reviewTextCopies = false;
 while (args.length) {
   const f = args.shift();
   if (f === '--fail-on-gaps') { if (failOnGaps) usage(); failOnGaps = true; continue; }
+  if (f === '--review-text-copies') { if (reviewTextCopies) usage(); reviewTextCopies = true; continue; }
   const v = args.shift();
   if (!['--sources', '--format', '--out'].includes(f) || v === undefined || v.startsWith('-') || Object.hasOwn(opt, f)) usage();
   opt[f] = v;
 }
 const format = opt['--format'] ?? 'lint';
 if (!['lint', 'json', 'html'].includes(format)) usage();
+if (reviewTextCopies && !opt['--sources']) usage();
 
 try {
-  const report = analyzeNote(readInputFile(input, CITE_LIMITS.maxBytes), { sourcesDir: opt['--sources'], noteName: basename(input) });
+  const report = analyzeNote(readInputFile(input, CITE_LIMITS.maxBytes), { sourcesDir: opt['--sources'], noteName: basename(input), reviewTextCopies });
   const out = format === 'json' ? serializeCiteReport(report) : format === 'html' ? renderCiteHtml([serializeCiteReport(report)]) : renderLint(report);
   if (opt['--out']) writeNewFile(opt['--out'], out);
   else process.stdout.write(out);
