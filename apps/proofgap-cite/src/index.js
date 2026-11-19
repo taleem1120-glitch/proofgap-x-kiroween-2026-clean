@@ -49,7 +49,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
   const textExtraction = sourcesDir && reviewTextCopies
     ? extractTextEvidence(savedTextRefs.slice(0, 30).map((r) => ({ id: r.id, file: r.saved })), { evidenceDir: sourcesDir })
     : { documents: [], results: [], usage: { filesRead: 0, totalBytes: 0 }, limits: null };
-  const verdicts = citeVerdicts({ report, note, cycles: built.cycles, identifierGroups: built.identifierGroups, textDocuments: textExtraction.documents });
+  const verdicts = citeVerdicts({ report, note, cycles: built.cycles, identifierGroups: built.identifierGroups, textDocuments: textExtraction.documents, textExtractionResults: textExtraction.results, textReviewEnabled: Boolean(sourcesDir && reviewTextCopies) });
   const counts = {};
   for (const cl of report.claims) {
     const v = verdicts.get(cl.claimId);
