@@ -222,3 +222,22 @@ test('a self-citing "primary" is not an original source (only path where the pri
   assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 1);
   assert.equal(v(r), 'origin_unresolved');
 });
+
+test('support stress metric shows whether corroboration survives removing one primary origin', () => {
+  const two = run(['Claim [^a] [^b]'], [P('a'), P('b')]);
+  assert.deepEqual(two.claims[0].citeEvidence.supportStress, {
+    metric: 'declared_primary_origin_leave_one_out',
+    baselinePrimaryOrigins: 2,
+    afterRemovingOnePrimaryOrigin: 1,
+    singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+    scenarios: [
+      { removedOrigin: 'source:a', remainingPrimaryOrigins: 1 },
+      { removedOrigin: 'source:b', remainingPrimaryOrigins: 1 },
+    ],
+    caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+  });
+  const three = run(['Claim [^a] [^b] [^c]'], [P('a'), P('b'), P('c')]);
+  assert.equal(three.claims[0].citeEvidence.supportStress.baselinePrimaryOrigins, 3);
+  assert.equal(three.claims[0].citeEvidence.supportStress.afterRemovingOnePrimaryOrigin, 2);
+  assert.equal(three.claims[0].citeEvidence.supportStress.singleOriginRemovalKeepsTwoPrimaryOrigins, true);
+});
