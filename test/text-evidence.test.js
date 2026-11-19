@@ -47,6 +47,17 @@ test('shared saved passage creates a human-review finding and Cite abstains, wit
   assert.equal(report.cite.textCopyReview.results.filter(x => x.status === 'READ').length, 2);
 });
 
+test('per-pair shared-passage comparison exhaustion is surfaced and abstains', () => {
+  const passage = Array.from({ length: 1400 }, (_, i) => `long shared evidence token${i}`).join(' ');
+  writeFileSync(join(dir, 'long-a.txt'), passage);
+  writeFileSync(join(dir, 'long-b.txt'), `opening ${passage} closing`);
+  const note = ['# Comparison budget', '## Claims', '- Claim supported by [^a] [^b]', '## References',
+    [^a]: First {kind=primary, saved=long-a.txt}',
+    [^b]: Second {kind=primary, saved=long-b.txt}'].join('\n');
+  const report = analyzeNote(note, { sourcesDir: dir, reviewTextCopies: true });
+  assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
+  assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE' && /comparison_budget_exceeded_manual_review/.test(x.message)));
+});
 test('shared-passage pair budget is explicit and fails closed for larger citation sets', () => {
   const passage = Array.from({ length: 65 }, (_, i) => `distinctive shared passage token${i}`).join(' ');
   const refs = Array.from({ length: 12 }, (_, i) => {
