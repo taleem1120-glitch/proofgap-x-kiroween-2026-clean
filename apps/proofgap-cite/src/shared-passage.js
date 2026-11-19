@@ -5,7 +5,7 @@
  */
 const normalize = (value) => {
   if (typeof value !== 'string' || value.length > 200_000) return null;
-  const tokens = value.normalize('NFKC').toLocaleLowerCase('und').match(/[\\p{L}\\p{M}\\p{N}]+/gu) ?? [];
+  const tokens = value.normalize('NFKC').toLocaleLowerCase('und').match(/[\p{L}\p{M}\p{N}]+/gu) ?? [];
   return tokens.length >= 30 ? tokens : null;
 };
 
