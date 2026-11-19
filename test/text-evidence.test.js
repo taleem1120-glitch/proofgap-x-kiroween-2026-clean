@@ -47,6 +47,18 @@ test('shared saved passage creates a human-review finding and Cite abstains, wit
   assert.equal(report.cite.textCopyReview.results.filter(x => x.status === 'READ').length, 2);
 });
 
+test('shared-passage pair budget is explicit and fails closed for larger citation sets', () => {
+  const passage = Array.from({ length: 65 }, (_, i) => `distinctive shared passage token${i}`).join(' ');
+  const refs = Array.from({ length: 12 }, (_, i) => {
+    const id = `r${i}`, file = `budget-${i}.txt`;
+    writeFileSync(join(dir, file), `unique document ${i} prefix ${passage} unique document ${i} suffix`);
+    return `[^${id}]: Report ${i} {kind=primary, saved=${file}}`;
+  });
+  const note = ['# Pair budget', '## Claims', `- Claim supported by ${Array.from({ length: 12 }, (_, i) => `[^r${i}]`).join(' ')}`, '## References', ...refs].join('\n');
+  const report = analyzeNote(note, { sourcesDir: dir, reviewTextCopies: true });
+  assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
+  assert.ok(report.claims[0].findings.some(x => x.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE' && /pair budget/.test(x.message)));
+});
 test('text extraction is not run unless local source verification is explicitly requested', () => {
   const note = '# T\n## Claims\n- Claim [^a]\n## References\n[^a]: A {kind=primary, saved=first.txt}';
   const report = analyzeNote(note, { reviewTextCopies: true });
