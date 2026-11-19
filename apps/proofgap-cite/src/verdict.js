@@ -155,6 +155,14 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     out.set(cl.claimId, {
       verdict, line: lineOf.get(cl.claimId), findings, missing,
       citations: cited.length, independentOrigins: sup.length, primaryRootedOrigins: primaryOrigins.length,
+      supportStress: {
+        metric: 'declared_primary_origin_leave_one_out',
+        baselinePrimaryOrigins: primaryOrigins.length,
+        afterRemovingOnePrimaryOrigin: Math.max(0, primaryOrigins.length - 1),
+        singleOriginRemovalKeepsTwoPrimaryOrigins: primaryOrigins.length >= 3,
+        scenarios: primaryOrigins.map((o) => ({ removedOrigin: o.origin, remainingPrimaryOrigins: Math.max(0, primaryOrigins.length - 1) })),
+        caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+      },
       explanation: `${cited.filter((c) => c.stance === 'supports').length} supporting citation(s) → ${sup.length} independent origin(s), ${primaryOrigins.length} tracing to a declared primary source. Verdict: ${verdict.replace(/_/g, ' ')} (${CITE_VERDICTS[verdict]}).`,
     });
   }
