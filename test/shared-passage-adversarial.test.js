@@ -32,7 +32,7 @@ test('reordered blocks still report only the contiguous shared block', () => {
 
 test('a single changed token breaks a passage below the minimum run threshold', () => {
   const changed = passage.replace('token35', 'replacement35');
-  const result = detectSharedPassage(passage, changed);
+  const result = detectSharedPassage(passage, changed, { maxComparisons: 100_000 });
   assert.equal(result.review, false);
   assert.equal(result.incomplete, false);
   assert.equal(result.basis, 'no_long_shared_passage');
