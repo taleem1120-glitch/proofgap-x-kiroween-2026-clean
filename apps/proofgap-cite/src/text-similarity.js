@@ -72,12 +72,14 @@ export function findNearDuplicatePairs(items, {
     const text = fold(raw);
     let grams = null;
     if (text.length >= minLength) {
-      grams = shingles(text, shingleWidth);
-      preparedShingles += grams.size;
-      if (preparedShingles > maxPreparedShingles) {
+      // Preflight the worst-case shingle count before allocating the Set.
+      const shingleUpperBound = text.length - shingleWidth + 1;
+      if (preparedShingles + shingleUpperBound > maxPreparedShingles) {
         // Discard partial preparation so no partial scan can look complete.
         return { pairs: [], comparisons: 0, truncated: true };
       }
+      grams = shingles(text, shingleWidth);
+      preparedShingles += grams.size;
     }
     prepared.push({ id: item.id, text, grams });
   }
