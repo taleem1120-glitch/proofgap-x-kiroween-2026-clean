@@ -71,7 +71,7 @@ export function findNearDuplicatePairs(items, {
     .sort((a, b) => a.text.length - b.text.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
   const pairs = [];
-  let comparisons = 0, truncated = false;
+  let comparisons = 0;
   outer: for (let i = 0; i < prepared.length; i++) {
     const a = prepared[i];
     for (let j = i + 1; j < prepared.length; j++) {
