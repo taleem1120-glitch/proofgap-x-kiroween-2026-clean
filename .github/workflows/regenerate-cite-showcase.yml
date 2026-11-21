@@ -63,7 +63,7 @@ jobs:
 
       - name: Commit generated artifact to the requested PR branch
         env:
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
