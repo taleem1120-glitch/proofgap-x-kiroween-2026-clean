@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       target_branch:
-        description: "The only supported target is hardening/near-duplicate-text-cues"
+        description: "Supported targets: recovery integration branch or hardening branch"
         required: true
         type: string
-        default: "hardening/near-duplicate-text-cues"
+        default: "recovery/proofgap-cite-integrate-2026-11-19"
 
 permissions:
   contents: write
@@ -27,7 +27,7 @@ jobs:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
-          test "$TARGET_BRANCH" = "hardening/near-duplicate-text-cues" || {
+          case "$TARGET_BRANCH" in\n            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19") ;;\n            *) {
             echo "Refusing unexpected target branch."
             exit 1
           }
