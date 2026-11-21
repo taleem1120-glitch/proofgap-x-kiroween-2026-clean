@@ -44,13 +44,30 @@ export function findNearDuplicatePairs(items, {
       !Number.isInteger(maxResults) || maxResults < 1) {
     throw new TypeError('invalid near-duplicate options');
   }
-  const prepared = items.map((item) => {
+  // Bound preparation independently from pair comparisons to prevent shingle allocation spikes.
+  const maxItems = 200, maxTextLength = 4000, maxTotalCharacters = 200000, maxPreparedShingles = 200000;
+  let truncated = items.length > maxItems, totalCharacters = 0, shingleUpperBoundTotal = 0;
+  const prepared = [];
+  for (const item of items.slice(0, maxItems)) {
     if (!item || typeof item.id !== 'string' || typeof item.text !== 'string') {
       throw new TypeError('each item needs string id and text');
     }
-    const text = fold(item.text);
-    return { id: item.id, text, grams: text.length >= minLength ? shingles(text, shingleWidth) : null };
-  }).filter((x) => x.grams && x.grams.size > 0)
+    if (item.id.length > 256) throw new TypeError('item id exceeds limit');
+    const raw = item.text.slice(0, maxTextLength);
+    if (raw.length !== item.text.length) truncated = true;
+    totalCharacters += raw.length;
+    if (totalCharacters > maxTotalCharacters) return { pairs: [], comparisons: 0, truncated: true };
+    const text = fold(raw);
+    let grams = null;
+    if (text.length >= minLength) {
+      const upper = text.length - shingleWidth + 1;
+      if (shingleUpperBoundTotal + upper > maxPreparedShingles) return { pairs: [], comparisons: 0, truncated: true };
+      shingleUpperBoundTotal += upper;
+      grams = shingles(text, shingleWidth);
+    }
+    prepared.push({ id: item.id, text, grams });
+  }
+  const candidates = prepared.filter((x) => x.grams && x.grams.size > 0)
     .sort((a, b) => a.text.length - b.text.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
   const pairs = [];
