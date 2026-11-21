@@ -30,12 +30,14 @@ test('reordered blocks still report only the contiguous shared block', () => {
   assert.equal(result.incomplete, false);
 });
 
-test('a single changed token breaks a passage below the minimum run threshold', () => {
-  const changed = passage.replace('token35', 'replacement35');
-  const result = detectSharedPassage(passage, changed, { maxComparisons: 100_000 });
+test('a single changed token breaks an exactly-minimum passage below threshold', () => {
+  const minimumPassage = Array.from({ length: 60 }, (_, i) => `minToken${i}`).join(' ');
+  const changed = minimumPassage.replace('minToken30', 'changedToken30');
+  const result = detectSharedPassage(minimumPassage, changed, { maxComparisons: 100_000 });
   assert.equal(result.review, false);
   assert.equal(result.incomplete, false);
   assert.equal(result.basis, 'no_long_shared_passage');
+  assert.ok(result.longestRunTokens < 60);
 });
 
 test('invalid candidate and comparison bounds are rejected before processing', () => {
