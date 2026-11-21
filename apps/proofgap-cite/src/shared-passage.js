@@ -46,10 +46,12 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     throw new RangeError('invalid passage detection bounds');
   }
   const normalizedA = normalize(a), normalizedB = normalize(b);
-  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
-  if (normalizedA.overflow || normalizedB.overflow) {
+  // Overflow takes precedence over short/unsupported inputs: incomplete scanning
+  // must never be represented as a clean negative result.
+  if (normalizedA?.overflow || normalizedB?.overflow) {
     return { review: true, incomplete: true, longestRunTokens: 0, basis: 'token_limit_exceeded_manual_review', candidates: [] };
   }
+  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const A = normalizedA.tokens, B = normalizedB.tokens;
   const width = Math.min(minRunTokens, 60), ids = new Map();
   const left = hashWindows(A, ids, width), right = hashWindows(B, ids, width);
