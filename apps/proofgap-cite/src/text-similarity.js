@@ -21,6 +21,7 @@ function shingles(value, width) {
 }
 
 function jaccard(a, b) {
+  if (!(a instanceof Set) || !(b instanceof Set)) return 0;
   let intersection = 0;
   const [small, large] = a.size <= b.size ? [a, b] : [b, a];
   for (const x of small) if (large.has(x)) intersection++;
@@ -35,17 +36,20 @@ function jaccard(a, b) {
 export function findNearDuplicatePairs(items, {
   minLength = 120, minSimilarity = 0.88, shingleWidth = 5,
   maxComparisons = 25000, maxResults = 100,
+  maxTotalCharacters = 200000, maxPreparedShingles = 200000,
 } = {}) {
   if (!Array.isArray(items)) throw new TypeError('items must be an array');
   if (!Number.isInteger(minLength) || minLength < 1 ||
       !Number.isFinite(minSimilarity) || minSimilarity <= 0 || minSimilarity > 1 ||
       !Number.isInteger(shingleWidth) || shingleWidth < 2 ||
       !Number.isInteger(maxComparisons) || maxComparisons < 1 ||
-      !Number.isInteger(maxResults) || maxResults < 1) {
+      !Number.isInteger(maxResults) || maxResults < 1 ||
+      !Number.isInteger(maxTotalCharacters) || maxTotalCharacters < 1 ||
+      !Number.isInteger(maxPreparedShingles) || maxPreparedShingles < 1) {
     throw new TypeError('invalid near-duplicate options');
   }
   // Bound preparation independently from pair comparisons to prevent shingle allocation spikes.
-  const maxItems = 200, maxTextLength = 4000, maxTotalCharacters = 200000, maxPreparedShingles = 200000;
+  const maxItems = 200, maxTextLength = 4000;
   let truncated = items.length > maxItems, totalCharacters = 0, shingleUpperBoundTotal = 0;
   const prepared = [];
   for (const item of items.slice(0, maxItems)) {
@@ -77,7 +81,7 @@ export function findNearDuplicatePairs(items, {
     for (let j = i + 1; j < prepared.length; j++) {
       const b = prepared[j];
       if (b.text.length > a.text.length / minSimilarity) break;
-      if (a.id === b.id || a.text.join('') === b.text.join('')) continue;
+      if (a.id === b.id || a.text.join('') === b.text.join('') || !a.grams || !b.grams) continue;
       if (comparisons >= maxComparisons) { truncated = true; break outer; }
       comparisons++;
       const ratio = a.text.length / b.text.length;
