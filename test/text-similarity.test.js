@@ -62,3 +62,14 @@ test('preparation limits fail closed before partial scan', () => {
   assert.deepEqual(findNearDuplicatePairs([{ id: 'a', text: baseText }, { id: 'b', text: baseText }], { maxPreparedShingles: 10 }), { pairs: [], comparisons: 0, truncated: true });
   assert.equal(findNearDuplicatePairs(Array.from({ length: 201 }, (_, i) => ({ id: String(i), text: baseText }))).truncated, true);
 });
+
+
+test('length pruning is correct regardless of input order', () => {
+  const shorter = base + ' extra distinctive';
+  const longer = 'prefix additions '.repeat(8) + base + ' suffix additions '.repeat(8);
+  const forward = findNearDuplicatePairs([{ id: 'short', text: shorter }, { id: 'long', text: longer }]);
+  const reverse = findNearDuplicatePairs([{ id: 'long', text: longer }, { id: 'short', text: shorter }]);
+  assert.equal(forward.pairs.length, 1);
+  assert.equal(reverse.pairs.length, 1);
+  assert.equal(forward.pairs[0].similarity, reverse.pairs[0].similarity);
+});
