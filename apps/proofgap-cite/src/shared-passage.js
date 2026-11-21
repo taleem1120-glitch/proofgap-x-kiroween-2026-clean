@@ -8,7 +8,7 @@ const normalize = (value) => {
   if (typeof value !== 'string' || value.length > 200_000) return null;
   const normalized = value.normalize('NFKC').toLocaleLowerCase('und');
   const tokens = [];
-  for (const match of normalized.matchAll(/[\\p{L}\\p{M}\\p{N}]+/gu)) {
+  for (const match of normalized.matchAll(/[\p{L}\p{M}\p{N}]+/gu)) {
     tokens.push(match[0]);
     if (tokens.length > MAX_TOKENS) return { overflow: true, tokens: null };
   }
