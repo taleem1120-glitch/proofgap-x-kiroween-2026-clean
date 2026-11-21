@@ -45,3 +45,12 @@ test('invalid candidate and comparison bounds are rejected before processing', (
   assert.throws(() => detectSharedPassage(passage, passage, { minRunTokens: 29 }), RangeError);
   assert.throws(() => detectSharedPassage(passage, passage, { maxComparisons: 999 }), RangeError);
 });
+
+test('tokenization overflow fails closed and requests manual review', () => {
+  const huge = Array.from({ length: 20001 }, (_, i) => `token${i}`).join(' ');
+  const result = detectSharedPassage(huge, passage);
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, true);
+  assert.equal(result.basis, 'token_limit_exceeded_manual_review');
+  assert.deepEqual(result.candidates, []);
+});
