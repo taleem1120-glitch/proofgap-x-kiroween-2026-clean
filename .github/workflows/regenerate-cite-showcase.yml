@@ -5,9 +5,14 @@ on:
     inputs:
       target_branch:
         description: "Supported targets: recovery integration branch or hardening branch"
-        required: true
+        required: false
         type: string
         default: "recovery/proofgap-cite-integrate-2026-11-19"
+  push:
+    branches:
+      - recovery/proofgap-cite-integrate-2026-11-19
+    paths-ignore:
+      - "apps/proofgap-cite/showcase.html"
 
 permissions:
   contents: write
@@ -24,7 +29,7 @@ jobs:
     steps:
       - name: Validate target branch
         env:
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
           set -euo pipefail
           case "$TARGET_BRANCH" in
