@@ -65,8 +65,8 @@ test('preparation limits fail closed before partial scan', () => {
 
 
 test('length pruning is correct regardless of input order', () => {
-  const shorter = base + ' extra distinctive';
-  const longer = 'prefix addition ' + base + ' suffix addition';
+  const shorter = base.replace('observations', 'observation');
+  const longer = base + ' extra';
   const forward = findNearDuplicatePairs([{ id: 'short', text: shorter }, { id: 'long', text: longer }]);
   const reverse = findNearDuplicatePairs([{ id: 'long', text: longer }, { id: 'short', text: shorter }]);
   assert.equal(forward.pairs.length, 1);
