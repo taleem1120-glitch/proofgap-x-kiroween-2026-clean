@@ -27,10 +27,10 @@ jobs:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
-          case "$TARGET_BRANCH" in\n            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19") ;;\n            *) {
-            echo "Refusing unexpected target branch."
-            exit 1
-          }
+          case "$TARGET_BRANCH" in
+            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19") ;;
+            *) echo "Refusing unexpected target branch."; exit 1 ;;
+          esac
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
