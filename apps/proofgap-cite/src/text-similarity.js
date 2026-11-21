@@ -8,7 +8,7 @@
  */
 const fold = (value) => Array.from(
   String(value).normalize('NFKC').toLowerCase()
-    .replace(/[^\p{L}\p{N}\p{M}]+/gu, ''),
+    .replace(/[^\\p{L}\\p{N}\\p{M}]+/gu, ''),
 );
 
 function shingles(value, width) {
@@ -31,34 +31,66 @@ function jaccard(a, b) {
 /**
  * Find bounded near-duplicate pairs in deterministic order.
  * Items: [{ id, text }]. Returns { pairs, comparisons, truncated }.
+ * Preparation limits are independent of pair-comparison limits.
  */
 export function findNearDuplicatePairs(items, {
   minLength = 120, minSimilarity = 0.88, shingleWidth = 5,
   maxComparisons = 25000, maxResults = 100,
+  maxItems = 200, maxTextLength = 4000,
+  maxTotalCharacters = 200000, maxPreparedShingles = 200000,
 } = {}) {
   if (!Array.isArray(items)) throw new TypeError('items must be an array');
   if (!Number.isInteger(minLength) || minLength < 1 ||
       !Number.isFinite(minSimilarity) || minSimilarity <= 0 || minSimilarity > 1 ||
       !Number.isInteger(shingleWidth) || shingleWidth < 2 ||
       !Number.isInteger(maxComparisons) || maxComparisons < 1 ||
-      !Number.isInteger(maxResults) || maxResults < 1) {
+      !Number.isInteger(maxResults) || maxResults < 1 ||
+      !Number.isInteger(maxItems) || maxItems < 1 ||
+      !Number.isInteger(maxTextLength) || maxTextLength < 1 ||
+      !Number.isInteger(maxTotalCharacters) || maxTotalCharacters < 1 ||
+      !Number.isInteger(maxPreparedShingles) || maxPreparedShingles < 1) {
     throw new TypeError('invalid near-duplicate options');
   }
-  const prepared = items.map((item) => {
+
+  let truncated = items.length > maxItems;
+  let totalCharacters = 0;
+  let preparedShingles = 0;
+  const prepared = [];
+  const boundedItems = items.slice(0, maxItems);
+
+  for (const item of boundedItems) {
     if (!item || typeof item.id !== 'string' || typeof item.text !== 'string') {
       throw new TypeError('each item needs string id and text');
     }
-    const text = fold(item.text);
-    return { id: item.id, text, grams: text.length >= minLength ? shingles(text, shingleWidth) : null };
-  }).filter((x) => x.grams && x.grams.size > 0)
+    if (item.id.length > 256) throw new TypeError('item id exceeds limit');
+    const raw = item.text.length > maxTextLength ? item.text.slice(0, maxTextLength) : item.text;
+    if (raw.length !== item.text.length) truncated = true;
+    totalCharacters += raw.length;
+    if (totalCharacters > maxTotalCharacters) {
+      return { pairs: [], comparisons: 0, truncated: true };
+    }
+    const text = fold(raw);
+    let grams = null;
+    if (text.length >= minLength) {
+      grams = shingles(text, shingleWidth);
+      preparedShingles += grams.size;
+      if (preparedShingles > maxPreparedShingles) {
+        // Discard partial preparation so no partial scan can look complete.
+        return { pairs: [], comparisons: 0, truncated: true };
+      }
+    }
+    prepared.push({ id: item.id, text, grams });
+  }
+
+  const candidates = prepared.filter((x) => x.grams && x.grams.size > 0)
     .sort((a, b) => a.text.length - b.text.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
   const pairs = [];
-  let comparisons = 0, truncated = false;
-  outer: for (let i = 0; i < prepared.length; i++) {
-    const a = prepared[i];
-    for (let j = i + 1; j < prepared.length; j++) {
-      const b = prepared[j];
+  let comparisons = 0;
+  outer: for (let i = 0; i < candidates.length; i++) {
+    const a = candidates[i];
+    for (let j = i + 1; j < candidates.length; j++) {
+      const b = candidates[j];
       if (b.text.length > a.text.length / minSimilarity) break;
       if (a.id === b.id || a.text.join('') === b.text.join('')) continue;
       if (comparisons >= maxComparisons) { truncated = true; break outer; }
