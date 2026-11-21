@@ -1,21 +1,18 @@
-# CI status — 18 November 2026
+# CI status — 21 November 2026
 
-## Verified pre-merge validation
+## Verified integration state
 
-- PR #28 head `c92a48a24de34e9613b55ba6047f733e7f0ade35` passed the standard CI workflow on Node.js 20 and 22.
-- The same PR head passed the cross-browser and security workflow: Chromium, Firefox, WebKit, dependency audit, adversarial security regressions, and source/release gate.
-- PR #28 was merged into `main` with merge commit `0be10c760f295de094f5934f81a45c31cfd5719e`.
+- PR #33, **Integrate bounded ProofGap Cite shared-passage review**, was merged into `main`.
+- Merge commit: `daf82b5980bb7d817f2b84a85b8db7bee5521de3`.
+- The merged integration includes bounded shared-passage review and opt-in local saved-text extraction, with Unicode-safe text review, extraction limits, safety checks, and abstention/reporting behavior.
+- GitHub Actions screenshots provided on 21 November show successful green runs on `main` for standard CI, browser-core reproducibility, published Pages release-byte verification, multilingual offline viewer smoke tests, cross-browser compatibility/security audit, and Pages deployment. These are screenshot-observed statuses; this document does not independently retrieve the underlying run logs.
 
-## Post-merge status
+## Scope and limitations
 
-- The first standard CI and Pages runs for the merge commit were cancelled when subsequent documentation-only commits superseded the commit being built.
-- The cross-browser/security workflow for the merge commit was still in progress at the last check.
-- A new push of this status correction will trigger fresh checks on the current `main`. Treat those post-merge checks as pending until GitHub reports a final successful conclusion.
-- [GitHub Actions runs](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions).
-
-## Historical billing-blocked runs
-
-Earlier runs on November 15–16 were blocked before jobs started because of an account billing/spending-limit restriction. Those runs were neither code failures nor successful CI results. They are historical and do not describe the successful PR #28 head validation.
+- CI success is evidence that the configured checks completed successfully; it is not proof of correctness, real-world accuracy, forensic admissibility, or production security.
+- Cite text-copy/shared-passage cues remain human-review signals. They do not establish copying or common authorship, merge evidence origins, or change core confidence scores.
+- Saved-text extraction is opt-in and restricted by the implementation's documented file types and resource limits.
+- Benchmark datasets are synthetic and author-built. No independent validation or third-party security review is claimed.
 
 ## Reproduce locally
 
@@ -26,4 +23,4 @@ npm run validate:local
 npm run bench
 ```
 
-Local validation is useful but is not a substitute for CI or independent security review. Benchmark inputs are synthetic and author-built. Latency and memory vary by machine.
+Re-run these commands against the exact checkout being evaluated and preserve the resulting validation artifacts. Machine-dependent latency and memory results must be measured anew.
