@@ -55,6 +55,7 @@ export function findNearDuplicatePairs(items, {
   let truncated = items.length > maxItems;
   let totalCharacters = 0;
   let preparedShingles = 0;
+  let preparedShingleUpperBound = 0;
   const prepared = [];
   const boundedItems = items.slice(0, maxItems);
 
@@ -74,10 +75,11 @@ export function findNearDuplicatePairs(items, {
     if (text.length >= minLength) {
       // Preflight the worst-case shingle count before allocating the Set.
       const shingleUpperBound = text.length - shingleWidth + 1;
-      if (preparedShingles + shingleUpperBound > maxPreparedShingles) {
+      if (preparedShingleUpperBound + shingleUpperBound > maxPreparedShingles) {
         // Discard partial preparation so no partial scan can look complete.
         return { pairs: [], comparisons: 0, truncated: true };
       }
+      preparedShingleUpperBound += shingleUpperBound;
       grams = shingles(text, shingleWidth);
       preparedShingles += grams.size;
     }
