@@ -6,7 +6,7 @@ const base = ('The independent review records the same sequence of events and ob
   'including the original publication details and the evidence references for this report. ').repeat(4);
 
 test('near-duplicate cue tolerates encoding and formatting changes without asserting identity', () => {
-  const changed = base.replaceAll(' ', '\u00a0').replaceAll(',', ' —').replace('observations', 'observation');
+  const changed = base.replaceAll(' ', '\\u00a0').replaceAll(',', ' —').replace('observations', 'observation');
   const out = findNearDuplicatePairs([{ id: 'a', text: base }, { id: 'b', text: changed }]);
   assert.equal(out.pairs.length, 1);
   assert.ok(out.pairs[0].similarity >= 0.88);
@@ -31,17 +31,54 @@ test('comparison and result budgets are enforced deterministically', () => {
   assert.equal(a.truncated, true);
 });
 
+test('preparation limits return a truncated empty scan rather than partial findings', () => {
+  const tooMany = findNearDuplicatePairs(
+    [{ id: 'a', text: base }, { id: 'b', text: base }],
+    { maxItems: 1 },
+  );
+  assert.equal(tooMany.truncated, true);
+
+  const tooLong = findNearDuplicatePairs(
+    [{ id: 'a', text: base }, { id: 'b', text: base }],
+    { maxTextLength: 80 },
+  );
+  assert.equal(tooLong.truncated, true);
+
+  const totalExceeded = findNearDuplicatePairs(
+    [{ id: 'a', text: base }, { id: 'b', text: base }],
+    { maxTotalCharacters: 100 },
+  );
+  assert.deepEqual(totalExceeded, { pairs: [], comparisons: 0, truncated: true });
+
+  const shingleExceeded = findNearDuplicatePairs(
+    [{ id: 'a', text: base }, { id: 'b', text: base }],
+    { maxPreparedShingles: 10 },
+  );
+  assert.deepEqual(shingleExceeded, { pairs: [], comparisons: 0, truncated: true });
+});
+
+test('duplicate IDs do not create self-pairs and ordering remains deterministic', () => {
+  const items = [
+    { id: 'same', text: base },
+    { id: 'same', text: base + ' altered' },
+    { id: 'b', text: base + ' altered differently' },
+  ];
+  const a = findNearDuplicatePairs(items);
+  const b = findNearDuplicatePairs(items);
+  assert.deepEqual(a, b);
+  assert.ok(a.pairs.every((p) => p.left !== p.right));
+});
+
 test('invalid options and malformed items fail closed', () => {
   assert.throws(() => findNearDuplicatePairs(null), /array/);
   assert.throws(() => findNearDuplicatePairs([{ id: 1, text: 'x' }]), /string/);
   assert.throws(() => findNearDuplicatePairs([], { minSimilarity: 2 }), /options/);
 });
 
-
 test('supplementary-plane letters are compared as complete Unicode code points', () => {
-  const base = ('𐐀vidence provenance records independent investigative observations and source lineage. ').repeat(4);
-  const changed = base.replace('observations', 'observation');
-  const out = findNearDuplicatePairs([{ id: 'astral-a', text: base }, { id: 'astral-b', text: changed }]);
+  const astral = ('𐐀vidence provenance records independent investigative observations and source lineage. ').repeat(4);
+  const changed = astral.replace('observations', 'observation');
+  const out = findNearDuplicatePairs([{ id: 'astral-a', text: astral }, { id: 'astral-b', text: changed }]);
   assert.equal(out.pairs.length, 1);
   assert.ok(out.pairs[0].similarity >= 0.88);
 });
