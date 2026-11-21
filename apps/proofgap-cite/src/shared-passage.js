@@ -3,10 +3,16 @@
  * Rolling dual hashes keep candidate indexing linear; candidate windows are
  * always token-verified before a passage is reported. This never infers origin.
  */
+const MAX_TOKENS = 20_000;
 const normalize = (value) => {
   if (typeof value !== 'string' || value.length > 200_000) return null;
-  const tokens = value.normalize('NFKC').toLocaleLowerCase('und').match(/[\p{L}\p{M}\p{N}]+/gu) ?? [];
-  return tokens.length >= 30 ? tokens : null;
+  const normalized = value.normalize('NFKC').toLocaleLowerCase('und');
+  const tokens = [];
+  for (const match of normalized.matchAll(/[\\p{L}\\p{M}\\p{N}]+/gu)) {
+    tokens.push(match[0]);
+    if (tokens.length > MAX_TOKENS) return { overflow: true, tokens: null };
+  }
+  return tokens.length >= 30 ? { overflow: false, tokens } : null;
 };
 
 const hashWindows = (tokens, ids, width) => {
@@ -39,8 +45,12 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       !Number.isInteger(maxComparisons) || maxComparisons < 1000 || maxComparisons > 1_000_000) {
     throw new RangeError('invalid passage detection bounds');
   }
-  const A = normalize(a), B = normalize(b);
-  if (!A || !B) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  const normalizedA = normalize(a), normalizedB = normalize(b);
+  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (normalizedA.overflow || normalizedB.overflow) {
+    return { review: true, incomplete: true, longestRunTokens: 0, basis: 'token_limit_exceeded_manual_review', candidates: [] };
+  }
+  const A = normalizedA.tokens, B = normalizedB.tokens;
   const width = Math.min(minRunTokens, 60), ids = new Map();
   const left = hashWindows(A, ids, width), right = hashWindows(B, ids, width);
   const index = new Map();
