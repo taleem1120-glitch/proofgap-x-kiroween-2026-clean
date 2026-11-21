@@ -47,7 +47,9 @@ test('invalid candidate and comparison bounds are rejected before processing', (
 });
 
 test('tokenization overflow fails closed and requests manual review', () => {
-  const huge = Array.from({ length: 20001 }, (_, i) => `token${i}`).join(' ');
+  // Keep input below the character cap so this exercises the token cap specifically.
+  const huge = Array.from({ length: 20001 }, (_, i) => `x${i}`).join(' ');
+  assert.ok(huge.length < 200_000);
   const result = detectSharedPassage(huge, passage);
   assert.equal(result.review, true);
   assert.equal(result.incomplete, true);
