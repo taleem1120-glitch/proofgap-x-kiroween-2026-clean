@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { detectSharedPassage } from '../apps/proofgap-cite/src/shared-passage.js';
 
-const passage = Array.from({ length: 72 }, (_, i) => `distinctive evidence phrase token${i}`).join(' ');
+const passage = Array.from({ length: 72 }, (_, i) => `distinctive${i} evidence${i} phrase${i} token${i}`).join(' ');
 
 test('punctuation and spacing normalization preserve a shared token passage', () => {
   const decorated = passage.replaceAll(' ', ' — ');
