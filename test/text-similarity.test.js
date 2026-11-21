@@ -55,3 +55,21 @@ test('Arabic combining marks are retained during normalization', () => {
   assert.equal(out.pairs.length, 1);
   assert.ok(out.pairs[0].similarity < 1);
 });
+
+test('preparation limits fail closed before partial scan', () => {
+  const baseText = ('bounded resource preparation evidence references and observations ').repeat(30);
+  assert.deepEqual(findNearDuplicatePairs([{ id: 'a', text: baseText }, { id: 'b', text: baseText }], { maxTotalCharacters: 100 }), { pairs: [], comparisons: 0, truncated: true });
+  assert.deepEqual(findNearDuplicatePairs([{ id: 'a', text: baseText }, { id: 'b', text: baseText }], { maxPreparedShingles: 10 }), { pairs: [], comparisons: 0, truncated: true });
+  assert.equal(findNearDuplicatePairs(Array.from({ length: 201 }, (_, i) => ({ id: String(i), text: baseText }))).truncated, true);
+});
+
+
+test('length pruning is correct regardless of input order', () => {
+  const shorter = base.replace('observations', 'observation');
+  const longer = base + ' extra';
+  const forward = findNearDuplicatePairs([{ id: 'short', text: shorter }, { id: 'long', text: longer }]);
+  const reverse = findNearDuplicatePairs([{ id: 'long', text: longer }, { id: 'short', text: shorter }]);
+  assert.equal(forward.pairs.length, 1);
+  assert.equal(reverse.pairs.length, 1);
+  assert.equal(forward.pairs[0].similarity, reverse.pairs[0].similarity);
+});

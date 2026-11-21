@@ -4,10 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       target_branch:
-        description: "The only supported target is hardening/near-duplicate-text-cues"
-        required: true
+        description: "Supported targets: recovery integration branch or hardening branch"
+        required: false
         type: string
-        default: "hardening/near-duplicate-text-cues"
+        default: "recovery/proofgap-cite-integrate-2026-11-19"
+  push:
+    branches:
+      - recovery/proofgap-cite-integrate-2026-11-19
+    paths-ignore:
+      - "apps/proofgap-cite/showcase.html"
 
 permissions:
   contents: write
@@ -24,13 +29,13 @@ jobs:
     steps:
       - name: Validate target branch
         env:
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
           set -euo pipefail
-          test "$TARGET_BRANCH" = "hardening/near-duplicate-text-cues" || {
-            echo "Refusing unexpected target branch."
-            exit 1
-          }
+          case "$TARGET_BRANCH" in
+            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19") ;;
+            *) echo "Refusing unexpected target branch."; exit 1 ;;
+          esac
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -58,7 +63,7 @@ jobs:
 
       - name: Commit generated artifact to the requested PR branch
         env:
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

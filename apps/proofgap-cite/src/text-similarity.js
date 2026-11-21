@@ -21,6 +21,7 @@ function shingles(value, width) {
 }
 
 function jaccard(a, b) {
+  if (!(a instanceof Set) || !(b instanceof Set)) return 0;
   let intersection = 0;
   const [small, large] = a.size <= b.size ? [a, b] : [b, a];
   for (const x of small) if (large.has(x)) intersection++;
@@ -35,36 +36,57 @@ function jaccard(a, b) {
 export function findNearDuplicatePairs(items, {
   minLength = 120, minSimilarity = 0.88, shingleWidth = 5,
   maxComparisons = 25000, maxResults = 100,
+  maxTotalCharacters = 200000, maxPreparedShingles = 200000,
 } = {}) {
   if (!Array.isArray(items)) throw new TypeError('items must be an array');
   if (!Number.isInteger(minLength) || minLength < 1 ||
       !Number.isFinite(minSimilarity) || minSimilarity <= 0 || minSimilarity > 1 ||
       !Number.isInteger(shingleWidth) || shingleWidth < 2 ||
       !Number.isInteger(maxComparisons) || maxComparisons < 1 ||
-      !Number.isInteger(maxResults) || maxResults < 1) {
+      !Number.isInteger(maxResults) || maxResults < 1 ||
+      !Number.isInteger(maxTotalCharacters) || maxTotalCharacters < 1 ||
+      !Number.isInteger(maxPreparedShingles) || maxPreparedShingles < 1) {
     throw new TypeError('invalid near-duplicate options');
   }
-  const prepared = items.map((item) => {
+  // Bound preparation independently from pair comparisons to prevent shingle allocation spikes.
+  const maxItems = 200, maxTextLength = 4000;
+  let truncated = items.length > maxItems, totalCharacters = 0, shingleUpperBoundTotal = 0;
+  const prepared = [];
+  for (const item of items.slice(0, maxItems)) {
     if (!item || typeof item.id !== 'string' || typeof item.text !== 'string') {
       throw new TypeError('each item needs string id and text');
     }
-    const text = fold(item.text);
-    return { id: item.id, text, grams: text.length >= minLength ? shingles(text, shingleWidth) : null };
-  }).filter((x) => x.grams && x.grams.size > 0)
+    if (item.id.length > 256) throw new TypeError('item id exceeds limit');
+    const raw = item.text.slice(0, maxTextLength);
+    if (raw.length !== item.text.length) truncated = true;
+    totalCharacters += raw.length;
+    if (totalCharacters > maxTotalCharacters) return { pairs: [], comparisons: 0, truncated: true };
+    const text = fold(raw);
+    let grams = null;
+    if (text.length >= minLength) {
+      const upper = text.length - shingleWidth + 1;
+      if (shingleUpperBoundTotal + upper > maxPreparedShingles) return { pairs: [], comparisons: 0, truncated: true };
+      shingleUpperBoundTotal += upper;
+      grams = shingles(text, shingleWidth);
+    }
+    prepared.push({ id: item.id, text, grams });
+  }
+  const candidates = prepared.filter((x) => x.grams && x.grams.size > 0)
     .sort((a, b) => a.text.length - b.text.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
   const pairs = [];
-  let comparisons = 0, truncated = false;
-  outer: for (let i = 0; i < prepared.length; i++) {
-    const a = prepared[i];
-    for (let j = i + 1; j < prepared.length; j++) {
-      const b = prepared[j];
-      if (b.text.length > a.text.length / minSimilarity) break;
-      if (a.id === b.id || a.text.join('') === b.text.join('')) continue;
+  let comparisons = 0;
+  outer: for (let i = 0; i < candidates.length; i++) {
+    const a = candidates[i];
+    for (let j = i + 1; j < candidates.length; j++) {
+      const b = candidates[j];
+      // Candidates are sorted by normalized length; once the ratio is too small,
+      // later candidates cannot qualify. Compare the shorter/longer ratio.
+      const lengthRatio = a.text.length / b.text.length;
+      if (lengthRatio < minSimilarity) break;
+      if (a.id === b.id || a.text.join('') === b.text.join('') || !a.grams || !b.grams) continue;
       if (comparisons >= maxComparisons) { truncated = true; break outer; }
       comparisons++;
-      const ratio = a.text.length / b.text.length;
-      if (ratio < minSimilarity) continue;
       const similarity = jaccard(a.grams, b.grams);
       if (similarity >= minSimilarity) {
         pairs.push({ left: a.id, right: b.id, similarity: Math.round(similarity * 10000) / 10000 });

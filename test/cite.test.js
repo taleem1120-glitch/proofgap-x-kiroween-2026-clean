@@ -32,7 +32,20 @@ const issues = (fn) => { try { fn(); } catch (e) { assert.ok(e instanceof CiteVa
 test('two independent primaries -> independently_corroborated; copies of them add no origin', () => {
   const r = run(['Claim [^a] [^b] [^c]'], [P('a'), P('b'), S('c', ', cites=a')]);
   assert.equal(v(r), 'independently_corroborated');
-  assert.deepEqual(r.claims[0].citeEvidence, { citations: 3, independentOrigins: 2, primaryRootedOrigins: 2 });
+  assert.deepEqual(r.claims[0].citeEvidence, {
+    citations: 3, independentOrigins: 2, primaryRootedOrigins: 2,
+    supportStress: {
+      metric: 'declared_primary_origin_leave_one_out',
+      baselinePrimaryOrigins: 2,
+      afterRemovingOnePrimaryOrigin: 1,
+      singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+      scenarios: [
+        { removedOrigin: 'source:a', remainingPrimaryOrigins: 1 },
+        { removedOrigin: 'source:b', remainingPrimaryOrigins: 1 },
+      ],
+      caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+    },
+  });
 });
 
 test('press-release echo: many secondaries citing one primary -> single_origin with exact missing item', () => {
@@ -172,7 +185,17 @@ test('unused references are reported as note findings', () => {
 test('example note: one claim per verdict, exactly as documented', () => {
   const r = analyzeNote(readFileSync(join(EX, 'water-note.md'), 'utf8'), { sourcesDir: join(EX, 'sources'), noteName: 'water-note.md' });
   assert.deepEqual(r.claims.map((c) => [c.line, c.decision]), [[6, 'single_origin'], [7, 'independently_corroborated'], [8, 'circular_reporting'], [9, 'origin_unresolved'], [10, 'abstain_suspected_shared_origin'], [11, 'unsupported']]);
-  assert.deepEqual(r.claims[0].citeEvidence, { citations: 6, independentOrigins: 1, primaryRootedOrigins: 1 });
+  assert.deepEqual(r.claims[0].citeEvidence, {
+    citations: 6, independentOrigins: 1, primaryRootedOrigins: 1,
+    supportStress: {
+      metric: 'declared_primary_origin_leave_one_out',
+      baselinePrimaryOrigins: 1,
+      afterRemovingOnePrimaryOrigin: 0,
+      singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+      scenarios: [{ removedOrigin: 'source:pr', remainingPrimaryOrigins: 0 }],
+      caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+    },
+  });
   const ag = r.integrity.results.find((x) => x.evidenceId === 'doc.ag');
   assert.deepEqual([ag.status, ag.reason], ['MISSING', 'file_not_found']);
 });
@@ -204,7 +227,10 @@ test('CLI: lint/json/html, --fail-on-gaps exit 3, usage 2, invalid note 1 with l
   let r = cli(ex, '--sources', join(EX, 'sources')); assert.equal(r.status, 0); assert.match(r.stdout, /water-note\.md:6: \[single_origin\]/);
   r = cli(ex, '--fail-on-gaps'); assert.equal(r.status, 3);
   r = cli(ex, '--format', 'json'); assert.equal(r.status, 0); assert.equal(JSON.parse(r.stdout).application, 'proofgap-cite');
+  r = cli(ex, '--sources', join(EX, 'sources'), '--review-text-copies', '--format', 'json');
+  assert.equal(r.status, 0); assert.equal(JSON.parse(r.stdout).cite.textCopyReview.mode, 'local_saved_text_opt_in');
   for (const a of [[], [ex, '--format', 'xml'], [ex, '--bogus', 'x'], [ex, '--fail-on-gaps', '--fail-on-gaps'], [ex, '--sources']]) assert.equal(cli(...a).status, 2, JSON.stringify(a));
+  assert.equal(cli(ex, '--review-text-copies').status, 2, 'text review requires an explicit --sources directory');
   const bad = join(dir, 'bad.md'); writeFileSync(bad, '# T\n## Claims\n- c [^x]\n');
   r = cli(bad); assert.equal(r.status, 1); assert.match(r.stderr, /bad\.md:3: citation \[\^x\]/); assert.doesNotMatch(r.stderr, /\n\s+at /);
   const out = join(dir, 'o.html');
@@ -218,4 +244,50 @@ test('a self-citing "primary" is not an original source (only path where the pri
   assert.deepEqual(r.cite.cycles, [['a']]);
   assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 1);
   assert.equal(v(r), 'origin_unresolved');
+});
+
+test('support stress metric shows whether corroboration survives removing one primary origin', () => {
+  const two = run(['Claim [^a] [^b]'], [P('a'), P('b')]);
+  assert.deepEqual(two.claims[0].citeEvidence.supportStress, {
+    metric: 'declared_primary_origin_leave_one_out',
+    baselinePrimaryOrigins: 2,
+    afterRemovingOnePrimaryOrigin: 1,
+    singleOriginRemovalKeepsTwoPrimaryOrigins: false,
+    scenarios: [
+      { removedOrigin: 'source:a', remainingPrimaryOrigins: 1 },
+      { removedOrigin: 'source:b', remainingPrimaryOrigins: 1 },
+    ],
+    caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
+  });
+  const three = run(['Claim [^a] [^b] [^c]'], [P('a'), P('b'), P('c')]);
+  assert.equal(three.claims[0].citeEvidence.supportStress.baselinePrimaryOrigins, 3);
+  assert.equal(three.claims[0].citeEvidence.supportStress.afterRemovingOnePrimaryOrigin, 2);
+  assert.equal(three.claims[0].citeEvidence.supportStress.singleOriginRemovalKeepsTwoPrimaryOrigins, true);
+});
+
+test('adversarial benchmark: citation volume from one declared primary must not inflate origins', () => {
+  const refs = [P('root'), ...Array.from({length:12}, (_,i)=>S('echo'+i, ', cites=root'))];
+  const r = run(['Claim [^root] '+refs.slice(1).map((x,i)=>'[^echo'+i+']').join(' ')], refs);
+  assert.equal(r.claims[0].citeEvidence.primaryRootedOrigins, 1);
+  assert.equal(v(r), 'single_origin');
+});
+
+test('adversarial benchmark: two apparent primaries with shared URL trigger abstention', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a', ', url=https://origin.example/story?utm_campaign=one'), P('b', ', url=https://www.origin.example/story/')]);
+  assert.equal(v(r), 'abstain_suspected_shared_origin');
+});
+
+test('adversarial benchmark: removing one primary leaves one origin and fails two-origin redundancy threshold', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a'), P('b')]);
+  const stress = r.claims[0].citeEvidence.supportStress;
+  assert.equal(stress.afterRemovingOnePrimaryOrigin, 1);
+  assert.equal(stress.singleOriginRemovalKeepsTwoPrimaryOrigins, false);
+});
+
+test('adversarial benchmark: reference order permutation preserves verdict and stress summary', () => {
+  const refs = [P('a'), P('b'), S('c', ', cites=a'), S('d', ', cites=b')];
+  const x = run(['Claim [^a] [^b] [^c] [^d]'], refs);
+  const y = run(['Claim [^d] [^c] [^b] [^a]'], [...refs].reverse());
+  assert.equal(v(x), v(y));
+  assert.deepEqual(x.claims[0].citeEvidence.supportStress, y.claims[0].citeEvidence.supportStress);
 });

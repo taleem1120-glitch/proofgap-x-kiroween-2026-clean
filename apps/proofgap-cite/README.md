@@ -14,6 +14,14 @@ node apps/proofgap-cite/cli.js my-draft.md --fail-on-gaps    # exit 3 if any cla
 ```
 `--format lint|json|html`; `--sources DIR` enables saved-file verification; `--out` never overwrites. Exit codes: 0 ok, 1 invalid note or I/O error (issues listed with line numbers), 2 usage, 3 gaps (only with `--fail-on-gaps`).
 
+### Optional saved-text copy review
+
+Use `--review-text-copies` together with `--sources DIR` to compare explicitly cited, saved UTF-8 text files for long shared passages:
+```sh
+node apps/proofgap-cite/cli.js my-draft.md --sources ./saved-sources --review-text-copies --format json
+```
+Only `.txt`, `.md`, `.csv`, and `.json` files are extracted (bounded to 30 files, 256 KiB per file, 2 MiB total, and 5 seconds). PDF, HTML, XML, images, OCR, binary data, network retrieval, symlinks, and unsafe paths are not supported. Shared passages, text resemblance, and incomplete scans are review cues only; they do not prove copying or common origin, merge origins, or establish authorship. An incomplete scan must not be treated as a negative finding.
+
 ## Note format
 ```markdown
 # Title
@@ -38,6 +46,9 @@ Attributes, all optional: `kind=primary|secondary|unknown` (default unknown), `u
 | `circular_reporting` | support comes only from references that cite each other |
 | `conflicting` / `contradicted` / `unsupported` | as named |
 Every non-corroborated verdict lists **what is missing**.
+
+### Primary-origin leave-one-out stress metric
+Each claim also includes `citeEvidence.supportStress`: a deterministic structural counterfactual that reports the declared primary-rooted origin count, how many remain after removing one origin, and whether any single-origin removal would leave at least two. This is a redundancy measure over declared lineage—not a truth, reliability, or real-world independence assessment. It does not rerun or re-score the claim.
 
 ## What it does not trust
 - `kind`, `url`, `doi` and `cites` are the author's declarations.
