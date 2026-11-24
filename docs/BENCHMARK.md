@@ -12,7 +12,9 @@ Reproduce the new diagnostic with:
 node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
 ```
 
-The CI job runs this diagnostic on Node 22. This is an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.\n\n### Phase 12 result — candidate head `4d35b24a78d8505c89ff2ce66408b77e4cdd436c`
+The CI job runs this diagnostic on Node 22. This is an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.
+
+### Phase 12 result — candidate head `4d35b24a78d8505c89ff2ce66408b77e4cdd436c`
 
 CI run [45399669922](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45399669922), benchmark job `138464738153`, Node v22.23.5:
 
