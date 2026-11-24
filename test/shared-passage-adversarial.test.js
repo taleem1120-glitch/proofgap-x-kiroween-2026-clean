@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { detectSharedPassage } from '../apps/proofgap-cite/src/shared-passage.js';
 
-const passage = Array.from({ length: 72 }, (_, i) => `distinctive${i} evidence${i} phrase${i} token${i}`).join(' ');
+// Exactly 72 tokens: changing the middle token leaves two runs shorter than
+// the 60-token threshold, so the negative control tests the intended boundary.
+const passage = Array.from({ length: 72 }, (_, i) => `distinctive${i}`).join(' ');
 
 test('punctuation and spacing normalization preserve a shared token passage', () => {
   const decorated = passage.replaceAll(' ', ' — ');
@@ -13,7 +15,7 @@ test('punctuation and spacing normalization preserve a shared token passage', ()
 });
 
 test('NFKC compatibility normalization catches full-width Latin token variants', () => {
-  const fullWidth = passage.replace('token0', 'ｔｏｋｅｎ０');
+  const fullWidth = passage.replace('distinctive0', 'ｄｉｓｔｉｎｃｔｉｖｅ０');
   const result = detectSharedPassage(passage, fullWidth);
   assert.equal(result.review, true);
   assert.ok(result.longestRunTokens >= 72);
@@ -31,7 +33,7 @@ test('reordered blocks still report only the contiguous shared block', () => {
 });
 
 test('a single changed token breaks a passage below the minimum run threshold', () => {
-  const changed = passage.replace('token35', 'replacement35');
+  const changed = passage.replace('distinctive35', 'replacement35');
   const result = detectSharedPassage(passage, changed, { maxComparisons: 100_000 });
   assert.equal(result.review, false);
   assert.equal(result.incomplete, false);
