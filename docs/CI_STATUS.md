@@ -1,5 +1,15 @@
 # CI status — 24 November 2026
 
+## Release candidate validation — 24 November 2026
+
+The current Draft PR #44 candidate is `0c456334445cf96e12e6fa598d83d1ae2eecab69` on `release/proofgap-final-gate-2026-11-24`.
+
+- [Candidate CI run 45416856842](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45416856842) completed successfully on the exact candidate SHA. Node 20 and Node 22 test jobs passed, responsive Chromium checks passed, the fresh Cite synthetic benchmark passed, and the clean-checkout validation plus both showcase rebuilds passed byte-for-byte determinism.
+- [Candidate cross-browser/accessibility/security run 45416867898](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45416867898) completed successfully on the exact candidate SHA. Chromium, Firefox and WebKit responsive checks passed; automated axe-core WCAG 2.0/2.1 A/AA and structural checks reported **0 blockers and 0 advisory findings on each browser**; dependency audit and security regression tests passed.
+- These are automated checks only. They do not establish independent security assurance, human screen-reader conformance, legal/privacy-owner approval, Windows/macOS support or real-world forensic accuracy.
+
+PR #44 remains Draft, unmerged and based on the recovery branch. `main` is unchanged; no production tag or deployment was created.
+
 ## Current recovery-branch validation
 
 The current recovery candidate is `recovery/proofgap-cite-integrate-2026-11-19`, updated through PR #40.
