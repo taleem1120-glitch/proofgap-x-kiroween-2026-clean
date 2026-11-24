@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - recovery/proofgap-cite-integrate-2026-11-19
+      - audit/arabic-and-bounded-review-coverage-2026-11-24
     paths-ignore:
       - "apps/proofgap-cite/showcase.html"
 
@@ -33,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TARGET_BRANCH" in
-            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19") ;;
+            "hardening/near-duplicate-text-cues"|"recovery/proofgap-cite-integrate-2026-11-19"|"audit/arabic-and-bounded-review-coverage-2026-11-24") ;;
             *) echo "Refusing unexpected target branch."; exit 1 ;;
           esac
 
