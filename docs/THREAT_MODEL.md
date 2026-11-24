@@ -71,3 +71,41 @@ Regression coverage includes multi-chunk UTF-8 input, exact and exceeded byte bo
 In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation/whitespace folding and character-shingle Jaccard similarity. The scan is bounded to 25,000 candidate comparisons and 100 emitted pairs per case. A high-similarity pair across disjoint declared roots emits a heuristic warning and may cause the existing decision layer to abstain; it never merges artifacts, roots, or scores.
 
 **Residual risk:** similarity is not proof of copying or common authorship. The cue can miss paraphrases, translations, OCR/re-encoding changes, short text, and pairs beyond the deterministic comparison budget. It can also flag independently written text using standard language. Review the original sources and publication history; do not treat the cue as an attribution finding. Tests cover a controlled near-duplicate, unrelated text, bounded execution, and the invariant that origin counts and scores do not change.
+
+## Phase 14: commercial and independent-evaluation gate (24 November 2026)
+
+This section records the current validation boundary; it is not an independent certification.
+
+### Evidence status
+- PR #43's application CI passed on candidate `b10b7cf50e7a90b48be01fa17c70281c52cf6cdb` (Node 20, Node 22, responsive Playwright).
+- The Cite showcase regeneration workflow passed on the same candidate.
+- Cross-browser Chromium/Firefox/WebKit and dependency/security audit have passed on an earlier candidate, not yet on this exact SHA. A fresh run on the exact candidate is required.
+- The adversarial benchmark protocol and evaluator harness are developer-authored. No independent blind corpus, evaluator engagement, external test report, or security certification is available.
+- The threat model remains author-written and not independently reviewed.
+
+### Known failure modes that block broad commercial claims
+- Undeclared dependencies with no observable cue can be indistinguishable from independent sources in the supplied data.
+- Re-encoded, paraphrased, translated, OCR-altered, cropped, or transcribed copies may evade lexical and byte-equality cues.
+- Similarity warnings are review prompts only. They do not prove copying, common authorship, common origin, authenticity, or misconduct.
+- Common byte-identical public files can be shared by independent publishers; exact hash equality can therefore conservatively reduce recall.
+- The author-built synthetic corpus is not a representative sample of real investigative, legal, newsroom, or financial cases.
+- The benchmark's claim-level confidence intervals do not account for clustering by source family and may be optimistic.
+
+### Required independent review
+1. Freeze the exact release SHA, code, thresholds, generator, evaluator and benchmark protocol before labels are opened.
+2. Have an evaluator who did not implement ProofGap collect or adjudicate legally usable, permission-cleared cases; split by source family; retain unknown/ambiguous labels.
+3. Run the frozen evaluator without changing labels or thresholds after seeing results. Publish denominators, confusion matrices, subgroup results, confidence intervals, abstention coverage and all exclusions.
+4. Have a separate security reviewer examine file-system races, path traversal, Unicode, XSS/CSP, exports, dependency provenance, privacy and denial-of-service.
+5. Have an accessibility reviewer test keyboard-only operation, screen readers, RTL, zoom/reflow and mobile browsers with real assistive technology.
+6. Record reviewer identity/organization, scope, date, commit SHA, findings, remediation and explicit residual risks.
+
+### Commercial decision boundary
+Until the above reviews and customer pilots exist, describe ProofGap X as an open-source research prototype. Do not claim forensic certification, enterprise readiness, market superiority, validated real-world accuracy, or an acquisition valuation. A commercial package also needs an explicit distribution/packaging decision: the current root `package.json` is `private: true`, despite declaring Apache-2.0. Apache-2.0 permits redistribution under its terms; it does not create exclusivity over already published source.
+
+### Gate status
+- Reproducible local benchmark on exact candidate: pending.
+- Deterministic rebuild of both showcases on exact candidate: pending.
+- Cross-browser/security audit on exact candidate: pending.
+- Independent blind evaluation: NOT AVAILABLE.
+- Independent security/accessibility review: NOT AVAILABLE.
+- Buyer interviews, paid pilots, and signed commercial intent: NOT AVAILABLE.
