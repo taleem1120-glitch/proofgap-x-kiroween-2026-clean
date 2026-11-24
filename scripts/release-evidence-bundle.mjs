@@ -52,10 +52,11 @@ function build(outputArg) {
     source: { commit, branch, version: pkg.version, archive: 'source.tar' },
     sourceArchiveSha256: archiveHash,
     generatedAt: new Date().toISOString(),
+    evidenceBoundary: 'The listed workflow runs validate dff236fb0c92207ba648357331ae4a8ce06d721b, not necessarily this bundle source commit. Recheck exact-SHA workflow runs for the source commit before treating it as release-validated.',
     automatedEvidence: [
-      { name: 'CI #875', result: 'success', commit, url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310960' },
-      { name: 'Cross-browser/security #226', result: 'success', commit, url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310779' },
-      { name: 'Showcase regeneration', result: 'success', commit, url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480296282' }
+      { name: 'CI #875', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310960' },
+      { name: 'Cross-browser/security #226', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310779' },
+      { name: 'Showcase regeneration', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480296282' }
     ],
     independentAssurance: {
       securityAudit: 'OPEN_NOT_PERFORMED',
