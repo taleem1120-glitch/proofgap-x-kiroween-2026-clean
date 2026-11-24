@@ -6,7 +6,7 @@ const block = Array.from({ length: 60 }, (_, i) => `repeatToken${i}`).join(' ');
 
 test('repeated candidate index truncation is conservative and never silently negative', () => {
   const repeated = Array.from({ length: 5 }, () => block).join(' unrelated separator ');
-  const result = detectSharedPassage(repeated, repeated);
+  const result = detectSharedPassage(repeated, repeated, { maxComparisons: 100_000 });
   assert.equal(result.review, true);
   assert.equal(result.incomplete, true);
   assert.equal(result.basis, 'candidate_index_truncated_manual_review');
