@@ -114,7 +114,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     // This catches long re-encoded/reposted copies with small edits that exact shared-passage
     // matching can miss. It never merges roots, verifies authorship, or establishes copying.
     const nearSavedText = findNearDuplicatePairs(textRefs.map((ct) => ({ id: ct.id, text: textById.get(ct.id) })), {
-      maxComparisons: 435, maxResults: 100,
+      minSimilarity: 0.84, maxComparisons: 435, maxResults: 100,
     });
     const nearSavedTextCues = nearSavedText.pairs.filter((p) =>
       originOfRef.has(p.left) && originOfRef.has(p.right) && originOfRef.get(p.left) !== originOfRef.get(p.right));
