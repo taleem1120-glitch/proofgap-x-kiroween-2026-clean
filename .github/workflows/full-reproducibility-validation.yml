@@ -1,0 +1,40 @@
+name: Full reproducibility and release-candidate validation
+
+on:
+  push:
+    branches: ['audit/full-reproducibility-gate-2026-11-24']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  full-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Full local validation and deterministic benchmark reproductions
+        run: npm run validate:local
+      - name: Rebuild both application showcases from source
+        run: |
+          set -euo pipefail
+          rm -f viewer/showcase.html apps/proofgap-cite/showcase.html
+          npm run showcase
+          npm run showcase:cite
+      - name: Verify both generated showcases are byte-identical to committed artifacts
+        run: git diff --exit-code -- viewer/showcase.html apps/proofgap-cite/showcase.html
+      - name: Verify whitespace and patch integrity
+        run: git diff --check
