@@ -79,6 +79,33 @@ jobs:
         env:
           NODE_PATH: /tmp/proofgap-playwright/node_modules
         run: node scripts/e2e-responsive.cjs
+  clean-checkout-validation-and-showcase:
+    name: Clean-checkout full validation and showcase determinism
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Clean install
+        run: npm ci --ignore-scripts
+      - name: Run full local validation and deterministic benchmark comparisons
+        run: npm run validate:local
+      - name: Remove generated showcase outputs in disposable CI checkout
+        run: rm viewer/showcase.html apps/proofgap-cite/showcase.html
+      - name: Rebuild ProofGap X showcase
+        run: npm run showcase
+      - name: Rebuild ProofGap Cite showcase
+        run: npm run showcase:cite
+      - name: Verify whitespace and byte-for-byte showcase reproducibility
+        run: |
+          git diff --check
+          git diff --exit-code -- viewer/showcase.html apps/proofgap-cite/showcase.html
   cite-saved-text-review-benchmark:
     name: Cite saved-text review benchmark (fresh synthetic split)
     runs-on: ubuntu-24.04
