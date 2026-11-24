@@ -37,7 +37,7 @@ test('short-template cohort uses fewer than 60 shared tokens and retains distinc
     .map((claim) => ({ note, claim })));
   assert.ok(cases.length > 0, 'reserved cohort must exercise the short-boilerplate scenario');
   const boiler = 'This report is published for public information and does not necessarily represent the views of any public authority or institution.';
-  assert.ok(boiler.split(/\\s+/u).length < 60);
+  assert.ok(boiler.split(/\s+/u).length < 60);
   for (const { note, claim } of cases) {
     assert.equal(claim.corroborated, true);
     assert.equal(claim.refs.length, 2);
