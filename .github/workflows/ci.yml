@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'feature/**', 'audit/**', 'recovery/**']
+    branches: [main, 'feature/**', 'audit/**', 'recovery/**', 'release/**']
   pull_request:
   workflow_dispatch:
 
@@ -77,3 +77,18 @@ jobs:
         env:
           NODE_PATH: /tmp/proofgap-playwright/node_modules
         run: node scripts/e2e-responsive.cjs
+  cite-saved-text-review-benchmark:
+    name: Cite saved-text review benchmark (fresh synthetic split)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Evaluate opt-in saved-text review on reserved synthetic split
+        run: node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
