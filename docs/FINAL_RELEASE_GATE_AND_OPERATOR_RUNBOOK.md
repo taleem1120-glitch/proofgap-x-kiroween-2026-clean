@@ -62,6 +62,7 @@ The candidate commit itself must have successful runs for:
 - Node 20 and Node 22 application test jobs.
 - Responsive Chromium interaction checks.
 - Chromium, Firefox, and WebKit responsive, keyboard, RTL, and case-authoring checks.
+- Automated axe-core WCAG 2.0/2.1 A/AA and accessibility smoke checks on all four user-facing pages; preserve output and triage every finding.
 - Dependency audit and security regression suite.
 - Source, package, and licence gates.
 - Clean-checkout full validation (`npm run validate:local`) including test groups and deterministic accuracy comparisons for the core, file-backed, and Cite benchmarks.
@@ -74,14 +75,14 @@ A successful run on a different commit is historical evidence only. Confirm each
 Before production approval, obtain and retain:
 
 - Independent security review of the threat model, source, HTML viewer/CSP, local file handling, CLI boundaries, dependency/update process, and release artifact.
-- Human accessibility review with keyboard-only and screen-reader testing.
+- Human accessibility review with keyboard-only and screen-reader testing using `docs/ACCESSIBILITY_REVIEW_PROTOCOL.md`.
 - Supported-platform tests on every platform the release intends to claim. Current documented CI evidence is Ubuntu-based; Windows and macOS behaviour must not be claimed without separate evidence.
-- A privacy/data-flow review confirming that case content remains local and documenting backup, temporary-file, logging, and operator-device controls.
+- Privacy/data-flow review using `docs/PRIVACY_AND_DATA_FLOW.md`, followed by deployment-hosting, endpoint, backup, retention and jurisdiction-specific approval by the responsible privacy owner.
 - User testing with representative analysts and writers, including error recovery and interpretation of abstentions.
 
 Until these are complete, the product remains a research/prototype tool and must not be marketed as independently validated or enterprise-ready.
 
-## 6. Scientific and benchmark release gate
+## 6. Privacy and data handling gate\n\nThe source-based review is documented in `docs/PRIVACY_AND_DATA_FLOW.md`. It identifies local CLI reads/writes, browser-only analysis, language-preference localStorage, Blob downloads, the static-page CSP, and hosting/endpoint limitations. This document is an engineering review, not legal advice or an independent privacy audit. Production approval requires the actual hosting/CDN configuration, endpoint controls, retention/deletion process, backup policy, incident handling and jurisdictional legal basis to be reviewed and signed by the responsible privacy owner.\n\n## 7. Scientific and benchmark release gate
 
 Publish benchmark protocol, generator, held-out split provenance, metrics, confidence-interval caveats, and limitations with the release. Keep these failure modes visible:
 
@@ -93,7 +94,7 @@ Publish benchmark protocol, generator, held-out split provenance, metrics, confi
 
 Do not optimise headline scores by hiding abstentions, changing benchmark labels after seeing held-out results, or describing synthetic consistency as independent validation.
 
-## 7. Release artifact requirements
+## 8. Release artifact requirements
 
 A production release is blocked until all items below are attached to the same immutable tag/commit:
 
@@ -107,19 +108,19 @@ A production release is blocked until all items below are attached to the same i
 
 Do not publish a production tag or change the product status wording until the release owner signs off every gate. A GitHub Actions green check alone is insufficient.
 
-## 8. Candidate acceptance record
+## 9. Candidate acceptance record
 
 | Gate | Required evidence | Current disposition |
 |---|---|---|
 | Core automated tests | Candidate-SHA Node 20/22 runs | Required on every PR head; verify latest run SHA and conclusion |
 | Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Required on every PR head; synthetic evidence only |
-| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |
+| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |\n| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | New CI gate; triage all findings; automated scan is not human review |
 | Security regressions and dependency audit | Candidate-SHA audit job | Required on every PR head; verify latest run SHA and conclusion |
 | Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | Required on every PR head; retain job logs |
 | Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | Required on every PR head; zero diff required |
-| Independent security review | Signed review report | Not evidenced |
-| Human accessibility review | Review report and issue disposition | Not evidenced |
+| Independent security review | Signed third-party report with exact SHA, scope, findings and retest | Not evidenced; external reviewer required |\n| Privacy/data-flow approval | Hosting, endpoint, retention and jurisdiction review signed by privacy owner | Engineering review prepared; legal/owner approval not evidenced |
+| Human accessibility review | NVDA/VoiceOver/TalkBack + keyboard report and issue disposition per protocol | Not evidenced; external human testing required |
 | Windows/macOS support | Platform test evidence | Not evidenced |
 | Production packaging and release | Tagged artifact and release notes | Not approved |
 
-**Decision rule:** any pending, failed, skipped, or unevidenced gate means NO-GO for production. The software may be demonstrated as a research prototype with the limitations above.
+**Decision rule:** any pending, failed, skipped, or unevidenced gate means NO-GO for production. Automated accessibility scans do not count as human assistive-technology review; author-maintained security documentation does not count as an independent security audit; source-based data-flow notes do not count as legal/privacy-owner approval. The software may be demonstrated as a research prototype with the limitations above.
