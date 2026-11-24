@@ -13,9 +13,19 @@ test('Cite saved-text review split is disjoint from development and Phase 11 hel
   assert.equal(CITE_SPLITS.textReviewHeldout.count, 150);
 });
 
-test('fresh Cite review split keeps hidden truth out of the note and materializes saved text', () => {
-  const [note] = generateCiteSplit('textReviewHeldout');
-  assert.ok(note.files.size > 0);
-  assert.equal(note.text.includes('corroborated'), false);
-  assert.ok(Object.values(note.truth).some(x => x.scenario === 'reencoded_repost'));
+test('fresh Cite review split keeps hidden truth out of notes and includes long re-encoded copies', () => {
+  const notes = generateCiteSplit('textReviewHeldout');
+  let longReencodedCopies = 0;
+  for (const note of notes) {
+    assert.ok(note.files.size > 0);
+    assert.equal(note.text.includes('corroborated'), false);
+    for (const claim of Object.values(note.truth)) {
+      if (claim.scenario !== 'reencoded_repost') continue;
+      const [a, b] = claim.refs.map(ref => note.files.get(`${ref.id}.txt`));
+      assert.ok(a && b);
+      assert.ok(Buffer.byteLength(a) > 1000 && Buffer.byteLength(b) > 1000);
+      longReencodedCopies++;
+    }
+  }
+  assert.ok(longReencodedCopies > 0);
 });
