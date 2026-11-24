@@ -6,8 +6,8 @@
 
 - Repository: `taleem1120-glitch/proofgap-x-kiroween-2026-clean`
 - Candidate branch: `release/proofgap-final-gate-2026-11-24`
-- Baseline candidate SHA before this packet: `90a69f3808d1911eb8e4c0bf1901a1b7af07ff51`
-- Review must be re-run against the final commit SHA after this packet and any remediation.
+- At review kickoff, record the exact current PR head SHA from GitHub; do not use a branch name alone as the review identifier.
+- Application code and automated accessibility scans were validated on application candidate `0c456334445cf96e12e6fa598d83d1ae2eecab69`; subsequent changes through this packet revision are review/acceptance documentation only. Any code remediation requires a new exact-SHA review and retest.
 - Runtime: Node.js >=20; zero declared runtime dependencies; local/offline analysis model.
 
 ## Review scope requested
