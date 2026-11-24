@@ -35,8 +35,8 @@ test('re-encoded shared passage abstains without merging separately declared ori
   assert.ok(overlap);
   assert.match(overlap.message, /normalized token offsets/u);
   assert.match(overlap.message, /passage coverage:/u);
-  assert.match(overlap.message, /\\d+\\.\\d+% of \\[^a\\]/u);
-  assert.match(overlap.message, /\\d+\\.\\d+% of \\[^b\\]/u);
+  assert.match(overlap.message, /\d+\.\d+% of \[\^a\]/u);
+  assert.match(overlap.message, /\d+\.\d+% of \[\^b\]/u);
   assert.equal(report.cite.textCopyReview.results.every((r) => r.status === 'READ'), true);
 });
 
