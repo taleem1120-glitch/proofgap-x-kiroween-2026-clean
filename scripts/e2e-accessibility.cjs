@@ -40,7 +40,8 @@ const pages = [
   const findings = [];
   try {
     for (const spec of pages) {
-      const page = await browser.newPage({ viewport:{width:1280,height:900} });
+      const context = await browser.newContext({ viewport:{width:1280,height:900} });
+      const page = await context.newPage();
       await page.goto('http://127.0.0.1:4174' + spec.path, { waitUntil:'networkidle' });
       const metadata = await page.evaluate(() => ({
         title: document.title,
@@ -68,7 +69,7 @@ const pages = [
         page:spec.name,kind:'axe:'+v.id,impact:v.impact,help:v.help,
         helpUrl:v.helpUrl,nodes:v.nodes.slice(0,8).map(n=>({target:n.target,summary:n.failureSummary}))
       });
-      await page.close();
+      await context.close();
     }
   } finally {
     await browser.close();
