@@ -10,7 +10,7 @@ CI run [45469079808 (#807)](https://github.com/taleem1120-glitch/proofgap-x-kiro
 - Baseline cite_without_saved_files: TP 179, FP 121, TN 332, FN 53; precision 59.7%, recall 77.2%, FPR 26.7%.
 - Opt-in cite_with_saved_files: TP 140, FP 0, TN 453, FN 92; precision 100.0% (95% Wilson CI 97.3–100.0%), recall 60.3% (53.9–66.4%), FPR 0.0% (0.0–0.8%).
 - In the independent_short_template scenario, **36/36** truly corroborated claims were positively classified as independently corroborated.
-- The unchanged long-template scenario produced **54/54** abstentions as abstain_suspected_shared_origin; no positive assertion was made for those cases.
+- The long-template scenario produced **39/39** abstentions as abstain_suspected_shared_origin in this short-template cohort; no positive assertion was made for those cases. (The separate `templateHeldout` cohort contains 54 such cases.)
 
 **Interpretation:** the detector distinguishes this short-disclaimer fixture from a much longer exact shared passage without changing the 60-token rule. The short-template sub-scenario had no false positives and no abstentions in 36 synthetic cases. The long shared passage still triggers conservative abstention; this is a human-review warning, not proof of shared origin. Aggregate recall remains limited by abstentions and other unresolved-provenance cases. These author-built synthetic results are not estimates of real-world accuracy. Do not lower the shared-passage threshold or tune against this cohort solely to improve recall.
 
