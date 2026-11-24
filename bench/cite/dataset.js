@@ -7,6 +7,7 @@ export const CITE_SPLITS = Object.freeze({
   dev: { firstSeed: 1, count: 150 },             // used while developing
   heldout: { firstSeed: 500_001, count: 150 },   // Phase 11 held-out record; do not tune against it
   textReviewHeldout: { firstSeed: 700_001, count: 150 }, // fresh split reserved for opt-in saved-text review
+  templateHeldout: { firstSeed: 900_001, count: 150 }, // fresh split for independent sources sharing short boilerplate
 });
 
 // make(r, p) -> { refs: [{id, label, attrs, file?, bytes?}], cites: [{id, stance}], truth: boolean }
@@ -15,6 +16,7 @@ const sup = (...ids) => ids.map((id) => ({ id, stance: 'supports' }));
 const u = (r, host) => `https://${host}.example/${r.int(1e6)}`;
 
 export const CITE_SCENARIOS = {
+  independent_shared_template: { weight: 6, make(r, p) { const boiler = Array.from({ length: 35 }, (_, i) => `standard public notice clause ${i} applies equally to all published reports and does not describe the underlying findings`).join(' '); const refs = [0, 1].map((i) => ref(`${p}t${i}`, `Independent report ${p}${i}`, { kind: 'primary', url: u(r, `independent${i}`) }, `${boiler} ${Array.from({ length: 90 }, (_, j) => `unique finding ${i} record ${j} ${r.int(1e9)}`).join(' ')}`)); return { refs, cites: sup(...refs.map((x) => x.id)), truth: true }; } },
   two_primaries:              { weight: 12, make(r, p) { const n = 2 + r.int(2); const refs = []; for (let i = 0; i < n; i++) refs.push(ref(`${p}p${i}`, `Agency ${p}${i} dataset`, { kind: 'primary', url: u(r, `agency${i}`) }, `primary ${p}${i} ${r.int(1e9)}`)); const k = r.int(3); for (let j = 0; j < k; j++) refs.push(ref(`${p}s${j}`, `Outlet ${p}${j} story`, { kind: 'secondary', url: u(r, `outlet${j}`), cites: `${p}p${r.int(n)}` }, `secondary ${p}${j} ${r.int(1e9)}`)); return { refs, cites: sup(...refs.map((x) => x.id)), truth: true }; } },
   echo_declared:              { weight: 10, make(r, p) { const refs = [ref(`${p}pr`, `City press release ${p}`, { kind: 'primary', url: u(r, 'city') }, `pr ${p} ${r.int(1e9)}`)]; const n = 2 + r.int(4); let prev = `${p}pr`; for (let i = 0; i < n; i++) { const parent = r.bool(0.5) ? prev : `${p}pr`; refs.push(ref(`${p}e${i}`, `Outlet ${p}${i} report`, { kind: 'secondary', url: u(r, `news${i}`), cites: parent }, `echo ${p}${i} ${r.int(1e9)}`)); prev = `${p}e${i}`; } return { refs, cites: sup(...refs.map((x) => x.id)), truth: false }; } },
   echo_identical_files:       { weight: 8,  make(r, p) { const shared = `wire copy ${p} ${r.int(1e9)}`; const n = 2 + r.int(2); const refs = []; for (let i = 0; i < n; i++) refs.push(ref(`${p}w${i}`, `Outlet ${p}${i} wire story`, { kind: 'primary', url: u(r, `site${i}`) }, shared)); return { refs, cites: sup(...refs.map((x) => x.id)), truth: false }; } },
