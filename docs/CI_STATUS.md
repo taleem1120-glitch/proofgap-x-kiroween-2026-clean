@@ -112,3 +112,11 @@ Validated release-branch head: `1da61539a07d661329b93f34f0165a900e880240`.
 - Regeneration workflow #64 then completed successfully: it rebuilt `apps/proofgap-cite/showcase.html`, ran the full test suite and `git diff --check`, and committed the generated artifact as `c2c0adb6fdc3bf217fae0da267fb12d9fd86cfdb`.
 - PR-triggered CI #859 and cross-browser/security #210 for that generated-artifact commit were returned as `action_required` before job execution. They are not passing results. A new push-triggered exact-SHA run is required to close this race.
 - PR #44 remains Draft and unmerged. No change to `main` is authorized by this validation note.
+
+## Final engineering review record — 2026-11-24
+
+- Exact application candidate `2d792f834172c50cf06d1dc384ef85df2edaa7f8` passed CI #861 and Cross-browser/security #212 (see links above).
+- Internal source-level review and residual-risk assessment are recorded in `docs/FINAL_ENGINEERING_REVIEW.md`; saved-text extraction and shared-passage risks are added as T18/T19 in `docs/THREAT_MODEL.md`.
+- These are documentation-only commits after the validated application candidate. They do not change runtime code and do not supersede the exact-SHA application test results.
+- No new workflow run was returned for the documentation-only threat-model commit `156efe65d9ee8554713a9bcc49f3184f6f6122fe`; do not claim that this documentation commit has a fresh CI result.
+- Production disposition remains **NOT APPROVED**. Independent security review, human accessibility, privacy-owner/legal approval, supported-platform verification and representative-user evaluation remain open. PR #44 remains Draft and unmerged.
