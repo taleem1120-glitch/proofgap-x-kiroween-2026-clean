@@ -26,7 +26,7 @@ const withFiles = (a, b, options = {}) => {
 
 test('re-encoded shared passage abstains without merging separately declared origins', () => {
   const left = `Alpha dataset record. ${common} End of alpha record.`;
-  const right = `Bravo archive record. ${common.toUpperCase().replaceAll(' ', '\\u00a0')} End of bravo archive.`;
+  const right = `Bravo archive record. ${common.toUpperCase().replaceAll(' ', '\u00a0')} End of bravo archive.`;
   const report = withFiles(left, right);
   const claim = report.claims[0];
   assert.equal(claim.citeEvidence.independentOrigins, 2, 'text similarity must not merge source roots');
