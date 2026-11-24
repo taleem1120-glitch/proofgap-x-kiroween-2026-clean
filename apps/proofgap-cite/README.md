@@ -22,6 +22,8 @@ node apps/proofgap-cite/cli.js my-draft.md --sources ./saved-sources --review-te
 ```
 Only `.txt`, `.md`, `.csv`, and `.json` files are extracted (bounded to 30 files, 256 KiB per file, 2 MiB total, and 5 seconds). PDF, HTML, XML, images, OCR, binary data, network retrieval, symlinks, and unsafe paths are not supported. Shared passages, text resemblance, and incomplete scans are review cues only; they do not prove copying or common origin, merge origins, or establish authorship. An incomplete scan must not be treated as a negative finding.
 
+Each claim in JSON reports now includes `sharedPassageReview`: mode (`not_requested` or `local_saved_text_opt_in`), status (`not_requested`, `no_long_passage_detected`, `review_required`, or `incomplete`), compared-pair count, and structured cues with token counts, normalized token offsets and per-document passage coverage. `renderLint` and the HTML report also surface the leave-one-primary-origin-out support-stress summary. This is a structural counterfactual over declared lineage only; it does not re-evaluate truth or source reliability. `no_long_passage_detected` means only that this bounded exact contiguous-passage detector found no passage meeting its rule in the files it successfully examined; it does not establish source independence.
+
 ## Note format
 ```markdown
 # Title
