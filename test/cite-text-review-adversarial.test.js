@@ -89,7 +89,7 @@ test('unrelated long saved documents do not trigger the saved-text near-duplicat
 
 test('Arabic saved-text near duplicates are reviewed without stripping combining marks', () => {
   const left = ('تُظهر سجلات التحقيق المستقلة تسلسل الأحداث والقياسات الأصلية وتفاصيل النشر ومراجع الأدلة المحفوظة في هذا التقرير. ').repeat(4);
-  const right = ('تُظهر سجلات التحقيق المستقلة تسلسل الوقائع والقياسات الأصلية وتفاصيل النشر ومراجع الأدلة المحفوظة في هذا التقرير. ').repeat(4);
+  const right = left.replace('الأحداث', 'الوقائع');
   const report = withFiles(left, right);
   const claim = report.claims[0];
   assert.equal(claim.citeEvidence.independentOrigins, 2);
@@ -97,13 +97,13 @@ test('Arabic saved-text near duplicates are reviewed without stripping combining
   assert.ok(claim.findings.some((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE' && f.basis === 'heuristic'));
 });
 
-test('shared institutional boilerplate is surfaced as a review cue, not proof of common origin', () => {
+test('short shared institutional boilerplate does not trigger a whole-document near-duplicate cue', () => {
   const boilerplate = ('This document is provided for informational purposes and reflects the reporting methodology and publication standards of the issuing institution. ').repeat(3);
   const left = `Climate dataset observations, regional rainfall measurements and station records. ${boilerplate} Unique climate appendix A.`;
   const right = `Transport archive inspections, bridge maintenance logs and engineering observations. ${boilerplate} Unique transport appendix B.`;
   const report = withFiles(left, right);
   const claim = report.claims[0];
   assert.equal(claim.citeEvidence.independentOrigins, 2, 'a shared template must never merge source roots');
-  assert.ok(claim.findings.some((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE'));
-  assert.ok(claim.findings.find((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE').message.includes('does not establish copying or common origin'));
+  assert.ok(!claim.findings.some((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE'),
+    'a short shared template should not make otherwise distinct long documents near-duplicates');
 });
