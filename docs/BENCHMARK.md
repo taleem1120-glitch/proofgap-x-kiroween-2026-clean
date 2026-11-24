@@ -1,5 +1,25 @@
 # ProofGap X — Benchmark
 
+## Phase 13: independent sources sharing short boilerplate — fresh synthetic cohort
+
+This experiment isolates a conservative over-abstention risk: two genuinely independent primary sources share a short public boilerplate passage, while their substantive findings and source files are distinct. The reserved cohort uses seeds **900001–900150** (templateHeldout) and is disjoint from earlier cohorts. It is synthetic and author-generated; it is not field validation.
+
+Reproduce:
+
+```sh
+node --expose-gc bench/cite/run.js templateHeldout --review-text-copies
+```
+
+CI run [45466498604 (#790)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45466498604), benchmark job 138702683637, Node v22.23.5:
+
+- 150 notes, 673 claims, 214 truly corroborated claims.
+- Baseline cite_without_saved_files: TP 158, FP 120, TN 339, FN 56; precision 56.8%, recall 73.8%, FPR 26.1%.
+- Opt-in cite_with_saved_files: TP 104, FP 0, TN 459, FN 110; precision 100.0% (95% Wilson CI 96.4–100.0%), recall 48.6% (42.0–55.3%), FPR 0.0% (0.0–0.8%).
+- The independent_shared_template scenario contains **54 truly corroborated claims**. All 54 abstained as abstain_suspected_shared_origin; none was positively asserted.
+- Re-encoded reposts and same-URL syndication also abstained in this cohort (49 each).
+
+**Interpretation:** the saved-text review path avoided false-positive assertions in this synthetic cohort, but it did so conservatively and missed/abstained on many genuinely independent claims. In particular, the shared-passage cue can treat independent sources that share generic boilerplate as suspected shared origin. This is a recall/availability cost, not evidence that the sources were actually dependent. Keep the alert as a human-review cue; do not describe it as proof of copying or common origin. Do not tune thresholds against this held-out cohort and then call it untouched validation.
+
 ## Phase 12: opt-in saved-text review — fresh cohort, measurement pending
 
 Phase 11's file-backed Cite benchmark did **not** enable `reviewTextCopies`; its 66 false positives on `reencoded_repost` therefore remain valid for that exact configuration. They must not be presented as a measured result for the newer opt-in saved-text review path.
