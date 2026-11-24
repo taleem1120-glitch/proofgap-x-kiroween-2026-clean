@@ -12,7 +12,24 @@ Reproduce the new diagnostic with:
 node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
 ```
 
-The CI job runs this diagnostic on Node 22. **Metrics are pending until that exact job completes.** This is still an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.
+The CI job runs this diagnostic on Node 22. This is an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.\n\n### Phase 12 result — candidate head `4d35b24a78d8505c89ff2ce66408b77e4cdd436c`
+
+CI run [45399669922](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45399669922), benchmark job `138464738153`, Node v22.23.5:
+
+| Detector | TP | FP | TN | FN | Precision | Recall | FPR |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Cite without saved-text review | 111 | 121 | 392 | 54 | 47.8% | 67.3% | 23.6% |
+| Cite with opt-in saved-text review | 111 | 0 | 513 | 54 | 100.0% | 67.3% | 0.0% |
+
+- Total: 150 synthetic notes, 678 claims, 165 truly corroborated claims.
+- All **43** `reencoded_repost` cases abstained; none were asserted as independently corroborated.
+- The **54** false negatives are all `undeclared_independent`: their notes do not disclose the primary origins, so the tool cannot distinguish them from the 56 `undeclared_echo` cases.
+- Wilson 95% intervals: precision 96.7–100.0%; recall 59.8–74.0%; FPR 0.0–0.7%.
+- Median 2.44 ms/note with saved files; representative large note 52.6 ms and heap delta +15.9 MB on this runner.
+
+**Interpretation:** within this synthetic cohort, the opt-in saved-text review reduced false positives from 121 to 0 without changing recall. This is a strong implementation-level result, not a real-world accuracy estimate, independent validation, or a guarantee against paraphrase, translation, OCR, cropped passages, common templates, or undisclosed provenance. Keep the feature opt-in and retain human review.
+
+
 
 ## Phase 11: ProofGap Cite (application 2)
 **Read first.** The benchmark is synthetic and author-built (`bench/cite/dataset.js`), and its scenarios encode the rules Cite implements. The numbers show the implementation follows its specification and expose its designed blind spots. They are **not** evidence of real-world accuracy, and there is no external comparison.
