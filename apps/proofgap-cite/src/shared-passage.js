@@ -1,4 +1,4 @@
-/** 
+/**
  * Cite-local bounded shared-passage cue.
  * Rolling dual hashes keep candidate indexing linear; candidate windows are
  * always token-verified before a passage is reported. This never infers origin.
