@@ -29,8 +29,17 @@ export const CITE_SCENARIOS = {
   unsupported:                { weight: 4,  make() { return { refs: [], cites: [], truth: false }; } },
   conflicting:                { weight: 4,  make(r, p) { const refs = [0, 1, 2].map((i) => ref(`${p}q${i}`, `Lab ${p}${i} result`, { kind: 'primary', url: u(r, `lab${i}`) }, `lab ${p}${i} ${r.int(1e9)}`)); return { refs, cites: [...sup(refs[0].id, refs[1].id), { id: refs[2].id, stance: 'contradicts' }], truth: false }; } },
 };
-const TOTAL = Object.values(CITE_SCENARIOS).reduce((a, s) => a + s.weight, 0);
-const pick = (r) => { let x = r.int(TOTAL); for (const [k, s] of Object.entries(CITE_SCENARIOS)) if ((x -= s.weight) < 0) return k; };
+// Keep every pre-template cohort on the original scenario distribution. The new
+// shared-template scenario is eligible only in its explicitly reserved fresh split.
+const LEGACY_SCENARIOS = Object.entries(CITE_SCENARIOS).filter(([name]) => name !== 'independent_shared_template');
+const LEGACY_TOTAL = LEGACY_SCENARIOS.reduce((a, [, scenario]) => a + scenario.weight, 0);
+const ALL_SCENARIOS = Object.entries(CITE_SCENARIOS);
+const ALL_TOTAL = ALL_SCENARIOS.reduce((a, [, scenario]) => a + scenario.weight, 0);
+const pick = (r, includeTemplateScenario) => {
+  const scenarios = includeTemplateScenario ? ALL_SCENARIOS : LEGACY_SCENARIOS;
+  let x = r.int(includeTemplateScenario ? ALL_TOTAL : LEGACY_TOTAL);
+  for (const [name, scenario] of scenarios) if ((x -= scenario.weight) < 0) return name;
+};
 
 /** One synthetic note: { name, text, files: Map(name -> bytes), truth: { claimId -> {scenario, corroborated, refs[]} } } */
 export function generateNote(seed) {
@@ -38,7 +47,7 @@ export function generateNote(seed) {
   const nClaims = 3 + r.int(4);
   const claims = [], refs = [], files = new Map(), truth = {};
   for (let k = 0; k < nClaims; k++) {
-    const scenario = pick(r), s = CITE_SCENARIOS[scenario].make(r, `k${k}`);
+    const scenario = pick(r, seed >= CITE_SPLITS.templateHeldout.firstSeed), s = CITE_SCENARIOS[scenario].make(r, `k${k}`);
     // The fresh saved-text-review cohort deliberately includes long, re-encoded copies.
     // Preserve the exact historical Phase 11 generator for every earlier seed.
     if (seed >= CITE_SPLITS.textReviewHeldout.firstSeed && scenario === 'reencoded_repost') {
