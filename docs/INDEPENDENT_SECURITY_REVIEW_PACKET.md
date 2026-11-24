@@ -7,7 +7,7 @@
 - Repository: `taleem1120-glitch/proofgap-x-kiroween-2026-clean`
 - Candidate branch: `release/proofgap-final-gate-2026-11-24`
 - At review kickoff, record the exact current PR head SHA from GitHub; do not use a branch name alone as the review identifier.
-- Application code and automated accessibility scans were validated on application candidate `0c456334445cf96e12e6fa598d83d1ae2eecab69`; subsequent changes through this packet revision are review/acceptance documentation only. Any code remediation requires a new exact-SHA review and retest.
+- Application code and automated accessibility scans were validated on application candidate `d09ac993aeb232b79726eb482af077bdcd19a358` (CI run `45417571033`; cross-browser/accessibility/security run `45417571196`). Subsequent changes documented in `docs/CI_STATUS.md` are documentation-only and have not themselves received the full CI matrix. Reviewers must still record the exact current PR head SHA at review kickoff; do not treat the candidate SHA as the current branch head. Any code remediation requires a new exact-SHA review and retest.
 - Runtime: Node.js >=20; zero declared runtime dependencies; local/offline analysis model.
 
 ## Review scope requested
