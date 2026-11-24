@@ -249,3 +249,22 @@ The following organizations were **not emailed or form-submitted** because the r
 No form submission is claimed. Their tailored inquiries are prepared in the outreach pack. No response, sponsorship, audit, investment, acquisition interest, or referral is implied by sending these messages.
 
 **Financial condition stated in all sent emails:** the founder cannot pay audit, consulting, assessment, incorporation, or other project fees upfront. Any payment could only be considered after a product sale or investment has actually closed and sufficient funds have been received, and only under a separate written agreement approved in advance. No paid work, contract, fee, or financial commitment was authorized.
+
+
+## Additional strategic investor / acquirer outreach — 2026-11-24
+
+The founder authorized continued portfolio outreach while avoiding previously contacted organizations. The following new emails were sent from the founder's connected Gmail account:
+
+| Organization | Recipient | Status | Purpose |
+|---|---|---|---|
+| Lytical Ventures | communications@lyticalventures.com | Email sent | Pre-seed investment fit for cybersecurity, data and AI portfolio |
+| Secure Dynamics / LaunchPad | info@securedynamics.co | Email sent | Investment, enterprise validation and strategic channel partnership |
+| Magnet Forensics | partners@magnetforensics.com | Email sent | Strategic partnership, integration, licensing, collaboration or referral to corporate development |
+
+All three messages included the portfolio overview and links, described project maturity conservatively, offered product acquisition/licensing/strategic investment and investor-backed international company formation/relocation, and stated the no-upfront-payment condition. The founder cannot pay fees before a product sale or investment has closed and sufficient funds have been received; any later payment requires a separate written agreement approved in advance.
+
+No response, investment interest, acquisition interest, partnership, or acceptance is implied by sending these emails.
+
+### Prior-contact exclusions preserved
+
+Do not duplicate outreach to previously contacted or submitted organizations, including (among others) ZainCash, Oxygen Forensics, FinTech Scotland, MassChallenge FinTech, Vestbee (application submitted 2026-11-23; await review), Maltego support, Global Ventures, EQIQ, KAPITA, Wamda, Flat6Labs, Shorooq, RAED, and other prior ATHARNEX investor targets. Check the contact ledger before every future send.
