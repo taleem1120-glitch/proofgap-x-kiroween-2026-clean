@@ -101,12 +101,13 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     }
   }
   const incomplete = truncated || indexTruncated;
+  const bestCandidate = candidates.reduce((best, item) => !best || item.tokens > best.tokens ? item : best, null);
   return {
     review: longest >= minRunTokens || incomplete,
     incomplete,
     longestRunTokens: longest,
     tokenCounts: { a: A.length, b: B.length },
-    coverage: candidates.length ? { a: candidates[0].coverageA, b: candidates[0].coverageB } : { a: 0, b: 0 },
+    coverage: bestCandidate ? { a: bestCandidate.coverageA, b: bestCandidate.coverageB } : { a: 0, b: 0 },
     basis: truncated ? 'comparison_budget_exceeded_manual_review' :
       indexTruncated ? 'candidate_index_truncated_manual_review' :
       longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage',
