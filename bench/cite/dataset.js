@@ -37,6 +37,16 @@ export function generateNote(seed) {
   const claims = [], refs = [], files = new Map(), truth = {};
   for (let k = 0; k < nClaims; k++) {
     const scenario = pick(r), s = CITE_SCENARIOS[scenario].make(r, `k${k}`);
+    // The fresh saved-text-review cohort deliberately includes long, re-encoded copies.
+    // Preserve the exact historical Phase 11 generator for every earlier seed.
+    if (seed >= CITE_SPLITS.textReviewHeldout.firstSeed && scenario === 'reencoded_repost') {
+      const body = Array.from({ length: 28 }, (_, i) =>
+        `The archived investigative record ${i} documents the same sequence of observations, measurements, and independently reviewable source details for this report.`
+      ).join(' ');
+      const edited = body.replace('same sequence of observations', 'same ordered sequence of observations');
+      s.refs[0].bytes = `Original publication. ${body} End of original record.`;
+      s.refs[1].bytes = `Re-encoded repost. ${edited.toUpperCase().replaceAll(' ', '\\u00a0')} End of repost.`;
+    }
     for (const x of s.refs) {
       const attrs = { ...x.attrs };
       if (x.bytes !== undefined) { attrs.saved = `${x.id}.txt`; files.set(attrs.saved, x.bytes); }
