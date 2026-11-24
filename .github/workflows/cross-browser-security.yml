@@ -16,7 +16,7 @@ on:
       - 'test/security.test.js'
       - 'docs/THREAT_MODEL.md'
   pull_request:
-    branches: ['main']
+    branches: ['main', 'recovery/**', 'release/**']
     paths:
       - '.github/workflows/cross-browser-security.yml'
       - 'scripts/e2e-responsive.cjs'
