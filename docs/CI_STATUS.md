@@ -120,3 +120,13 @@ Validated release-branch head: `1da61539a07d661329b93f34f0165a900e880240`.
 - These are documentation-only commits after the validated application candidate. They do not change runtime code and do not supersede the exact-SHA application test results.
 - No new workflow run was returned for the documentation-only threat-model commit `156efe65d9ee8554713a9bcc49f3184f6f6122fe`; do not claim that this documentation commit has a fresh CI result.
 - Production disposition remains **NOT APPROVED**. Independent security review, human accessibility, privacy-owner/legal approval, supported-platform verification and representative-user evaluation remain open. PR #44 remains Draft and unmerged.
+
+## Independent review preparation — 24 November 2026
+
+The reproducible external-review packet is now documented:
+- `docs/INDEPENDENT_REVIEW_PROTOCOL.md`: clean-checkout commands, adversarial test matrix, human accessibility and privacy/deployment review, finding format and exit criteria.
+- `docs/REVIEW_EVIDENCE_INDEX.md`: exact application candidate, CI evidence, code map, known limitations and open sign-offs.
+- `docs/FINAL_ENGINEERING_REVIEW.md`: internal review disposition.
+- `docs/THREAT_MODEL.md`: threat model and residual risks, including T18/T19.
+
+Authoritative tested application SHA remains `2d792f834172c50cf06d1dc384ef85df2edaa7f8`, with CI #861 and cross-browser/security #212 both successful. The subsequent commits in this review-preparation sequence change documentation only. No new CI result is claimed for the documentation-only head. Independent review and human/privacy/platform sign-offs remain open; PR #44 remains Draft and unmerged.
