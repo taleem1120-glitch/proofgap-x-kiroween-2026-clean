@@ -91,7 +91,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
           const longestCandidate = cue.candidates.reduce((best, item) => !best || item.tokens > best.tokens ? item : best, null);
           const coverageA = cue.coverage?.a;
           const coverageB = cue.coverage?.b;
-          sharedPassageCues.push({ left, right, tokens: cue.longestRunTokens, tokenCounts: cue.tokenCounts, coverage: cue.coverage, candidate: longestCandidate });
+          sharedPassageCues.push({ left, right, tokens: cue.longestRunTokens, tokenCounts: cue.tokenCounts, coverage: cue.coverage, offsets: longestCandidate ? { a: { start: longestCandidate.startA, endExclusive: longestCandidate.endA }, b: { start: longestCandidate.startB, endExclusive: longestCandidate.endB } } : null });
           const locations = longestCandidate
             ? `normalized token offsets ${longestCandidate.startA}-${longestCandidate.endA - 1} in [^${left}] / ${longestCandidate.startB}-${longestCandidate.endB - 1} in [^${right}]`
             : 'locations unavailable';
@@ -178,6 +178,13 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     out.set(cl.claimId, {
       verdict, line: lineOf.get(cl.claimId), findings, missing,
       citations: cited.length, independentOrigins: sup.length, primaryRootedOrigins: primaryOrigins.length,
+      sharedPassageReview: {
+        mode: textReviewEnabled ? 'local_saved_text_opt_in' : 'not_requested',
+        status: !textReviewEnabled ? 'not_requested' : sharedPassageIncomplete ? 'incomplete' : sharedPassageCues.length ? 'review_required' : 'no_long_passage_detected',
+        pairsCompared: sharedPassagePairs,
+        cues: sharedPassageCues,
+        caveat: 'A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.',
+      },
       supportStress: {
         metric: 'declared_primary_origin_leave_one_out',
         baselinePrimaryOrigins: primaryOrigins.length,
@@ -186,7 +193,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         scenarios: primaryOrigins.map((o) => ({ removedOrigin: o.origin, remainingPrimaryOrigins: Math.max(0, primaryOrigins.length - 1) })),
         caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
       },
-      explanation: `${cited.filter((c) => c.stance === 'supports').length} supporting citation(s) → ${sup.length} independent origin(s), ${primaryOrigins.length} tracing to a declared primary source. Verdict: ${verdict.replace(/_/g, ' ')} (${CITE_VERDICTS[verdict]}).`,
+      explanation: `${cited.filter((c) => c.stance === 'supports').length} supporting citation(s) → ${sup.length} independent origin(s), ${primaryOrigins.length} tracing to a declared primary source. Removing any one primary-rooted origin leaves ${Math.max(0, primaryOrigins.length - 1)}; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: ${verdict.replace(/_/g, ' ')} (${CITE_VERDICTS[verdict]}).`,
     });
   }
   return out;
