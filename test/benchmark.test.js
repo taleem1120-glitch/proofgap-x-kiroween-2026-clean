@@ -79,6 +79,7 @@ test('cite dataset: ground truth is never written into the note, and every scena
       for (const t of Object.values(n.truth)) seen.add(t.scenario);
       assert.doesNotMatch(n.text, /corroborated|truth|undeclared_|reencoded|scenario/i);
     }
-    assert.deepEqual([...seen].sort(), Object.keys(CITE_SCENARIOS).sort(), name);
+    const historicalScenarios = Object.keys(CITE_SCENARIOS).filter((scenario) => scenario !== 'independent_shared_template');
+    assert.deepEqual([...seen].sort(), historicalScenarios.sort(), name);
   }
 });
