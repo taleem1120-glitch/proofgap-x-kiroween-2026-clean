@@ -44,7 +44,7 @@ npm run demo                             # ProofGap X integrity demo
 rm viewer/showcase.html apps/proofgap-cite/showcase.html && npm run showcase && npm run showcase:cite   # rebuild both showcases from the engine
 npm run validate:local                   # tests + focused groups + all benchmark reproductions, recorded under validation/<id>/
 ```
-**Validated audit candidate (24 Nov 2026):** commit `74d7559796c987e892819edfe34b4f432725249f` on the audit branch passed the reproducible validation gate (348/348 tests and all three benchmark comparisons), deterministic rebuilds of both showcases, ProofGap Cite regeneration, and Node 20/22 plus responsive Playwright CI. Cross-browser Chromium/Firefox/WebKit and dependency/security checks passed on an application-code-identical earlier candidate; see [CI and release status](docs/CI_STATUS.md) for exact scope. PR #43 remains unmerged. These checks do not mean the candidate is deployed from `main`; public Pages availability is not currently verified.
+**Validated audit candidate (24 Nov 2026):** current audit head `66c45c25065950cd4b85975e7ed11168e09970bd`. The reproducible validation gate passed on the code candidate `5bfecf0` (348/348 tests, all three benchmark comparisons, eight source/license/package-safety checks, and byte-identical rebuilds of both showcases). Node 20/22, responsive Playwright and ProofGap Cite regeneration passed on the current head. Chromium/Firefox and dependency/security checks passed on an application-code-identical candidate; WebKit is still pending. PR #43 remains unmerged; public deployment and independent evaluation are not verified. See [CI and release status](docs/CI_STATUS.md).
 
 
 ## What is new in 0.4.0
