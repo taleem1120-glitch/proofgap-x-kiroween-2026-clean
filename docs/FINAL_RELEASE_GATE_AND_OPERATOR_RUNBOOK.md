@@ -112,13 +112,13 @@ Do not publish a production tag or change the product status wording until the r
 
 | Gate | Required evidence | Current disposition |
 |---|---|---|
-| Core automated tests | Candidate-SHA Node 20/22 runs | PASS on `0c456334445cf96e12e6fa598d83d1ae2eecab69`; CI 45416856842 |
-| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | PASS on candidate CI 45416856842; synthetic evidence only |
-| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | PASS on candidate run 45416867898; exact SHA verified |
-| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | PASS on Chromium/Firefox/WebKit; 0 blockers and 0 advisory findings on each, run 45416867898 |
-| Security regressions and dependency audit | Candidate-SHA audit job | PASS on candidate run 45416867898; automated audit only, not independent review |
-| Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | PASS on candidate CI 45416856842 |
-| Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | PASS on candidate CI 45416856842; both regenerated with zero diff |
+| Core automated tests | Node 20/22, responsive browser, clean-checkout validation, benchmark and showcase regeneration | PASS on documentation-head `717bfe370f4a4221dfe6c2983295bbee826ad598`; CI run [45460984419](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45460984419) |
+| Cite saved-text review benchmark | Fresh synthetic seeds 700001–700150 with opt-in text review | PASS in CI run 45460984419; synthetic evidence only |
+| Cross-browser | Chromium/Firefox/WebKit compatibility | PASS on the same SHA; run [45460984626](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45460984626) |
+| Automated accessibility | axe-core WCAG 2.0/2.1 A/AA and structural checks | PASS on Chromium/Firefox/WebKit; 0 blockers and 0 advisory findings in run 45460984626 |
+| Security regressions and dependency audit | Candidate-SHA audit job | PASS in run 45460984626; automated audit only, not independent review |
+| Local validation and benchmarks | Clean-checkout `validate:local` plus core/file-backed/Cite benchmark comparisons | PASS in CI run 45460984419 |
+| Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | PASS in CI run 45460984419; both regenerated with zero diff |
 | Independent security review | Signed third-party report with exact SHA, scope, findings and retest | Not evidenced; external reviewer required |
 | Privacy/data-flow approval | Hosting, endpoint, retention and jurisdiction review signed by privacy owner | Engineering review prepared; legal/owner approval not evidenced |
 | Human accessibility review | NVDA/VoiceOver/TalkBack + keyboard report and issue disposition per protocol | Not evidenced; external human testing required |
