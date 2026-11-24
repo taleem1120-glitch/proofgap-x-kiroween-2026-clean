@@ -109,7 +109,7 @@ Do not publish a production tag or change the product status wording until the r
 
 | Gate | Required evidence | Current disposition |
 |---|---|---|
-| Core automated tests | Candidate-SHA Node 20/22 runs | Re-run on this candidate |\n| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Pending candidate CI run |
+| Core automated tests | Candidate-SHA Node 20/22 runs | Re-run on this candidate |\n| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Passed synthetic CI diagnostic on candidate head; not independent validation |
 | Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Re-run on this candidate |
 | Security regressions and dependency audit | Candidate-SHA audit job | Re-run on this candidate |
 | Local validation and benchmarks | New immutable validation record | Pending |
