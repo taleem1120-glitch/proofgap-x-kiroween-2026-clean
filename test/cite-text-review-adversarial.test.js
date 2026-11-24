@@ -113,7 +113,7 @@ test('shared-passage pair-budget exhaustion is disclosed and forces abstention',
   const dir = mkdtempSync(join(tmpdir(), 'proofgap-cite-pair-budget-'));
   try {
     const ids = Array.from({ length: 12 }, (_, i) => `r${i}`);
-    const citations = ids.map(id => `[^ ${id}]`.replace('[^ ', '[^')).join(' ');
+    const citations = ids.map(id => `[^${id}]`).join(' ');
     const refs = ids.map((id, i) => {
       const file = `source-${i}.txt`;
       const text = Array.from({ length: 72 }, (_, j) => `uniqueorigin${i} evidenceitem${j} record`).join(' ');
@@ -121,7 +121,7 @@ test('shared-passage pair-budget exhaustion is disclosed and forces abstention',
       return `[^${id}]: Independent source ${i} {kind=primary, url=https://origin${i}.example/item, saved=${file} }`;
     }).join('\\n');
     const noteText = `# Pair budget test\\n## Claims\\n- A claim with many sources ${citations}\\n## References\\n${refs}\\n`;
-    const report = analyzeNote(noteText, { sourcesDir: dir, reviewTextCopies: true, noteName: 'pair-budget.md' });
+    let report;\n    try { report = analyzeNote(noteText, { sourcesDir: dir, reviewTextCopies: true, noteName: 'pair-budget.md' }); }\n    catch (error) { throw new Error(JSON.stringify(error.issues ?? error.message)); }
     const claim = report.claims[0];
     assert.equal(claim.citeEvidence.independentOrigins, 12, 'review cues must not merge declared origins');
     assert.equal(claim.decision, 'abstain_suspected_shared_origin');
