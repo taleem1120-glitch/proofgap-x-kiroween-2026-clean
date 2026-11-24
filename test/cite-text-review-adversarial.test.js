@@ -36,7 +36,7 @@ test('re-encoded shared passage abstains without merging separately declared ori
 });
 
 test('short shared boilerplate does not trigger the 60-token shared-passage cue', () => {
-  const template = Array.from({ length: 38 }, (_, i) => `standard-disclosure-${i}`).join(' ');
+  const template = Array.from({ length: 38 }, (_, i) => `standarddisclosuretoken${i}`).join(' ');
   const left = `Alpha unique observations ${template} Alpha conclusions and measurements.`;
   const right = `Bravo unrelated measurements ${template} Bravo separate conclusions and samples.`;
   const report = withFiles(left, right);
