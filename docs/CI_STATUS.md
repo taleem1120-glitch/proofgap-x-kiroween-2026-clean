@@ -103,3 +103,12 @@ Validated release-branch head: `1da61539a07d661329b93f34f0165a900e880240`.
 - PR #44 remains Draft and unmerged; `main` is unchanged.
 
 **Disposition:** automated checks pass for this exact SHA. Independent professional security review, human accessibility testing, privacy-owner/legal approval, supported-platform verification and representative user evaluation remain open. No production approval or independent certification is claimed.
+
+
+## Showcase regeneration race — 2026-11-24 19:39 UTC
+
+- CI #858 ran against `2570be0964b0ee4e17d96a991bc8a9b20a2fb0d5`, before the showcase regeneration workflow committed its output. Node 20 and Node 22 each failed the deterministic committed-showcase comparison; the full test suite reported 352 passing and 1 failing test. Responsive Playwright and the Cite saved-text benchmark passed.
+- Clean-checkout validation independently checked out the same pre-regeneration SHA and reported the same single failing test. This is a sequencing/stale-artifact failure, not evidence of a Node-version-specific defect.
+- Regeneration workflow #64 then completed successfully: it rebuilt `apps/proofgap-cite/showcase.html`, ran the full test suite and `git diff --check`, and committed the generated artifact as `c2c0adb6fdc3bf217fae0da267fb12d9fd86cfdb`.
+- PR-triggered CI #859 and cross-browser/security #210 for that generated-artifact commit were returned as `action_required` before job execution. They are not passing results. A new push-triggered exact-SHA run is required to close this race.
+- PR #44 remains Draft and unmerged. No change to `main` is authorized by this validation note.
