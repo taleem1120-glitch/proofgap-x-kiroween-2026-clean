@@ -158,7 +158,8 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         if (sharedPassageIncomplete) reasons.push('one or more shared-passage scans were incomplete');
         if (nearText.truncated) reasons.push('the reference-label near-duplicate scan reached its comparison/result budget');
         if (nearSavedText.truncated) reasons.push('the saved-text near-duplicate scan reached its resource/result budget');
-        missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text scan was ${nearText.truncated ? 'incomplete' : 'complete'}.`);
+        const textReviewIncomplete = nearText.truncated || nearSavedText.truncated || sharedPassageIncomplete;
+        missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text review was ${textReviewIncomplete ? 'incomplete' : 'complete'}.`);
       } else verdict = 'independently_corroborated';
     } else {
       verdict = 'origin_unresolved';
