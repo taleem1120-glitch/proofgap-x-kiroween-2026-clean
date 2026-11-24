@@ -37,6 +37,14 @@ test('re-encoded shared passage abstains without merging separately declared ori
   assert.match(overlap.message, /passage coverage:/u);
   assert.match(overlap.message, /\d+\.\d+% of \[\^a\]/u);
   assert.match(overlap.message, /\d+\.\d+% of \[\^b\]/u);
+  assert.equal(claim.sharedPassageReview.mode, 'local_saved_text_opt_in');
+  assert.equal(claim.sharedPassageReview.status, 'review_required');
+  assert.equal(claim.sharedPassageReview.pairsCompared, 1);
+  assert.equal(claim.sharedPassageReview.cues.length, 1);
+  assert.equal(claim.sharedPassageReview.cues[0].tokens, 72);
+  assert.ok(claim.sharedPassageReview.cues[0].coverage.a > 0 && claim.sharedPassageReview.cues[0].coverage.b > 0);
+  assert.ok(claim.sharedPassageReview.cues[0].offsets.a.endExclusive > claim.sharedPassageReview.cues[0].offsets.a.start);
+  assert.match(claim.sharedPassageReview.caveat, /does not prove copying/u);
   assert.equal(report.cite.textCopyReview.results.every((r) => r.status === 'READ'), true);
 });
 
@@ -47,6 +55,7 @@ test('short shared boilerplate does not trigger the 60-token shared-passage cue'
   const report = withFiles(left, right);
   assert.equal(report.claims[0].decision, 'independently_corroborated');
   assert.ok(!report.claims[0].findings.some((f) => f.code === 'SHARED_PASSAGE_TEXT_OVERLAP'));
+  assert.equal(report.claims[0].sharedPassageReview.status, 'no_long_passage_detected');
 });
 
 test('paraphrased or translated copies remain an explicit detection limitation', () => {
@@ -64,6 +73,7 @@ test('missing saved text produces an incomplete-scan warning rather than a clean
     const report = analyzeNote(note(), { sourcesDir: dir, reviewTextCopies: true, noteName: 'missing.md' });
     assert.equal(report.claims[0].decision, 'abstain_suspected_shared_origin');
     assert.ok(report.claims[0].findings.some((f) => f.code === 'SHARED_PASSAGE_SCAN_INCOMPLETE'));
+    assert.equal(report.claims[0].sharedPassageReview.status, 'incomplete');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
