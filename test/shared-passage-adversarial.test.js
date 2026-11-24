@@ -84,3 +84,16 @@ test('tokenization overflow fails closed and requests manual review', () => {
   assert.equal(result.basis, 'token_limit_exceeded_manual_review');
   assert.deepEqual(result.candidates, []);
 });
+
+test('overlapping passages on different alignments are both evaluated; longest run wins', () => {
+  const tokens = Array.from({ length: 150 }, (_, i) => `alignmentToken${i}`);
+  // The first occurrence gives a 110-token match. A second, offset occurrence
+  // overlaps it in B but extends to 120 tokens and must not be skipped.
+  const a = [...tokens.slice(0, 110), 'unrelated-gap', ...tokens.slice(30, 150)].join(' ');
+  const b = tokens.join(' ');
+  const result = detectSharedPassage(a, b, { maxComparisons: 100_000 });
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, false);
+  assert.equal(result.longestRunTokens, 120);
+  assert.ok(result.candidates.some(x => x.tokens === 120));
+});
