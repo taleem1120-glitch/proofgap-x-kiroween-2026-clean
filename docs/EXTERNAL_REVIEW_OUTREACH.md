@@ -229,3 +229,23 @@ Founder
 For each selected product, prepare a separate evidence pack containing: current repository and exact commit, runnable demo/build instructions, feature inventory, architecture and data-flow diagrams, automated and manual test results, known limitations, dependencies and third-party licenses, security findings, privacy/legal assumptions, IP provenance and contributor/ownership records, product roadmap, deployment model, target customer, pricing hypothesis, and a realistic commercialization budget.
 
 Do not bundle all projects into one valuation without product-level diligence. Any valuation, equity percentage, asking price, or promised return must be negotiated only after scope, IP ownership, technical readiness, and market evidence are reviewed.
+
+
+## Outreach execution log — 2026-11-24
+
+The founder authorized outreach with the explicit condition that no upfront payment or financial commitment is possible. Individual emails were sent from the founder's connected Gmail account:
+
+| Organization | Recipient | Status | Scope |
+|---|---|---|---|
+| OSTIF | contactus@ostif.org; cc derek@ostif.org | Email sent | Sponsored/pro-bono security review, audit eligibility, portfolio/investment referral |
+| Intopia | accessibility@intopia.digital | Email sent | Sponsored/pro-bono human accessibility review and portfolio/referral context |
+| Deque | marketing@deque.com | Email sent | Request to route to accessibility audit team; sponsored/deferred review and strategic referral |
+
+The following organizations were **not emailed or form-submitted** because the reviewed official contact pages expose web forms and no verified direct email address was established in this outreach run:
+
+- WebAIM: https://webaim.org/contact/
+- Even Grounds: https://evengrounds.com/contact/
+
+No form submission is claimed. Their tailored inquiries are prepared in the outreach pack. No response, sponsorship, audit, investment, acquisition interest, or referral is implied by sending these messages.
+
+**Financial condition stated in all sent emails:** the founder cannot pay audit, consulting, assessment, incorporation, or other project fees upfront. Any payment could only be considered after a product sale or investment has actually closed and sufficient funds have been received, and only under a separate written agreement approved in advance. No paid work, contract, fee, or financial commitment was authorized.
