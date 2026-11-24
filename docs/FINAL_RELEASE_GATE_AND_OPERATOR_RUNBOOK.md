@@ -64,6 +64,8 @@ The candidate commit itself must have successful runs for:
 - Chromium, Firefox, and WebKit responsive, keyboard, RTL, and case-authoring checks.
 - Dependency audit and security regression suite.
 - Source, package, and licence gates.
+- Clean-checkout full validation (`npm run validate:local`) including test groups and deterministic accuracy comparisons for the core, file-backed, and Cite benchmarks.
+- Clean rebuild of both HTML showcases followed by `git diff --check` and byte-for-byte `git diff --exit-code` checks.
 
 A successful run on a different commit is historical evidence only. Confirm each workflow run's checked-out SHA equals the release candidate SHA. A skipped workflow is not a pass. The CI workflow's current browser/security coverage is automated and does not establish physical-device compatibility or human accessibility conformance.
 
@@ -109,12 +111,12 @@ Do not publish a production tag or change the product status wording until the r
 
 | Gate | Required evidence | Current disposition |
 |---|---|---|
-| Core automated tests | Candidate-SHA Node 20/22 runs | Re-run on this candidate |
-| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Passed synthetic CI diagnostic on candidate head; not independent validation |
-| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Re-run on this candidate |
-| Security regressions and dependency audit | Candidate-SHA audit job | Re-run on this candidate |
-| Local validation and benchmarks | New immutable validation record | Pending |
-| Showcase determinism | Clean rebuild with zero diff | Pending |
+| Core automated tests | Candidate-SHA Node 20/22 runs | Required on every PR head; verify latest run SHA and conclusion |
+| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Required on every PR head; synthetic evidence only |
+| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |
+| Security regressions and dependency audit | Candidate-SHA audit job | Required on every PR head; verify latest run SHA and conclusion |
+| Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | Required on every PR head; retain job logs |
+| Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | Required on every PR head; zero diff required |
 | Independent security review | Signed review report | Not evidenced |
 | Human accessibility review | Review report and issue disposition | Not evidenced |
 | Windows/macOS support | Platform test evidence | Not evidenced |
