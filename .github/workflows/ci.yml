@@ -122,3 +122,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Evaluate opt-in saved-text review on reserved synthetic split
         run: node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
+      - name: Evaluate independent sources with shared short boilerplate (fresh held-out split)
+        run: node --expose-gc bench/cite/run.js templateHeldout --review-text-copies
