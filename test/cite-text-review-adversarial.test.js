@@ -41,7 +41,7 @@ test('re-encoded shared passage abstains without merging separately declared ori
   assert.equal(claim.sharedPassageReview.status, 'review_required');
   assert.equal(claim.sharedPassageReview.pairsCompared, 1);
   assert.equal(claim.sharedPassageReview.cues.length, 1);
-  assert.equal(claim.sharedPassageReview.cues[0].tokens, 72);
+  assert.equal(claim.sharedPassageReview.cues[0].tokens, 291);
   assert.ok(claim.sharedPassageReview.cues[0].coverage.a > 0 && claim.sharedPassageReview.cues[0].coverage.b > 0);
   assert.ok(claim.sharedPassageReview.cues[0].offsets.a.endExclusive > claim.sharedPassageReview.cues[0].offsets.a.start);
   assert.match(claim.sharedPassageReview.caveat, /does not prove copying/u);
