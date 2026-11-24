@@ -47,12 +47,12 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
   }
   const normalizedA = normalize(a), normalizedB = normalize(b);
   if (normalizedA?.overflow || normalizedB?.overflow) {
-    return { review: true, incomplete: true, longestRunTokens: 0, basis: 'token_limit_exceeded_manual_review', candidates: [] };
+    return { review: true, incomplete: true, longestRunTokens: 0, tokenCounts: { a: null, b: null }, coverage: { a: null, b: null }, basis: 'token_limit_exceeded_manual_review', candidates: [] };
   }
-  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, tokenCounts: { a: normalizedA?.tokens?.length ?? null, b: normalizedB?.tokens?.length ?? null }, coverage: { a: null, b: null }, basis: 'unsupported_or_short', candidates: [] };
   const A = normalizedA.tokens, B = normalizedB.tokens;
   if (A.length < minRunTokens || B.length < minRunTokens) {
-    return { review: false, incomplete: false, longestRunTokens: 0, basis: 'no_long_shared_passage', candidates: [] };
+    return { review: false, incomplete: false, longestRunTokens: 0, tokenCounts: { a: A.length, b: B.length }, coverage: { a: 0, b: 0 }, basis: 'no_long_shared_passage', candidates: [] };
   }
   const width = Math.min(minRunTokens, 60), ids = new Map();
   const left = hashWindows(A, ids, width), right = hashWindows(B, ids, width);
@@ -96,7 +96,7 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       coveredUntilByAlignment.set(alignment, Math.max(coveredUntilByAlignment.get(alignment) ?? 0, endB - width + 1));
       if (n >= minRunTokens && candidates.length < maxCandidates &&
           !candidates.some(x => x.startA === startA && x.startB === startB)) {
-        candidates.push({ startA, startB, tokens: n });
+        candidates.push({ startA, startB, endA, endB, tokens: n, coverageA: n / A.length, coverageB: n / B.length });
       }
     }
   }
@@ -105,6 +105,8 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     review: longest >= minRunTokens || incomplete,
     incomplete,
     longestRunTokens: longest,
+    tokenCounts: { a: A.length, b: B.length },
+    coverage: candidates.length ? { a: candidates[0].coverageA, b: candidates[0].coverageB } : { a: 0, b: 0 },
     basis: truncated ? 'comparison_budget_exceeded_manual_review' :
       indexTruncated ? 'candidate_index_truncated_manual_review' :
       longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage',
