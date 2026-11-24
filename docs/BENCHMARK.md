@@ -1,5 +1,19 @@
 # ProofGap X — Benchmark
 
+## Phase 12: opt-in saved-text review — fresh cohort, measurement pending
+
+Phase 11's file-backed Cite benchmark did **not** enable `reviewTextCopies`; its 66 false positives on `reencoded_repost` therefore remain valid for that exact configuration. They must not be presented as a measured result for the newer opt-in saved-text review path.
+
+A separate synthetic cohort is reserved at seeds **700001–700150** (`textReviewHeldout`), disjoint from the Phase 11 development and held-out seed ranges. In this cohort, `reencoded_repost` cases contain long UTF-8 documents with a small textual edit and formatting/encoding changes, so the opt-in shared-passage and near-duplicate saved-text cues are actually exercised. Historical Phase 11 cases retain their original generator and are unchanged.
+
+Reproduce the new diagnostic with:
+
+```sh
+node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
+```
+
+The CI job runs this diagnostic on Node 22. **Metrics are pending until that exact job completes.** This is still an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.
+
 ## Phase 11: ProofGap Cite (application 2)
 **Read first.** The benchmark is synthetic and author-built (`bench/cite/dataset.js`), and its scenarios encode the rules Cite implements. The numbers show the implementation follows its specification and expose its designed blind spots. They are **not** evidence of real-world accuracy, and there is no external comparison.
 
