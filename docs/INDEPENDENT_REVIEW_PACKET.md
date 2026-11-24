@@ -5,7 +5,7 @@
 ## Candidate under consideration
 
 - Repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
-- Candidate code commit to pin for an evaluation: `50a1d017dc79d7863c78880a61b2ca5d9a5f2609`
+- Candidate code commit to pin for an evaluation: `2cf2a048f3f713e61e8138c3a11e78505f2f69d8`
 - Evaluation date requested: to be agreed with the reviewer.
 - Product status: open-source research prototype; not forensic software, not certified, and not independently validated.
 - Two applications: ProofGap X and ProofGap Cite, sharing a domain-neutral core.
