@@ -124,3 +124,5 @@ jobs:
         run: node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
       - name: Evaluate independent sources with shared short boilerplate (fresh held-out split)
         run: node --expose-gc bench/cite/run.js templateHeldout --review-text-copies
+      - name: Evaluate genuinely short boilerplate separately (fresh held-out split)
+        run: node --expose-gc bench/cite/run.js shortTemplateHeldout --review-text-copies
