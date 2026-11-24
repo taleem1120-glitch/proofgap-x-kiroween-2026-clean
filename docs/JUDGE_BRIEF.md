@@ -55,3 +55,8 @@ Cross-engine Firefox and WebKit validation is being added separately; do not cla
 ## Suggested judge evaluation
 
 Please try both applications, change locale to Arabic, select graph nodes with the keyboard, export a report, and compare the displayed provenance basis with the underlying synthetic case. The central question is whether the tool communicates what is known, what is merely declared, and what remains unknown without overstating certainty.
+
+
+## Kiroween scoring alignment
+
+The five judging dimensions are weighted equally at 20%: Potential Impact, Technological Implementation, Design, Innovation/Idea, and Presentation. The detailed judge-visible evidence map, six engineering priorities, 2:50 run-of-show, factual Kiro-usage caveats, and release gate are maintained in [KIROWЕEN_JUDGE_EXECUTION.md](KIROWЕEN_JUDGE_EXECUTION.md). Use it as the final rehearsal and evidence checklist; it does not replace running the tests on the submitted commit.
