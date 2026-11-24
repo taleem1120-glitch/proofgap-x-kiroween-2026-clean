@@ -48,6 +48,8 @@ jobs:
         run: node --test test/security.test.js test/metamorphic.test.js test/benchmark.test.js
       - name: Re-encoded text adversarial tests
         run: node --test test/text-copy-adversarial.test.js
+      - name: Opt-in shared-passage benchmark (synthetic; not real-world accuracy)
+        run: node bench/cite/text-review-benchmark.js
       - name: Repeatable text-copy microbenchmark (observational)
         run: node bench/text-copy-performance.js
       - name: Reproducible core scaling diagnostic (synthetic; observational)
