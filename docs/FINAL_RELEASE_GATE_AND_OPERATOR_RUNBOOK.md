@@ -112,13 +112,13 @@ Do not publish a production tag or change the product status wording until the r
 
 | Gate | Required evidence | Current disposition |
 |---|---|---|
-| Core automated tests | Candidate-SHA Node 20/22 runs | Required on every PR head; verify latest run SHA and conclusion |
-| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Required on every PR head; synthetic evidence only |
-| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |
-| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | New CI gate; triage all findings; automated scan is not human review |
-| Security regressions and dependency audit | Candidate-SHA audit job | Required on every PR head; verify latest run SHA and conclusion |
-| Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | Required on every PR head; retain job logs |
-| Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | Required on every PR head; zero diff required |
+| Core automated tests | Candidate-SHA Node 20/22 runs | PASS on `0c456334445cf96e12e6fa598d83d1ae2eecab69`; CI 45416856842 |
+| Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | PASS on candidate CI 45416856842; synthetic evidence only |
+| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | PASS on candidate run 45416867898; exact SHA verified |
+| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | PASS on Chromium/Firefox/WebKit; 0 blockers and 0 advisory findings on each, run 45416867898 |
+| Security regressions and dependency audit | Candidate-SHA audit job | PASS on candidate run 45416867898; automated audit only, not independent review |
+| Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | PASS on candidate CI 45416856842 |
+| Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | PASS on candidate CI 45416856842; both regenerated with zero diff |
 | Independent security review | Signed third-party report with exact SHA, scope, findings and retest | Not evidenced; external reviewer required |
 | Privacy/data-flow approval | Hosting, endpoint, retention and jurisdiction review signed by privacy owner | Engineering review prepared; legal/owner approval not evidenced |
 | Human accessibility review | NVDA/VoiceOver/TalkBack + keyboard report and issue disposition per protocol | Not evidenced; external human testing required |
