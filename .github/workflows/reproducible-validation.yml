@@ -9,6 +9,7 @@ on:
       - 'bench/**'
       - 'test/**'
       - 'scripts/validate-local.js'
+      - 'scripts/release-source-gate.js'
       - 'docs/THREAT_MODEL.md'
       - 'package.json'
       - 'package-lock.json'
@@ -39,6 +40,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Run complete local validation and all committed benchmark comparisons
         run: npm run validate:local
+      - name: Verify source, licence, Kiro evidence and publication safeguards
+        run: npm run release:source-gate
       - name: Rebuild both offline showcases and require byte-identical output
         run: |
           set -euo pipefail
