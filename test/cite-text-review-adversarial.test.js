@@ -31,7 +31,12 @@ test('re-encoded shared passage abstains without merging separately declared ori
   const claim = report.claims[0];
   assert.equal(claim.citeEvidence.independentOrigins, 2, 'text similarity must not merge source roots');
   assert.equal(claim.decision, 'abstain_suspected_shared_origin');
-  assert.ok(claim.findings.some((f) => f.code === 'SHARED_PASSAGE_TEXT_OVERLAP' && f.basis === 'heuristic'));
+  const overlap = claim.findings.find((f) => f.code === 'SHARED_PASSAGE_TEXT_OVERLAP' && f.basis === 'heuristic');
+  assert.ok(overlap);
+  assert.match(overlap.message, /normalized token offsets/u);
+  assert.match(overlap.message, /passage coverage:/u);
+  assert.match(overlap.message, /\\d+\\.\\d+% of \\[^a\\]/u);
+  assert.match(overlap.message, /\\d+\\.\\d+% of \\[^b\\]/u);
   assert.equal(report.cite.textCopyReview.results.every((r) => r.status === 'READ'), true);
 });
 
