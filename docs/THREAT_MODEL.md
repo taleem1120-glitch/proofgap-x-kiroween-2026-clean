@@ -74,14 +74,15 @@ In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation
 
 ## Phase 14: commercial and independent-evaluation gate (24 November 2026)
 
-This section records the current validation boundary; it is not an independent certification.
+This section records repository evidence only. It is not an independent certification.
 
-### Evidence status
-- PR #43's application CI passed on candidate `b10b7cf50e7a90b48be01fa17c70281c52cf6cdb` (Node 20, Node 22, responsive Playwright).
-- The Cite showcase regeneration workflow passed on the same candidate.
-- Cross-browser Chromium/Firefox/WebKit and dependency/security audit have passed on an earlier candidate, not yet on this exact SHA. A fresh run on the exact candidate is required.
+### Evidence status at candidate 50a1d017dc79d7863c78880a61b2ca5d9a5f2609
+- The reproducible commercial validation gate passed on this exact candidate: 348/348 tests; security, provenance, file-integrity, viewer/planner, core/Cite and benchmark test groups passed; all three committed benchmark comparisons matched; both offline showcases rebuilt to temporary paths and matched their committed exports byte-for-byte.
+- The main CI workflow passed on this candidate for Node 20, Node 22 and responsive Playwright browser checks.
+- A separate cross-browser Chromium/Firefox/WebKit and dependency/security workflow passed on an earlier candidate (53443566227209f19a99ffa75726361f79bfb604), not on this exact SHA. Do not represent it as exact-candidate coverage.
+- The local validation explicitly did not test Node 20 locally, Windows, macOS, case-insensitive filesystems, real-world case data, screen readers, or non-Chromium viewer browsers.
 - The adversarial benchmark protocol and evaluator harness are developer-authored. No independent blind corpus, evaluator engagement, external test report, or security certification is available.
-- The threat model remains author-written and not independently reviewed.
+- This threat model remains author-written and not independently reviewed.
 
 ### Known failure modes that block broad commercial claims
 - Undeclared dependencies with no observable cue can be indistinguishable from independent sources in the supplied data.
@@ -92,6 +93,7 @@ This section records the current validation boundary; it is not an independent c
 - The benchmark's claim-level confidence intervals do not account for clustering by source family and may be optimistic.
 
 ### Required independent review
+The reviewer-ready scope and deliverables are in [INDEPENDENT_REVIEW_PACKET.md](INDEPENDENT_REVIEW_PACKET.md). In summary:
 1. Freeze the exact release SHA, code, thresholds, generator, evaluator and benchmark protocol before labels are opened.
 2. Have an evaluator who did not implement ProofGap collect or adjudicate legally usable, permission-cleared cases; split by source family; retain unknown/ambiguous labels.
 3. Run the frozen evaluator without changing labels or thresholds after seeing results. Publish denominators, confusion matrices, subgroup results, confidence intervals, abstention coverage and all exclusions.
@@ -103,9 +105,10 @@ This section records the current validation boundary; it is not an independent c
 Until the above reviews and customer pilots exist, describe ProofGap X as an open-source research prototype. Do not claim forensic certification, enterprise readiness, market superiority, validated real-world accuracy, or an acquisition valuation. A commercial package also needs an explicit distribution/packaging decision: the current root `package.json` is `private: true`, despite declaring Apache-2.0. Apache-2.0 permits redistribution under its terms; it does not create exclusivity over already published source.
 
 ### Gate status
-- Reproducible local benchmark on exact candidate: pending.
-- Deterministic rebuild of both showcases on exact candidate: pending.
-- Cross-browser/security audit on exact candidate: pending.
+- Reproducible local tests and benchmark comparisons on candidate 50a1d017dc79d7863c78880a61b2ca5d9a5f2609: PASS.
+- Deterministic rebuild of both showcases on that candidate: PASS.
+- Node 20/22 CI and responsive browser checks on that candidate: PASS.
+- Cross-browser/security audit on that exact candidate: PENDING.
 - Independent blind evaluation: NOT AVAILABLE.
 - Independent security/accessibility review: NOT AVAILABLE.
 - Buyer interviews, paid pilots, and signed commercial intent: NOT AVAILABLE.
