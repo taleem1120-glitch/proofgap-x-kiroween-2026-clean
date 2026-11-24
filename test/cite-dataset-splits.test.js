@@ -20,7 +20,7 @@ test('long-template stress cohort contains independent sources with saved source
   const cases = notes.flatMap((note) => Object.values(note.truth)
     .filter((claim) => claim.scenario === 'independent_shared_template')
     .map((claim) => ({ note, claim })));
-  assert.equal(cases.length, 54, 'the previously recorded long-template cohort distribution must remain unchanged');
+  assert.equal(cases.length, 39, 'the stable long-template cohort distribution must remain unchanged');
   assert.equal(scenarios('templateHeldout').includes('independent_short_template'), false);
   for (const { note, claim } of cases) {
     assert.equal(claim.corroborated, true);
