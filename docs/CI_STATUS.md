@@ -75,3 +75,7 @@ The local validator records local tests and benchmark reproductions only. It doe
 6. Keep synthetic benchmark results and their false positives/false negatives visible; they are not real-world accuracy evidence.
 
 **Disposition:** the automated engineering candidate has substantial passing evidence, but ProofGap remains a research prototype and is not approved for production or independently certified. Keep PR #44 Draft until external review, human testing, privacy approval, remediation and exact-SHA retests are complete.
+
+## Next engineering experiment: independent sources with shared boilerplate
+
+A fresh held-out cohort is being added at seeds 900001–900150. It contains independent primary sources that share a short public boilerplate passage but have distinct substantive content. The purpose is to test the opposite failure mode from repost detection: false merging of genuinely independent sources. This is a synthetic stress test, not external validation. Its measured false-positive and false-negative results must be recorded before any threshold or product claim changes.
