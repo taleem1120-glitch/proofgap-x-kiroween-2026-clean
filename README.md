@@ -85,6 +85,10 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 - Chromium, Firefox and WebKit automated browser checks passed on the PR #28 head; Windows/macOS and assistive-technology testing remain unverified.
 - Synthetic benchmarks and browser automation do not establish real-world accuracy, legal admissibility, or production readiness.
 
+## Release gate and operational use
+
+The project is **not approved for production use**. Before evaluating or operating either application, read [`docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md`](docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md). It defines safe local workflows, candidate-SHA validation requirements, outstanding independent security/accessibility reviews, platform limits, benchmark caveats, and the no-go rule for incomplete release evidence.
+
 ## Licence
 Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Copyright 2026 TAALEEM ALI HAJM SULTAN AL-SIYADI. Redistributions must keep both files (Apache-2.0 §4).
 
