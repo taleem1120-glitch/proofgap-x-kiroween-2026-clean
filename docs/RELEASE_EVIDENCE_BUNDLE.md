@@ -48,6 +48,6 @@ Both files must report OK, followed by VERIFIED commit .... A checksum mismatch,
 
 ## Evidence boundary
 
-The manifest records the exact-SHA automated runs available when this bundle builder was authored. It does not query GitHub dynamically. Re-check the run pages and exact SHA at build time. A later commit must receive fresh exact-SHA validation.
+The manifest labels the available workflow runs as evidence for their own validated SHA (dff236fb0c92207ba648357331ae4a8ce06d721b). Those runs are historical evidence and do not validate a later source commit. The builder does not query GitHub dynamically. Re-check the run pages and obtain fresh successful exact-SHA runs for the source commit before treating it as release-validated.
 
 The checksum proves byte integrity only. It does not prove authorship, authenticity, chain of custody, correctness, legal admissibility, reviewer independence or production readiness. The security audit, human assistive-technology review and deployment-specific privacy-owner approval remain open. The production decision therefore remains **NO-GO** until those gates are completed and retested.
