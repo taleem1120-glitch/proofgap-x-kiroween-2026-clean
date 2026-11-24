@@ -56,7 +56,7 @@ const pages = [
           !((x.innerText||'').trim()) && !x.getAttribute('aria-label') && !x.getAttribute('aria-labelledby') && !x.querySelector('img[alt],svg[aria-label],svg title')).map(x=>x.outerHTML.slice(0,180)),
         missingImageAlt: [...document.querySelectorAll('img:not([alt])')].map(x=>x.outerHTML.slice(0,180)),
         invalidAriaRefs: [...document.querySelectorAll('[aria-labelledby],[aria-describedby]')].flatMap(x =>
-          ['aria-labelledby','aria-describedby'].flatMap(a => (x.getAttribute(a)||'').split(/\\s+/).filter(Boolean).filter(id=>!document.getElementById(id)).map(id=>a+':'+id))),
+          ['aria-labelledby','aria-describedby'].flatMap(a => (x.getAttribute(a)||'').split(/\s+/).filter(Boolean).filter(id=>!document.getElementById(id)).map(id=>a+':'+id))),
       }));
       if (!metadata.title || !metadata.lang || metadata.mainCount < 1) findings.push({page:spec.name,kind:'page-landmarks',metadata});
       for (const key of ['duplicateIds','unlabeledControls','unnamedButtons','unnamedLinks','missingImageAlt','invalidAriaRefs']) {
