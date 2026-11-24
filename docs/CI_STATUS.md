@@ -10,6 +10,15 @@
 - [Cross-browser/accessibility/security run 45417571196](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45417571196) passed on the same application candidate: Chromium, Firefox and WebKit responsive checks; automated axe-core WCAG 2.0/2.1 A/AA and structural checks; dependency audit and security regression checks. Each of the three browser scans reported **0 blockers and 0 advisory findings**.
 - These are automated checks only. They do not establish an independent security audit, human screen-reader conformance, legal/privacy-owner approval, Windows/macOS support, or real-world forensic accuracy.
 
+## Latest documentation-head CI validation (24 November 2026)
+
+The documentation and review-packet head `717bfe370f4a4221dfe6c2983295bbee826ad598` passed both workflows:
+
+- [CI run 45460984419 (#776)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45460984419): Node 20, Node 22, responsive Playwright checks, clean-checkout validation/showcase determinism, and the fresh synthetic Cite saved-text review benchmark — **all 5 jobs successful**.
+- [Cross-browser/security run 45460984626 (#149)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45460984626): Chromium, Firefox, WebKit, and dependency/security regression audit — **all 4 jobs successful**.
+
+These runs validate the exact documentation-head SHA above, including the unchanged application candidate. They do not replace or extend the scope of the independent security, human accessibility, privacy-owner, or real-world evaluation gates. Any later commit must be checked separately; the current documentation update itself is a follow-on documentation-only change.
+
 ## Documentation-only changes after the validated code candidate
 
 The following commits add review/outreach and competition-submission documentation; they do not change application runtime code or generated showcase files:
