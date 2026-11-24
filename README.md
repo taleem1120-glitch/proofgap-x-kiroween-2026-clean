@@ -87,7 +87,7 @@ Local only (no network/spawn/eval code); 1 MB input cap and item/string/depth li
 
 ## Release gate and operational use
 
-The project is **not approved for production use**. Before evaluating or operating either application, read [`docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md`](docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md). It defines safe local workflows, candidate-SHA validation requirements, outstanding independent security/accessibility reviews, platform limits, benchmark caveats, and the no-go rule for incomplete release evidence.
+The project is **not approved for production use**. Before evaluating or operating either application, read [`docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md`](docs/FINAL_RELEASE_GATE_AND_OPERATOR_RUNBOOK.md). Supporting review materials: [`docs/INDEPENDENT_SECURITY_REVIEW_PACKET.md`](docs/INDEPENDENT_SECURITY_REVIEW_PACKET.md), [`docs/ACCESSIBILITY_REVIEW_PROTOCOL.md`](docs/ACCESSIBILITY_REVIEW_PROTOCOL.md), [`docs/PRIVACY_AND_DATA_FLOW.md`](docs/PRIVACY_AND_DATA_FLOW.md), and [`SECURITY.md`](SECURITY.md). Automated accessibility checks are not human assistive-technology testing; none of these documents claims that an independent security audit or legal/privacy-owner approval has occurred.
 
 ## Licence
 Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Copyright 2026 TAALEEM ALI HAJM SULTAN AL-SIYADI. Redistributions must keep both files (Apache-2.0 §4).
