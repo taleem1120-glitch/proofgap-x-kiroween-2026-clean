@@ -69,7 +69,8 @@ test('long re-encoded saved copies trigger a review cue without merging declared
     `The archived investigation record number ${i} documents the same independently reviewable observation and supporting measurements from the original report.`
   ).join(' ');
   const left = `Original publication. ${body} End of source A.`;
-  const right = `Reformatted repost. ${body.toUpperCase().replaceAll(' ', '\\u00a0')} Additional repost footer metadata. End of source B.`;
+  const reencoded = body.replaceAll('same independently reviewable observation', 'same independently documented observation');
+  const right = `Reformatted repost. ${reencoded.toUpperCase().replaceAll(' ', '\\u00a0')} End of source B.`;
   const report = withFiles(left, right);
   const claim = report.claims[0];
   assert.equal(claim.citeEvidence.independentOrigins, 2, 'saved-text similarity must not merge source roots');
