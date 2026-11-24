@@ -91,3 +91,15 @@ The local validator records local tests and benchmark reproductions only. It doe
 ## Next engineering experiment: independent sources with shared boilerplate
 
 A fresh held-out cohort is being added at seeds 900001–900150. It contains independent primary sources that share a short public boilerplate passage but have distinct substantive content. The purpose is to test the opposite failure mode from repost detection: false merging of genuinely independent sources. This is a synthetic stress test, not external validation. Its measured false-positive and false-negative results must be recorded before any threshold or product claim changes.
+
+## Latest exact-SHA validation — 2026-11-24
+
+Validated release-branch head: `1da61539a07d661329b93f34f0165a900e880240`.
+
+- [CI #833](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45470968204) — **SUCCESS**, all five jobs passed: Node 20, Node 22, responsive Playwright checks, clean-checkout validation/showcase determinism, and Cite saved-text review benchmark (including both `templateHeldout` and `shortTemplateHeldout` cohorts).
+- [Cross-browser/security #190](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45470968328) — **SUCCESS**, all four jobs passed: Chromium, Firefox, WebKit, and dependency/security regression audit.
+- The benchmark results and scenario-level outcomes are recorded in `docs/BENCHMARK.md`. The long-template case remains a conservative abstention; the short-template fixture is positively classified in 36/36 synthetic cases. These are author-generated synthetic results, not estimates of field accuracy.
+- The earlier statement in this file that the documentation-only head had not received complete exact-SHA validation is historical and is superseded for this exact release-branch head by the two runs above. Do not generalize these passes to later commits.
+- PR #44 remains Draft and unmerged; `main` is unchanged.
+
+**Disposition:** automated checks pass for this exact SHA. Independent professional security review, human accessibility testing, privacy-owner/legal approval, supported-platform verification and representative user evaluation remain open. No production approval or independent certification is claimed.
