@@ -76,10 +76,10 @@ In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation
 
 This section records repository evidence only. It is not an independent certification.
 
-### Evidence status at candidate 50a1d017dc79d7863c78880a61b2ca5d9a5f2609
+### Evidence status at candidate 2cf2a048f3f713e61e8138c3a11e78505f2f69d8
 - The reproducible commercial validation gate passed on this exact candidate: 348/348 tests; security, provenance, file-integrity, viewer/planner, core/Cite and benchmark test groups passed; all three committed benchmark comparisons matched; both offline showcases rebuilt to temporary paths and matched their committed exports byte-for-byte.
 - The main CI workflow passed on this candidate for Node 20, Node 22 and responsive Playwright browser checks.
-- A separate cross-browser Chromium/Firefox/WebKit and dependency/security workflow passed on an earlier candidate (53443566227209f19a99ffa75726361f79bfb604), not on this exact SHA. Do not represent it as exact-candidate coverage.
+- Cross-browser Chromium/Firefox/WebKit compatibility and dependency/security regression audit passed on this exact candidate.
 - The local validation explicitly did not test Node 20 locally, Windows, macOS, case-insensitive filesystems, real-world case data, screen readers, or non-Chromium viewer browsers.
 - The adversarial benchmark protocol and evaluator harness are developer-authored. No independent blind corpus, evaluator engagement, external test report, or security certification is available.
 - This threat model remains author-written and not independently reviewed.
@@ -105,10 +105,10 @@ The reviewer-ready scope and deliverables are in [INDEPENDENT_REVIEW_PACKET.md](
 Until the above reviews and customer pilots exist, describe ProofGap X as an open-source research prototype. Do not claim forensic certification, enterprise readiness, market superiority, validated real-world accuracy, or an acquisition valuation. A commercial package also needs an explicit distribution/packaging decision: the current root `package.json` is `private: true`, despite declaring Apache-2.0. Apache-2.0 permits redistribution under its terms; it does not create exclusivity over already published source.
 
 ### Gate status
-- Reproducible local tests and benchmark comparisons on candidate 50a1d017dc79d7863c78880a61b2ca5d9a5f2609: PASS.
+- Reproducible local tests and benchmark comparisons on candidate 2cf2a048f3f713e61e8138c3a11e78505f2f69d8: PASS.
 - Deterministic rebuild of both showcases on that candidate: PASS.
 - Node 20/22 CI and responsive browser checks on that candidate: PASS.
-- Cross-browser/security audit on that exact candidate: PENDING.
+- Cross-browser/security audit on that exact candidate: PASS.
 - Independent blind evaluation: NOT AVAILABLE.
 - Independent security/accessibility review: NOT AVAILABLE.
 - Buyer interviews, paid pilots, and signed commercial intent: NOT AVAILABLE.
