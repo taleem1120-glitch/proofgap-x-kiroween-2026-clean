@@ -124,3 +124,108 @@ Thank you.
 ## Decision
 
 Keep PR #44 in Draft and maintain NO-GO for production. No external party has been contacted by this document, no fee has been accepted, and no reviewer approval is claimed. The maintainer must submit the inquiries and approve any engagement.
+
+---
+
+## Track C — Founder portfolio, acquisition, investment, and company formation
+
+### Why this is included
+
+In addition to the specific review request, the founder is open to strategic discussions about the wider software portfolio: product acquisition, source-code or intellectual-property licensing, an outright acquisition of selected assets, investment in one or more products, or investment in a newly established company that commercializes the portfolio.
+
+**Important audience distinction:** OSTIF and accessibility specialists are approached primarily for their review and audit expertise. They are not presumed to be investors, buyers, or funding providers. If portfolio investment or acquisition is outside their mandate, we respectfully ask whether they can refer the founder to suitable open-source sponsors, cybersecurity investors, strategic acquirers, accelerators, or technology commercialization partners. Do not make the audit request conditional on an investment discussion.
+
+### Portfolio overview — stages are stated conservatively
+
+The following is a founder-led portfolio overview based on the current project record. The projects are at different stages; inclusion does not mean production readiness, independent certification, completed commercialization, or that all IP ownership and third-party terms have already been legally cleared.
+
+| Product / project | Focus and intended value | Current status / qualification |
+|---|---|---|
+| **ProofGap X** | Evidence-independence analysis for digital investigations: evaluates whether support for a claim comes from genuinely independent origins, identifies missing provenance, and makes uncertainty/abstention visible. | Active priority; candidate-specific automated CI and cross-browser/security checks passed on the recorded candidate. PR #44 remains Draft; external security, human accessibility, and deployment-specific privacy approvals remain open. |
+| **ProofGap Cite** | Companion application for citation/source review and saved-text/near-duplicate evidence cues; designed to expose false corroboration and distinguish source repetition from independent support. | Active companion to ProofGap X; benchmark evidence is synthetic and author-generated, not independent or real-world accuracy validation. |
+| **ATHARNEX** | Proposed cybersecurity and digital-forensics company/product family focused on digital crime reconstruction, telecom/network attribution, evidence preservation, and investigative analytics. | Early-stage portfolio/company concept; not yet incorporated. Capabilities and modules have different maturity levels and require product-by-product diligence. |
+| **EvidenceForge X** | Digital-evidence workflow and forensic evidence handling/analysis product concept, intended to support structured evidence workflows and investigation outputs. | Separate project from ProofGap X; commercial/product readiness and exact scope require a dedicated technical demonstration and diligence. No proprietary code is to be transferred into ProofGap X. |
+| **FraudShield AI** | AI-assisted fraud/scam detection and risk-awareness prototype, developed in connection with the PayPal AI Hackathon using PayPal Sandbox. | Hackathon submission/prototype; not represented as a production financial fraud platform or independently validated commercial product. Repository: https://github.com/taleem1120-glitch/paypal-ai-fraudshield ; demo: https://paypal-ai-fraudshield.streamlit.app/ |
+| **FraudShield Voice** | Voice-based scam-awareness and fraud education simulator built around an Amazon Alexa+ concept. | Prototype/hackathon project; not represented as a deployed enterprise voice security product. Repository: https://github.com/ateto1028-boop/fraudshield-voice-alexa |
+| **Transcend Security Guard X** | DevSecOps/security scanning workflow, including static analysis, security tests, and CI/SAST-oriented developer feedback. | Separate project with earlier prototype and CI evidence; currently paused while ProofGap X is the priority. It is not represented as a fully commercialized enterprise platform. |
+| **Nebius Evidence-First Agent / AI Security Guard work** | Evidence-first AI/security workflow and agent-oriented security research, developed for a Nebius/NVIDIA hackathon context. | Hackathon/research submission and repository work; not represented as a production-ready general-purpose security agent. |
+
+### Additional ATHARNEX capability areas
+
+The ATHARNEX roadmap has included the following proposed or developing capability areas. These are roadmap areas, not a claim that every capability is already implemented:
+
+- Digital Crime Reconstruction and evidence correlation.
+- Telecom/network attribution and investigative context.
+- CCTV, DVR/NVR and video evidence analysis.
+- Mobile, computer, memory, cloud, and other digital-evidence workflows.
+- SIM/device and location-related evidence analysis, subject to lawful access and jurisdiction-specific controls.
+- Evidence preservation, integrity, provenance, and auditable reporting.
+- AI-assisted fraud detection and investigative support.
+- A verifiable evidence/security toolkit for AI-agent activity.
+
+Any law-enforcement, personal-data, telecom, location, or cross-border functionality would require jurisdiction-specific legal review, authorization controls, privacy safeguards, and human oversight before deployment.
+
+### Commercial pathways offered
+
+The founder is open to discussing one or more of the following, subject to technical, legal, IP, and commercial due diligence:
+
+1. **Product or asset acquisition:** acquisition of an individual product, selected source code, associated documentation, or agreed IP rights.
+2. **Licensing:** exclusive or non-exclusive licensing, source-code licensing, white-label arrangements, or territory/sector-specific commercial rights.
+3. **Strategic investment:** investment in a selected product or a portfolio company in exchange for an agreed equity or other negotiated structure.
+4. **Company formation and relocation:** establish a new company to own, develop, and commercialize the selected portfolio, with the investor providing or arranging the necessary incorporation and initial operating capital.
+5. **Investor-selected jurisdiction:** the founder is open to relocating the company’s legal incorporation and, if agreed and legally feasible, its operating base to a jurisdiction preferred by the investor. The destination, ownership structure, founder role, immigration/work arrangements, tax treatment, IP assignment, governance, and funding milestones would be negotiated and professionally reviewed before commitment.
+
+The founder is currently based in Iraq and the venture is early-stage and unincorporated. No investor has committed funding, no company has yet been incorporated, and no relocation arrangement is in place. Any relocation is conditional on sufficient agreed funding, lawful immigration/establishment routes, and signed agreements.
+
+### Founder and execution context
+
+The founder brings approximately 20 years of experience in law-enforcement and investigative technology, including cybercrime investigation and digital forensics. The founder is seeking a strategic partner capable of funding independent validation, incorporation, product hardening, commercialization, and market entry. The founder is open to discussing an operating role and transition plan with an investor or acquirer.
+
+Portfolio/venture website: https://bespoke-rolypoly-82651a.netlify.app
+
+### Draft portfolio / strategic partnership inquiry
+
+**Subject:** Cybersecurity and digital-forensics software portfolio — strategic investment, acquisition, licensing, and company formation
+
+Hello,
+
+Alongside my request concerning independent review of ProofGap X, I would like to make you aware of a wider founder-led software portfolio in cybersecurity, digital forensics, evidence provenance, and fraud prevention.
+
+The portfolio includes ProofGap X / ProofGap Cite, ATHARNEX, EvidenceForge X, FraudShield AI, FraudShield Voice, Transcend Security Guard X, and Nebius Evidence-First Agent / AI Security Guard work. These products are at different stages, ranging from an active software candidate with passing automated checks to hackathon prototypes, early-stage product concepts, and paused development work. I do not present every item as production-ready or independently validated.
+
+I am open to:
+- acquisition of an individual product, source-code asset, or agreed intellectual-property rights;
+- exclusive or non-exclusive licensing and white-label commercialization;
+- strategic investment in one or more products or in a portfolio company; and
+- establishing a new company to commercialize the selected products, with the investor providing or arranging the necessary incorporation and initial operating capital.
+
+The venture is currently Iraq-based and unincorporated. I am open to establishing and, if mutually agreed and legally feasible, relocating the company to a jurisdiction preferred by the investor. The legal structure, IP ownership, funding, founder role, relocation, and governance would be negotiated transparently and subject to professional legal and tax advice.
+
+My background includes approximately 20 years of law-enforcement and investigative-technology experience. I can provide product-specific repositories, demonstrations, technical documentation, and a staged diligence plan. I would welcome a confidential introductory discussion or a referral to an appropriate investor, strategic acquirer, technology commercialization partner, or sponsor if this is outside your organization's remit.
+
+Portfolio overview: https://bespoke-rolypoly-82651a.netlify.app
+
+ProofGap X repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
+
+FraudShield AI repository: https://github.com/taleem1120-glitch/paypal-ai-fraudshield
+FraudShield AI demo: https://paypal-ai-fraudshield.streamlit.app/
+
+FraudShield Voice repository: https://github.com/ateto1028-boop/fraudshield-voice-alexa
+
+I would be pleased to share a tailored product brief and arrange a demonstration.
+
+Kind regards,
+Taleem Ali
+Founder
+
+### How to use this with each recipient
+
+- **OSTIF:** keep the independent security-audit and sponsorship request as the primary ask. Include this portfolio section as a short optional appendix and request a referral to open-source sponsors or cybersecurity investors only if appropriate.
+- **Intopia, WebAIM, Deque, Even Grounds, and accessibility specialists:** keep the human accessibility review as the primary ask. Do not imply they are expected to invest; ask only for a referral to suitable technology investors/acquirers if they know relevant channels.
+- **Investors, acquirers, accelerators, and strategic technology partners:** use the full portfolio inquiry as a separate, tailored approach. Do not send the audit-specific message as though they were audit providers.
+
+### Diligence pack to prepare before any investor meeting
+
+For each selected product, prepare a separate evidence pack containing: current repository and exact commit, runnable demo/build instructions, feature inventory, architecture and data-flow diagrams, automated and manual test results, known limitations, dependencies and third-party licenses, security findings, privacy/legal assumptions, IP provenance and contributor/ownership records, product roadmap, deployment model, target customer, pricing hypothesis, and a realistic commercialization budget.
+
+Do not bundle all projects into one valuation without product-level diligence. Any valuation, equity percentage, asking price, or promised return must be negotiated only after scope, IP ownership, technical readiness, and market evidence are reviewed.
