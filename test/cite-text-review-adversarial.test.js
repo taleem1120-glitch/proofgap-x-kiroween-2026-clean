@@ -63,3 +63,25 @@ test('missing saved text produces an incomplete-scan warning rather than a clean
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('long re-encoded saved copies trigger a review cue without merging declared origins', () => {
+  const body = Array.from({ length: 24 }, (_, i) =>
+    `The archived investigation record number ${i} documents the same independently reviewable observation and supporting measurements from the original report.`
+  ).join(' ');
+  const left = `Original publication. ${body} End of source A.`;
+  const reencoded = body.replace('same independently reviewable observation', 'same independently documented observation');
+  const right = `Reformatted repost. ${reencoded.toUpperCase().replaceAll(' ', '\u00a0')} End of source B.`;
+  const report = withFiles(left, right);
+  const claim = report.claims[0];
+  assert.equal(claim.citeEvidence.independentOrigins, 2, 'saved-text similarity must not merge source roots');
+  assert.equal(claim.decision, 'abstain_suspected_shared_origin');
+  assert.ok(claim.findings.some((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE' && f.basis === 'heuristic'));
+});
+
+test('unrelated long saved documents do not trigger the saved-text near-duplicate cue', () => {
+  const left = Array.from({ length: 30 }, (_, i) => `Alpha archival measurements and independent climate observations number ${i}.`).join(' ');
+  const right = Array.from({ length: 30 }, (_, i) => `Bravo transport ledger and separate engineering inspections number ${i}.`).join(' ');
+  const report = withFiles(left, right);
+  assert.equal(report.claims[0].decision, 'independently_corroborated');
+  assert.ok(!report.claims[0].findings.some((f) => f.code === 'NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE'));
+});

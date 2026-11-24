@@ -108,7 +108,20 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     for (const p of nearTextCues) F('NEAR_DUPLICATE_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
       `[^${p.left}] and [^${p.right}] have highly similar normalized reference text (shingle similarity ${p.similarity}); review publication history, but similarity does not prove a shared origin.`, [p.left, p.right]);
     if (nearText.truncated) F('NEAR_DUPLICATE_SCAN_BOUNDED', 'heuristic', 'low',
-      'Near-duplicate text review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
+      'Near-duplicate reference-label review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
+
+    // Compare extracted saved-document text as a separate, opt-in review signal.
+    // This catches long re-encoded/reposted copies with small edits that exact shared-passage
+    // matching can miss. It never merges roots, verifies authorship, or establishes copying.
+    const nearSavedText = findNearDuplicatePairs(textRefs.map((ct) => ({ id: ct.id, text: textById.get(ct.id) })), {
+      minSimilarity: 0.84, maxComparisons: 435, maxResults: 100,
+    });
+    const nearSavedTextCues = nearSavedText.pairs.filter((p) =>
+      originOfRef.has(p.left) && originOfRef.has(p.right) && originOfRef.get(p.left) !== originOfRef.get(p.right));
+    for (const p of nearSavedTextCues) F('NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
+      `Saved text for [^${p.left}] and [^${p.right}] has highly similar normalized character shingles (similarity ${p.similarity}). Review the original documents and publication history; similarity alone does not establish copying or common origin.`, [p.left, p.right]);
+    if (nearSavedText.truncated) F('NEAR_DUPLICATE_SAVED_TEXT_SCAN_BOUNDED', 'heuristic', 'low',
+      'Saved-text near-duplicate review reached its deterministic resource/result budget; some extracted document pairs may not have been compared.');
     for (const g of idCues) F('SAME_IDENTIFIER_DIFFERENT_LINEAGE', 'heuristic', 'medium', `${q(g.refs)} share ${g.identifier.replace(':', ' ')} but are declared as separate lineages; they may be the same piece (syndication or reposting).`, g.refs);
 
     let verdict;
@@ -133,16 +146,18 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         : `A primary source behind ${roots.length ? q(roots) : `origin ${o.origin}`}, plus a second, independent primary source.`);
     } else if (primaryOrigins.length >= 2) {
       const coreCues = cl.abstentionCues ?? [];
-      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated || sharedPassageCues.length || sharedPassageIncomplete) {
+      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated || nearSavedTextCues.length || nearSavedText.truncated || sharedPassageCues.length || sharedPassageIncomplete) {
         verdict = 'abstain_suspected_shared_origin';
         const reviewRefs = [
           ...idCues.flatMap((g) => g.refs),
           ...nearTextCues.flatMap((p) => [p.left, p.right]),
+          ...nearSavedTextCues.flatMap((p) => [p.left, p.right]),
         ].map((r) => `[^${r}]`);
         const reasons = [...new Set([...reviewRefs, ...coreCues])];
         if (sharedPassageCues.length) reasons.push(...sharedPassageCues.map((x) => `shared passage (${x.tokens} tokens) between [^${x.left}] and [^${x.right}]`));
         if (sharedPassageIncomplete) reasons.push('one or more shared-passage scans were incomplete');
-        if (nearText.truncated) reasons.push('the near-duplicate scan reached its comparison/result budget');
+        if (nearText.truncated) reasons.push('the reference-label near-duplicate scan reached its comparison/result budget');
+        if (nearSavedText.truncated) reasons.push('the saved-text near-duplicate scan reached its resource/result budget');
         missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text scan was ${nearText.truncated ? 'incomplete' : 'complete'}.`);
       } else verdict = 'independently_corroborated';
     } else {
