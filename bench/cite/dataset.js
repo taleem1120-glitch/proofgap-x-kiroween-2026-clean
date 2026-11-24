@@ -5,7 +5,8 @@ import { rng } from '../../test/prng.js';
 
 export const CITE_SPLITS = Object.freeze({
   dev: { firstSeed: 1, count: 150 },             // used while developing
-  heldout: { firstSeed: 500_001, count: 150 },   // evaluated ONCE after the Phase 11 code freeze
+  heldout: { firstSeed: 500_001, count: 150 },   // Phase 11 held-out record; do not tune against it
+  textReviewHeldout: { firstSeed: 700_001, count: 150 }, // fresh split reserved for opt-in saved-text review
 });
 
 // make(r, p) -> { refs: [{id, label, attrs, file?, bytes?}], cites: [{id, stance}], truth: boolean }
