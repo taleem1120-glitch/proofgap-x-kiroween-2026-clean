@@ -63,6 +63,11 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     if (positions) { if (positions.length < 4) positions.push(i); else indexTruncated = true; }
     else index.set(key, [i]);
   }
+  // A truncated candidate index cannot support a complete negative conclusion.
+  // Stop before spending the comparison budget on a known-incomplete shortlist.
+  if (indexTruncated) {
+    return { review: true, incomplete: true, longestRunTokens: 0, basis: 'candidate_index_truncated_manual_review', candidates: [] };
+  }
   let longest = 0, work = 0, truncated = false;
   const candidates = [];
   // Coverage is tracked per alignment (A-index minus B-index), not globally.
