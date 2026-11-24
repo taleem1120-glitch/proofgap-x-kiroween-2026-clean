@@ -19,6 +19,18 @@ The documentation and review-packet head `717bfe370f4a4221dfe6c2983295bbee826ad5
 
 These runs validate the exact documentation-head SHA above, including the unchanged application candidate. They do not replace or extend the scope of the independent security, human accessibility, privacy-owner, or real-world evaluation gates. Any later commit must be checked separately; the current documentation update itself is a follow-on documentation-only change.
 
+
+## Exact candidate-head validation — 24 November 2026
+
+Candidate head: b30c873fdda4cac66b46fa8103679e4541be6eec.
+
+- [CI run 45466498604 (#790)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45466498604) — **5/5 jobs successful**: Node 20, Node 22, responsive Playwright, clean-checkout full validation/showcase determinism, and Cite saved-text review. The saved-text job also ran the new templateHeldout cohort (seeds 900001–900150); see Phase 13 in docs/BENCHMARK.md.
+- [PR CI run 45466511951 (#791)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45466511951) — **success** on the same SHA.
+- [Cross-browser/security run 45466511958 (#160)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45466511958) — **4/4 jobs successful**: Chromium, Firefox, WebKit, and dependency/security regression audit.
+- The exact-SHA run results above supersede earlier historical run references for this branch head. They are automated checks, not an independent security audit or human accessibility/privacy approval.
+
+The shared-template result is deliberately not represented as a perfect detection result: all 54 truly corroborated claims in that scenario abstained as abstain_suspected_shared_origin. This is documented as a conservative recall limitation in docs/BENCHMARK.md.
+
 ## Documentation-only changes after the validated code candidate
 
 The following commits add review/outreach and competition-submission documentation; they do not change application runtime code or generated showcase files:
