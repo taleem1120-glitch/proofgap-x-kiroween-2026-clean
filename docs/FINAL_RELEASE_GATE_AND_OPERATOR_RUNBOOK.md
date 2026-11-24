@@ -114,11 +114,13 @@ Do not publish a production tag or change the product status wording until the r
 |---|---|---|
 | Core automated tests | Candidate-SHA Node 20/22 runs | Required on every PR head; verify latest run SHA and conclusion |
 | Cite saved-text review benchmark | Fresh seeds 700001–700150 with opt-in text review | Required on every PR head; synthetic evidence only |
-| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |\n| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | New CI gate; triage all findings; automated scan is not human review |
+| Cross-browser | Candidate-SHA Chromium/Firefox/WebKit runs | Required on every PR head; verify latest run SHA and conclusion |
+| Automated accessibility | Candidate-SHA axe-core WCAG 2.1 A/AA scan plus structural checks on all four pages | New CI gate; triage all findings; automated scan is not human review |
 | Security regressions and dependency audit | Candidate-SHA audit job | Required on every PR head; verify latest run SHA and conclusion |
 | Local validation and benchmarks | Clean-checkout `validate:local` job and committed benchmark accuracy comparisons | Required on every PR head; retain job logs |
 | Showcase determinism | Rebuild both HTML showcases; `git diff --exit-code` | Required on every PR head; zero diff required |
-| Independent security review | Signed third-party report with exact SHA, scope, findings and retest | Not evidenced; external reviewer required |\n| Privacy/data-flow approval | Hosting, endpoint, retention and jurisdiction review signed by privacy owner | Engineering review prepared; legal/owner approval not evidenced |
+| Independent security review | Signed third-party report with exact SHA, scope, findings and retest | Not evidenced; external reviewer required |
+| Privacy/data-flow approval | Hosting, endpoint, retention and jurisdiction review signed by privacy owner | Engineering review prepared; legal/owner approval not evidenced |
 | Human accessibility review | NVDA/VoiceOver/TalkBack + keyboard report and issue disposition per protocol | Not evidenced; external human testing required |
 | Windows/macOS support | Platform test evidence | Not evidenced |
 | Production packaging and release | Tagged artifact and release notes | Not approved |
