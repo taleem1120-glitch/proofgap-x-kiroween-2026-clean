@@ -130,3 +130,16 @@ The reproducible external-review packet is now documented:
 - `docs/THREAT_MODEL.md`: threat model and residual risks, including T18/T19.
 
 Authoritative tested application SHA remains `2d792f834172c50cf06d1dc384ef85df2edaa7f8`, with CI #861 and cross-browser/security #212 both successful. The subsequent commits in this review-preparation sequence change documentation only. No new CI result is claimed for the documentation-only head. Independent review and human/privacy/platform sign-offs remain open; PR #44 remains Draft and unmerged.
+
+
+## Latest review-packet head validation — 2026-11-24 20:22 UTC
+
+Validated branch head before this ledger update: `49fd3fb5c7ffcff1f8d21ea8a9cc3c2b27084007`.
+
+- [CI #873](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45479380855) — **SUCCESS**. Node 20 and Node 22; full test and adversarial suites; ProofGap X and Cite smoke tests; synthetic held-out Cite cohorts; clean-checkout validation; showcase rebuild and byte-for-byte determinism; responsive Playwright.
+- [Cross-browser/security #224](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45479380796) — **SUCCESS**. Dependency/security regression audit plus Chromium, Firefox and WebKit responsive, keyboard, RTL and automated accessibility checks.
+- The above runs are associated with the exact branch head `49fd3fb5c7ffcff1f8d21ea8a9cc3c2b27084007`. They supersede the earlier statement in this file that the documentation-only review-preparation head had no fresh CI result.
+- This is still automated validation. It is not an independent security audit, human accessibility sign-off, privacy/legal approval, cross-platform certification or field-accuracy evidence.
+- PR #44 remains Draft and unmerged. `main` is unchanged.
+
+**Disposition:** the review-preparation branch head passed both automated workflows. Production approval remains **NOT APPROVED** until the independent and human acceptance gates above are closed. This ledger update itself is a documentation-only commit and must not be described as tested until its own exact-SHA workflows complete.
