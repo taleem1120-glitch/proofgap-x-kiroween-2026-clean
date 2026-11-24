@@ -76,12 +76,16 @@ In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation
 
 This section records repository evidence only. It is not an independent certification.
 
-### Evidence status for PR #43 validated audit candidate (74d7559796c987e892819edfe34b4f432725249f)
-- The reproducible commercial validation gate passed on this exact candidate: 348/348 tests; all three committed benchmark comparisons matched; both offline showcases rebuilt to temporary paths and matched their committed exports byte-for-byte.
-- Main application CI passed on this candidate for Node 20, Node 22 and responsive Playwright browser checks.
-- Cross-browser Chromium/Firefox/WebKit compatibility and dependency/security regression audit passed on code-identical application candidate `9927b61621ea4774402d50225388f44021877cad`. The comparison to `74d7559796c987e892819edfe34b4f432725249f` contains documentation changes and one test-file addition; application source, workflows, benchmarks and generated showcases are unchanged.
-- The local validation explicitly did not test Node 20 locally, Windows, macOS, case-insensitive filesystems, real-world case data, screen readers, or non-Chromium viewer browsers.
-- The adversarial benchmark protocol and evaluator harness are developer-authored. No independent blind corpus, evaluator engagement, external test report, or security certification is available.
+### Evidence status for PR #43 validated audit candidate (current audit head 66c45c25065950cd4b85975e7ed11168e09970bd)
+
+- Full reproducible validation passed on application candidate `5bfecf075df332a034876ab99f0b89144d16fd79`: 348/348 tests; all three committed benchmark comparisons matched; both offline showcases rebuilt and matched committed files byte-for-byte.
+- The added source/license/package-safety gate passed all eight checks on that candidate: required files, Apache-2.0 metadata and NOTICE packaging declaration, two application entry points, factual Kiro usage file, no proprietary project imports in the shared core, offline showcases, and npm publication disabled by `private: true`.
+- Current audit head `66c45c25065950cd4b85975e7ed11168e09970bd` differs from the fully validated application candidate only by this documentation update.
+- Node 20, Node 22 and responsive Playwright passed on the current audit head.
+- ProofGap Cite showcase regeneration passed on the current audit head.
+- Cross-browser/security audit on application-code-identical candidate `1e059333ab673d5155b7b332cfeb03cfc0b3e9ba`: Chromium PASS, Firefox PASS, dependency/security audit PASS; WebKit was still running at the time of this update.
+- Local validation ran on Ubuntu 24.04 with Node 22.23.5 and npm 10.9.9. Windows, macOS, case-insensitive filesystems, real-world case data and screen-reader testing remain untested.
+- The benchmark and evaluator harness are developer-authored. No independent blind corpus, external evaluator, third-party security report, human accessibility review or security certification is available.
 - This threat model remains author-written and not independently reviewed.
 
 ### Known failure modes that block broad commercial claims
@@ -105,10 +109,10 @@ The reviewer-ready scope and deliverables are in [INDEPENDENT_REVIEW_PACKET.md](
 Until the above reviews and customer pilots exist, describe ProofGap X as an open-source research prototype. Do not claim forensic certification, enterprise readiness, market superiority, validated real-world accuracy, or an acquisition valuation. A commercial package also needs an explicit distribution/packaging decision: the current root `package.json` is `private: true`, despite declaring Apache-2.0. Apache-2.0 permits redistribution under its terms; it does not create exclusivity over already published source.
 
 ### Gate status
-- Reproducible local tests and benchmark comparisons on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS (348/348; all three benchmark comparisons match).
-- Deterministic rebuild of both showcases on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS.
-- Node 20/22 CI and responsive browser checks on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS.
-- Cross-browser/security audit on code-identical candidate `9927b61621ea4774402d50225388f44021877cad`: PASS.
+- Reproducible validation, benchmark reproducibility, source/license/package-safety gate and deterministic showcase builds on `5bfecf075df332a034876ab99f0b89144d16fd79`: PASS.
+- Node 20/22 CI, responsive Playwright and Cite showcase regeneration on current audit head `66c45c25065950cd4b85975e7ed11168e09970bd`: PASS.
+- Chromium and Firefox compatibility plus dependency/security regression audit on code-identical application candidate `1e059333ab673d5155b7b332cfeb03cfc0b3e9ba`: PASS.
+- WebKit compatibility on that candidate: PENDING at the time of this update.
 - Independent blind evaluation: NOT AVAILABLE.
 - Independent security/accessibility review: NOT AVAILABLE.
-- Buyer interviews, paid pilots, and signed commercial intent: NOT AVAILABLE.
+- Buyer interviews, paid pilots and signed commercial intent: NOT AVAILABLE.
