@@ -1,29 +1,34 @@
-# CI status — 24 November 2026
+# CI and release status — 24 November 2026
 
-## Current PR #43 candidate
+## Validated audit candidate
 
-- PR [#43](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/43) is open, ready for review, and not merged.
-- Current documentation head: `f4edd90cc2d1db7d180b972e659f36df086b02f7`.
-- The current head differs from the fully tested application candidate only in documentation files. The GitHub compare view confirms no application source, test, benchmark, workflow, or generated-showcase changes between `2cf2a048f3f713e61e8138c3a11e78505f2f69d8` and this head.
-- Application CI run [45378656295](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45378656295) passed on the current head: Node 20, Node 22 and responsive Playwright.
-- Application CI run [45378648876](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45378648876) also passed on the current head.
-- Cite showcase regeneration [45378648907](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45378648907) passed on the current head.
-- Reproducible validation gate [45378642152](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45378642152) passed on code-identical candidate `9927b61621ea4774402d50225388f44021877cad`; the later changes through current head were documentation-only. The earlier complete gate [45372767092](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45372767092) on `2cf2a048f3f713e61e8138c3a11e78505f2f69d8` recorded 348/348 tests; security 71/71; provenance 70/70; file integrity 29/29; viewer/planner 17/17; core/Cite 42/42; benchmark/demo 12/12. All three benchmark comparisons matched and both showcases rebuilt byte-for-byte identically.
-- Cross-browser and security audit [45378642197](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45378642197) passed on code-identical candidate `9927b61621ea4774402d50225388f44021877cad`: Chromium, Firefox, WebKit and dependency/security regression audit.
-- Validation artifact: [download from run 45372767092](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45372767092/artifacts/14909178249).
+- PR [#43](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/43) is open against the recovery branch; it has not been merged or deployed.
+- Validated candidate: `74d7559796c987e892819edfe34b4f432725249f` on `audit/arabic-and-bounded-review-coverage-2026-11-24`.
+- Repository visibility: public; default branch: `main`. The audit candidate is not the default branch.
+- Reproducible validation gate [45381011237](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011237): PASS. It ran `npm ci --ignore-scripts`, `npm run validate:local`, all 348 tests, and all committed benchmark comparisons. Three benchmark outputs matched their committed references. Both showcase outputs rebuilt to temporary paths and matched committed files byte-for-byte.
+- ProofGap Cite showcase regeneration [45381011424](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011424): PASS.
+- Application CI [45381011072](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011072): Node 20, Node 22 and responsive Playwright all PASS.
+- Follow-up application CI [45381021664](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381021664): Node 20, Node 22 and responsive Playwright all PASS.
+- Cross-browser Chromium/Firefox/WebKit and dependency/security regression audit passed on code-identical application candidate `9927b61621ea4774402d50225388f44021877cad`. The compare from that candidate to `74d7559796c987e892819edfe34b4f432725249f` contains only documentation and one test-file addition; no application source, workflows, benchmark data or generated showcases changed. Therefore cross-browser evidence covers the same application source, but not the newly added test assertion itself.
+- Validation artifact [14914671233](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011237/artifacts/14914671233) contains the reproducibility evidence for this candidate.
 
-## Scope and interpretation
+## Scope and limitations
 
-These results concern the audit branch and PR candidate. They do not mean the candidate is deployed from `main`. The PR remains unmerged; no promotion or deployment is claimed.
+- Local validation ran on Ubuntu 24.04, Node 22.23.5 and npm 10.9.9. Node 20 is covered by remote CI.
+- Windows, macOS, case-insensitive filesystems, real-world case data and screen-reader testing remain NOT TESTED.
+- Automated browser tests do not constitute human accessibility testing.
+- The synthetic benchmarks are author-created and do not establish real-world accuracy or legal admissibility.
+- No independent blind evaluation, third-party security assessment, human accessibility audit, paid pilot or signed buyer intent has been obtained.
+- Public GitHub Pages deployment is NOT VERIFIED from this candidate. The repository being public does not mean the audit branch is deployed. A public URL must be checked against the exact deployed commit before it is offered as a working demo.
 
-The local validation used Ubuntu 24.04, Node 22.23.5 and npm 10.9.9. The validation script explicitly marks as NOT TESTED: Windows, macOS, case-insensitive filesystems, real-world case data and screen-reader testing. Node 20 is covered by remote CI, not by the local validation runner. Automated cross-browser checks are not a human accessibility audit.
+## Release gates still open
 
-## Remaining release gates
+1. Obtain independent blind evaluation and preserve the evaluator's unedited report.
+2. Complete independent security review and human accessibility review.
+3. Confirm public demo availability and byte identity for the deployed commit.
+4. Confirm the public video is under three minutes and shows both applications.
+5. Verify all official Kiroween 2026 submission requirements and submit through Devpost.
+6. Decide package distribution. Root `package.json` is `private: true`, so this package is intentionally not npm-publishable in its current state.
+7. Define deployment, support, privacy and customer data-handling terms before commercial pilots.
 
-- Independent blind evaluation by a reviewer who did not implement the product.
-- Independent security and human accessibility reviews, or explicit disclosure that they remain unavailable.
-- Buyer interviews, paid pilots or other verifiable customer intent for commercial validation.
-- Verify public demo URLs, final public video, English submission material and factual Kiro usage disclosure.
-- Decide package distribution/licensing and deployment/support model before any commercial distribution.
-- Keep synthetic benchmark results separate from real-world performance claims.
-- Do not describe this prototype as forensic software, enterprise-ready, certified, or commercially validated.
+Do not describe this candidate as certified forensic software, enterprise-ready, independently validated, or commercially proven. No merge to `main` or release deployment has occurred.
