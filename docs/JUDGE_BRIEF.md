@@ -40,7 +40,7 @@ Detailed timed narration is in [DEMO.md](DEMO.md).
 
 The repository CI covers Node 20 and 22, security and metamorphic regressions, generated adversarial text cases, source/license checks, reproducible browser assets and Playwright interactions. The responsive browser suite checks multiple viewport widths, keyboard and pointer selection, RTL locale switching, case authoring and Pixel 7 emulation.
 
-Cross-engine Firefox and WebKit validation is being added separately; do not claim it has passed until its workflow is green. Automated browser tests are not a substitute for a human accessibility review or physical-device testing.
+Cross-engine Chromium, Firefox and WebKit compatibility plus dependency/security regression checks passed on an application-code-identical candidate; see [CI status](CI_STATUS.md) for the exact commit scope. Automated browser tests are not a substitute for a human accessibility review or physical-device testing.
 
 ## Important limitations — say these plainly
 
