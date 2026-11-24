@@ -42,9 +42,10 @@ jobs:
       - name: Rebuild both offline showcases and require byte-identical output
         run: |
           set -euo pipefail
-          npm run showcase
-          npm run showcase:cite
-          git diff --exit-code -- viewer/showcase.html apps/proofgap-cite/showcase.html
+          node src/cli.js examples/showcase/deceptive.json --compare examples/showcase/independent.json --evidence-dir examples/showcase/evidence --format html --out /tmp/proofgap-x-showcase.html
+          node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format html --out /tmp/proofgap-cite-showcase.html
+          cmp /tmp/proofgap-x-showcase.html viewer/showcase.html
+          cmp /tmp/proofgap-cite-showcase.html apps/proofgap-cite/showcase.html
       - name: Record exact candidate identity
         if: always()
         run: |
