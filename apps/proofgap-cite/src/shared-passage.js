@@ -53,6 +53,11 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
   }
   if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
   const A = normalizedA.tokens, B = normalizedB.tokens;
+  // A document shorter than the required run cannot contain a qualifying passage.
+  // Return a clean negative before allocating a window array (whose length would be negative).
+  if (A.length < minRunTokens || B.length < minRunTokens) {
+    return { review: false, incomplete: false, longestRunTokens: 0, basis: 'no_long_shared_passage', candidates: [] };
+  }
   const width = Math.min(minRunTokens, 60), ids = new Map();
   const left = hashWindows(A, ids, width), right = hashWindows(B, ids, width);
   const index = new Map();
