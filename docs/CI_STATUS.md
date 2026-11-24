@@ -1,38 +1,35 @@
-# CI status — 24 November 2026
+# CI and release status — 24 November 2026
 
-## Current recovery-branch validation
+## Validated audit candidate
 
-The current recovery candidate is `recovery/proofgap-cite-integrate-2026-11-19`, updated through PR #40.
+- PR [#43](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/43) remains open against the recovery branch; it has not been merged or deployed.
+- Current audit-branch head: `66c45c25065950cd4b85975e7ed11168e09970bd`. The application candidate validated by the full gate is `5bfecf075df332a034876ab99f0b89144d16fd79`; the later commit to the current head changes only this status document.
+- Repository visibility: public; default branch: `main`. The audit candidate is not the default branch.
+- Reproducible validation gate [45384579928](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384579928): PASS on application candidate `5bfecf0`. It ran `npm ci --ignore-scripts`, `npm run validate:local`, 348/348 tests, three benchmark comparisons (all identical to committed references), the source/license/package-safety gate (all eight checks passed), and both showcase rebuilds with byte-identical comparisons.
+- ProofGap Cite showcase regeneration [45384587078](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384587078): PASS on current head `66c45c25065950cd4b85975e7ed11168e09970bd`.
+- Application CI [45384586859](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384586859): Node 20, Node 22 and responsive Playwright all PASS on current head.
+- Follow-up application CI [45384592006](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384592006): PASS on current head.
+- Cross-browser/security audit [45384574947](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384574947), on application-code-identical candidate `1e059333ab673d5155b7b332cfeb03cfc0b3e9ba`: Chromium PASS, Firefox PASS, dependency/security regression audit PASS; WebKit was still running at the time of this status update. Do not report the complete matrix as passed until WebKit completes.
+- Validation artifact [14915781943](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45384579928/artifacts/14915781943) contains the full reproducibility/source-gate evidence.
 
-- **Application CI:** run [45345550936](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45345550936) completed successfully on recovery commit `78e2cb3ba24b04861ef6cab3262b2f3c913ea266`. Node 20, Node 22 and responsive Chromium checks passed.
-- **Cross-browser and security audit:** run [45354084582](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45354084582) completed successfully on workflow-only commit `c756cbcaf0342f132840625a8bf4fca013b7ef0c`. Chromium, Firefox, WebKit and the dependency/security regression audit all passed.
-- PR [#39](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/39) merged the shared-passage alignment regression fix into the recovery branch.
-- PR [#40](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/40) merged the WebKit CI runtime adjustment into the recovery branch. It changes the workflow budget and install-step separation, not application logic or test assertions.
-- Resulting recovery head after PR #40: `6804a15edc8bf0dee7d677f43a3c32e167502908`.
+## Scope and limitations
 
-## Scope and interpretation
+- Local validation ran on Ubuntu 24.04, Node 22.23.5 and npm 10.9.9. Node 20 is covered by remote CI.
+- Windows, macOS, case-insensitive filesystems, real-world case data and screen-reader testing remain NOT TESTED.
+- Automated browser tests do not constitute human accessibility testing.
+- The synthetic benchmarks are author-created and do not establish real-world accuracy or legal admissibility.
+- No independent blind evaluation, third-party security assessment, human accessibility audit, paid pilot or signed buyer intent has been obtained.
+- Public GitHub Pages deployment is NOT VERIFIED from this candidate. The repository being public does not mean the audit branch is deployed.
 
-The cross-browser run passed after the browser-matrix job timeout was raised from 20 to 40 minutes and dependency installation was separated from browser binary installation. The previous run had been terminated during installation; that was a timeout, not a WebKit test assertion failure.
+## Release gates still open
 
-These are CI results for the recovery branch. They do **not** mean the candidate is deployed from `main`. The `main` branch remains unchanged, and no promotion or deployment is claimed here.
+1. Obtain independent blind evaluation and preserve the evaluator's unedited report.
+2. Complete independent security review and human accessibility review.
+3. Confirm public demo availability and byte identity for the deployed commit.
+4. Confirm the public video is under three minutes and shows both applications.
+5. Verify all official Kiroween 2026 submission requirements and submit through Devpost.
+6. Decide package distribution. Root `package.json` is `private: true`; npm publishing remains deliberately disabled.
+7. Define deployment, support, privacy and customer data-handling terms before commercial pilots.
+8. Complete the WebKit run and document its final result.
 
-## Local validation
-
-Run locally:
-
-```sh
-npm ci --ignore-scripts
-npm test
-npm run validate:local
-npm run bench
-```
-
-`scripts/validate-local.js` records local test and benchmark results only. It does not query GitHub Actions and must report remote CI as **NOT_QUERIED**, not as a billing failure or a pass.
-
-## Remaining release gates
-
-- Re-run local validation and all benchmark reproductions on the exact release candidate and retain the generated `validation/<id>/` record.
-- Rebuild both showcases and verify byte-for-byte determinism.
-- Complete independent security and accessibility review, or explicitly disclose that no independent review has occurred.
-- Verify the public demo URLs and final public video before competition submission.
-- Keep synthetic benchmark findings clearly distinguished from real-world performance.
+Do not describe this candidate as certified forensic software, enterprise-ready, independently validated, or commercially proven. No merge to `main` or release deployment has occurred.

@@ -1,8 +1,8 @@
-# ProofGap X: owner approval checklist (Phase 9)
+# ProofGap X: historical owner-approval record (superseded 24 November 2026)
 
-Each action below is **separately authorized**. The agent has done none of them. Approving one does not approve any other. Order matters where a precondition is listed.
+**Historical snapshot warning:** this document records decisions and repository state from earlier development phases. It is not a current operational checklist. The repository is now public, Apache-2.0 files are present, CI is running, and PR #43 is the active audit pull request. Do not follow old PR numbers, branches, private-repository instructions, or billing-lock statements below without rechecking them against current GitHub state.
 
-State when this was written: code at PR #6 head; repository **private**; **no licence**; `main` holds only the initial README; GitHub Actions **BLOCKED_BY_BILLING**; Pages **off**.
+The remaining owner-controlled decisions still require separate approval: merging/promoting the candidate to `main`, publishing/deploying a release, confirming category and video/submission requirements, and changing package publication settings. This document does not grant those approvals.
 
 ---
 

@@ -1,0 +1,72 @@
+name: Reproducible commercial validation gate
+
+on:
+  push:
+    branches: ['audit/**']
+    paths:
+      - 'src/**'
+      - 'apps/**'
+      - 'bench/**'
+      - 'test/**'
+      - 'scripts/validate-local.js'
+      - 'scripts/release-source-gate.js'
+      - 'docs/THREAT_MODEL.md'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/reproducible-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reproducible-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reproduce:
+    name: Frozen-candidate tests, benchmarks and showcase determinism
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Run complete local validation and all committed benchmark comparisons
+        run: npm run validate:local
+      - name: Verify source, licence, Kiro evidence and publication safeguards
+        run: npm run release:source-gate
+      - name: Rebuild both offline showcases and require byte-identical output
+        run: |
+          set -euo pipefail
+          node src/cli.js examples/showcase/deceptive.json --compare examples/showcase/independent.json --evidence-dir examples/showcase/evidence --format html --out /tmp/proofgap-x-showcase.html
+          node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format html --out /tmp/proofgap-cite-showcase.html
+          cmp /tmp/proofgap-x-showcase.html viewer/showcase.html
+          cmp /tmp/proofgap-cite-showcase.html apps/proofgap-cite/showcase.html
+      - name: Record exact candidate identity
+        if: always()
+        run: |
+          {
+            echo "Candidate commit: $(git rev-parse HEAD)"
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+            echo "Runner: $(uname -a)"
+            echo "Working tree:"
+            git status --short
+          } | tee validation-run-identity.txt
+      - name: Upload reproducibility evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: proofgap-validation-${{ github.sha }}
+          path: |
+            validation/
+            validation-run-identity.txt
+          if-no-files-found: warn
+          retention-days: 30
