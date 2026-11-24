@@ -76,10 +76,10 @@ In ProofGap Cite, long reference labels are compared using NFKC/case/punctuation
 
 This section records repository evidence only. It is not an independent certification.
 
-### Evidence status for the application code in PR #43 (current documentation head f4edd90cc2d1db7d180b972e659f36df086b02f7)
-- The reproducible commercial validation gate passed on this exact candidate: 348/348 tests; security, provenance, file-integrity, viewer/planner, core/Cite and benchmark test groups passed; all three committed benchmark comparisons matched; both offline showcases rebuilt to temporary paths and matched their committed exports byte-for-byte.
-- The main CI workflow passed on this candidate for Node 20, Node 22 and responsive Playwright browser checks.
-- Cross-browser Chromium/Firefox/WebKit compatibility and dependency/security regression audit passed on code-identical candidate `9927b61621ea4774402d50225388f44021877cad`. The comparison from that candidate to the current documentation head contains only documentation changes; application source, tests, benchmarks and generated showcases are unchanged.
+### Evidence status for PR #43 validated audit candidate (74d7559796c987e892819edfe34b4f432725249f)
+- The reproducible commercial validation gate passed on this exact candidate: 348/348 tests; all three committed benchmark comparisons matched; both offline showcases rebuilt to temporary paths and matched their committed exports byte-for-byte.
+- Main application CI passed on this candidate for Node 20, Node 22 and responsive Playwright browser checks.
+- Cross-browser Chromium/Firefox/WebKit compatibility and dependency/security regression audit passed on code-identical application candidate `9927b61621ea4774402d50225388f44021877cad`. The comparison to `74d7559796c987e892819edfe34b4f432725249f` contains documentation changes and one test-file addition; application source, workflows, benchmarks and generated showcases are unchanged.
 - The local validation explicitly did not test Node 20 locally, Windows, macOS, case-insensitive filesystems, real-world case data, screen readers, or non-Chromium viewer browsers.
 - The adversarial benchmark protocol and evaluator harness are developer-authored. No independent blind corpus, evaluator engagement, external test report, or security certification is available.
 - This threat model remains author-written and not independently reviewed.
@@ -105,9 +105,9 @@ The reviewer-ready scope and deliverables are in [INDEPENDENT_REVIEW_PACKET.md](
 Until the above reviews and customer pilots exist, describe ProofGap X as an open-source research prototype. Do not claim forensic certification, enterprise readiness, market superiority, validated real-world accuracy, or an acquisition valuation. A commercial package also needs an explicit distribution/packaging decision: the current root `package.json` is `private: true`, despite declaring Apache-2.0. Apache-2.0 permits redistribution under its terms; it does not create exclusivity over already published source.
 
 ### Gate status
-- Reproducible local tests and benchmark comparisons on candidate `2cf2a048f3f713e61e8138c3a11e78505f2f69d8`: PASS; application source and test tree are unchanged through current documentation head `f4edd90cc2d1db7d180b972e659f36df086b02f7`.
-- Deterministic rebuild of both showcases on that candidate: PASS; generated outputs are unchanged through current documentation head.
-- Node 20/22 CI and responsive browser checks on candidate `2cf2a048f3f713e61e8138c3a11e78505f2f69d8`: PASS; application code is unchanged at current documentation head.
+- Reproducible local tests and benchmark comparisons on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS (348/348; all three benchmark comparisons match).
+- Deterministic rebuild of both showcases on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS.
+- Node 20/22 CI and responsive browser checks on candidate `74d7559796c987e892819edfe34b4f432725249f`: PASS.
 - Cross-browser/security audit on code-identical candidate `9927b61621ea4774402d50225388f44021877cad`: PASS.
 - Independent blind evaluation: NOT AVAILABLE.
 - Independent security/accessibility review: NOT AVAILABLE.
