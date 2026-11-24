@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Deterministic synthetic benchmark for ProofGap Cite's opt-in saved-text review.
-// This measures only the bounded shared-passage cue on constructed fixtures.
-// It is not an estimate of real-world accuracy or proof of common provenance.
+// Measures only a bounded shared-passage cue on constructed fixtures.
+// Not an estimate of real-world accuracy or proof of common provenance.
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,21 +10,19 @@ import { analyzeNote } from '../../apps/proofgap-cite/src/index.js';
 
 const CASES_PER_CLASS = 50;
 const SHARED_TOKENS = 90;
-const shared = Array.from({ length: SHARED_TOKENS }, (_, i) => \`sharedtoken\${String(i).padStart(3, '0')}\`).join(' ');
+const shared = Array.from({ length: SHARED_TOKENS }, (_, i) => 'sharedtoken' + String(i).padStart(3, '0')).join(' ');
 
 function uniqueText(prefix) {
-  return Array.from({ length: SHARED_TOKENS }, (_, i) => \`\${prefix}token\${String(i).padStart(3, '0')}\`).join(' ');
+  return Array.from({ length: SHARED_TOKENS }, (_, i) => prefix + 'token' + String(i).padStart(3, '0')).join(' ');
 }
 
 function makeNote(index, positive) {
-  // Positive pairs share a long passage despite different prefixes, suffixes,
-  // punctuation and whitespace. Negative pairs have disjoint token vocabularies.
   const left = positive
-    ? \`leadleft\${index} \${shared} endingleft\${index}\`
-    : uniqueText(\`negativeleft\${index}\`);
+    ? 'leadleft' + index + ' ' + shared + ' endingleft' + index
+    : uniqueText('negativeleft' + index);
   const right = positive
-    ? \`leadright\${index} \${shared.replaceAll(' ', ' —\\n')} endingright\${index}\`
-    : uniqueText(\`negativeright\${index}\`);
+    ? 'leadright' + index + ' ' + shared.replaceAll(' ', ' —\n') + ' endingright' + index
+    : uniqueText('negativeright' + index);
   const note = [
     '# Text review benchmark',
     '## Claims',
@@ -33,7 +31,7 @@ function makeNote(index, positive) {
     '[^a]: Outlet A {kind=primary, url=https://a.example/report, saved=a.txt}',
     '[^b]: Outlet B {kind=primary, url=https://b.example/report, saved=b.txt}',
     '',
-  ].join('\\n');
+  ].join('\n');
   return { note, left, right };
 }
 
@@ -43,16 +41,16 @@ try {
   for (let i = 0; i < CASES_PER_CLASS * 2; i++) {
     const positive = i < CASES_PER_CLASS;
     const fixture = makeNote(i, positive);
-    writeFileSync(join(dir, \`a-\${i}.txt\`), fixture.left);
-    writeFileSync(join(dir, \`b-\${i}.txt\`), fixture.right);
+    writeFileSync(join(dir, 'a-' + i + '.txt'), fixture.left);
+    writeFileSync(join(dir, 'b-' + i + '.txt'), fixture.right);
     const note = fixture.note
-      .replace('saved=a.txt', \`saved=a-\${i}.txt\`)
-      .replace('saved=b.txt', \`saved=b-\${i}.txt\`);
+      .replace('saved=a.txt', 'saved=a-' + i + '.txt')
+      .replace('saved=b.txt', 'saved=b-' + i + '.txt');
 
-    const baseline = analyzeNote(note, { sourcesDir: dir, noteName: \`text-review-\${i}.md\` });
+    const baseline = analyzeNote(note, { sourcesDir: dir, noteName: 'text-review-' + i + '.md' });
     const reviewed = analyzeNote(note, {
       sourcesDir: dir,
-      noteName: \`text-review-\${i}.md\`,
+      noteName: 'text-review-' + i + '.md',
       reviewTextCopies: true,
     });
     assert.equal(baseline.claims[0].decision, 'independently_corroborated',
@@ -66,7 +64,7 @@ try {
     else counts.tn++;
     assert.equal(reviewed.claims[0].decision,
       positive ? 'abstain_suspected_shared_origin' : 'independently_corroborated',
-      \`unexpected verdict for synthetic case \${i}\`);
+      'unexpected verdict for synthetic case ' + i);
   }
 } finally {
   rmSync(dir, { recursive: true, force: true });
