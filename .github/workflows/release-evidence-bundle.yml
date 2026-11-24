@@ -1,0 +1,46 @@
+name: Build and verify release evidence bundle
+
+on:
+  workflow_dispatch:
+
+# Read-only checkout; the job does not publish a release or change repository refs.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-evidence-bundle-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    name: Build, verify and preserve exact-SHA review bundle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the selected workflow ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install from lockfile without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Build review bundle from exact checked-out commit
+        run: node scripts/release-evidence-bundle.mjs /tmp/proofgap-release-evidence
+      - name: Verify checksums and exact source commit
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          node scripts/release-evidence-bundle.mjs --verify /tmp/proofgap-release-evidence
+          node --input-type=module -e "import fs from 'node:fs'; const m=JSON.parse(fs.readFileSync('/tmp/proofgap-release-evidence/manifest.json','utf8')); if(m.source.commit!==process.env.EXPECTED_SHA) { console.error('Bundle commit does not match workflow SHA'); process.exit(1); } console.log('Exact-SHA match:', m.source.commit);"
+      - name: Upload verified review bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: proofgap-review-bundle-${{ github.sha }}
+          path: /tmp/proofgap-release-evidence/
+          if-no-files-found: error
+          retention-days: 30
