@@ -50,9 +50,9 @@ test('invalid bounds are rejected', () => {
   assert.throws(() => detectSharedPassage(passage, passage, { maxComparisons: 999 }), RangeError);
 });
 test('shared-passage diagnostics distinguish absolute run length from document coverage', () => {
-  const shared = Array.from({ length: 60 }, (_, i) => `common-evidence-token-${i}`).join(' ');
-  const left = `opening material ${shared} ${Array.from({ length: 940 }, (_, i) => `left-only-${i}`).join(' ')}`;
-  const right = `different opening ${shared} ${Array.from({ length: 940 }, (_, i) => `right-only-${i}`).join(' ')}`;
+  const shared = Array.from({ length: 60 }, (_, i) => `commonEvidenceToken${i}`).join(' ');
+  const left = `opening material ${shared} ${Array.from({ length: 940 }, (_, i) => `leftOnly${i}`).join(' ')}`;
+  const right = `different opening ${shared} ${Array.from({ length: 940 }, (_, i) => `rightOnly${i}`).join(' ')}`;
   const result = detectSharedPassage(left, right);
   assert.equal(result.review, true);
   assert.equal(result.incomplete, false);
