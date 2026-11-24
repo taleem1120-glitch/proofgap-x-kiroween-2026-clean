@@ -26,7 +26,9 @@ test('reordered blocks still report only the contiguous shared block', () => {
   const b = `${blockB} ${blockA}`;
   const result = detectSharedPassage(a, b);
   assert.equal(result.review, true);
-  assert.ok(result.longestRunTokens >= 72);
+  // The 72-item beta block is 216 tokens; the separate alpha block is 105.
+  // The detector must report the longest contiguous run, not combine both blocks.
+  assert.equal(result.longestRunTokens, 216);
   assert.equal(result.incomplete, false);
 });
 
@@ -38,6 +40,22 @@ test('a single changed token breaks an exactly-minimum passage below threshold',
   assert.equal(result.incomplete, false);
   assert.equal(result.basis, 'no_long_shared_passage');
   assert.ok(result.longestRunTokens < 60);
+});
+
+test('repetitive windows fail closed when the candidate index is truncated', () => {
+  const repeated = Array.from({ length: 120 }, () => 'repeat').join(' ');
+  const result = detectSharedPassage(repeated, repeated, { maxComparisons: 100_000 });
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, true);
+  assert.equal(result.basis, 'candidate_index_truncated_manual_review');
+});
+
+test('comparison-budget exhaustion is reported as incomplete manual review', () => {
+  const repeated = Array.from({ length: 1200 }, () => 'repeat').join(' ');
+  const result = detectSharedPassage(repeated, repeated);
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, true);
+  assert.equal(result.basis, 'comparison_budget_exceeded_manual_review');
 });
 
 test('invalid candidate and comparison bounds are rejected before processing', () => {
