@@ -34,8 +34,8 @@ export const CITE_SCENARIOS = {
 // Keep every pre-template cohort on the original scenario distribution. The new
 // shared-template scenario is eligible only in its explicitly reserved fresh split.
 const LEGACY_SCENARIOS = Object.entries(CITE_SCENARIOS).filter(([name]) => !['independent_shared_template', 'independent_short_template'].includes(name));
-const LONG_TEMPLATE_SCENARIOS = [...LEGACY_SCENARIOS, ['independent_shared_template', CITE_SCENARIOS.independent_shared_template]];
-const SHORT_TEMPLATE_SCENARIOS = [...LONG_TEMPLATE_SCENARIOS, ['independent_short_template', CITE_SCENARIOS.independent_short_template]];
+const LONG_TEMPLATE_SCENARIOS = Object.entries(CITE_SCENARIOS).filter(([name]) => name !== 'independent_short_template');
+const SHORT_TEMPLATE_SCENARIOS = Object.entries(CITE_SCENARIOS);
 const scenarioTotal = (scenarios) => scenarios.reduce((sum, [, scenario]) => sum + scenario.weight, 0);
 const LEGACY_TOTAL = scenarioTotal(LEGACY_SCENARIOS);
 const LONG_TEMPLATE_TOTAL = scenarioTotal(LONG_TEMPLATE_SCENARIOS);
