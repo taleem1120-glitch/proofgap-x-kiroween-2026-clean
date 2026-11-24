@@ -1,6 +1,6 @@
 # ProofGap X / ProofGap Cite — Accessibility Review Protocol
 
-**Status:** automated axe-core scans passed on application candidate `0c456334445cf96e12e6fa598d83d1ae2eecab69` in Chromium, Firefox and WebKit with zero blockers and zero advisory findings on each browser (run 45416867898). Human assistive-technology review is NOT COMPLETED. This protocol is the required evidence record for an independent human review.
+**Status:** automated axe-core scans passed on candidate `717bfe370f4a4221dfe6c2983295bbee826ad598` in Chromium, Firefox and WebKit with zero blockers and zero advisory findings on each browser (run 45460984626). Human assistive-technology review is NOT COMPLETED. This protocol is the required evidence record for an independent human review.
 
 ## Scope
 
@@ -11,7 +11,7 @@ Review these four user-facing pages from the same candidate commit:
 - `apps/proofgap-cite/showcase.html` — ProofGap Cite report viewer.
 - `tools/case-builder.html` — case creation, local analysis and JSON export.
 
-The existing Playwright suite checks responsive layouts, graph-node pointer/keyboard selection, language/RTL switching and case-builder interactions across Chromium, Firefox and WebKit. The additional axe-core scan checks WCAG 2.0/2.1 A/AA and best-practice rules. Candidate run 45416867898 reported zero blockers and zero advisory findings on all three browsers. Neither automated suite is a substitute for human testing with assistive technology.
+The existing Playwright suite checks responsive layouts, graph-node pointer/keyboard selection, language/RTL switching and case-builder interactions across Chromium, Firefox and WebKit. The additional axe-core scan checks WCAG 2.0/2.1 A/AA and best-practice rules. Candidate run 45460984626 reported zero blockers and zero advisory findings on all three browsers. Neither automated suite is a substitute for human testing with assistive technology.
 
 ## Automated CI gate
 
