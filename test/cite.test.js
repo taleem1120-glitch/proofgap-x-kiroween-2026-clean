@@ -50,6 +50,13 @@ test('two independent primaries -> independently_corroborated; copies of them ad
   });
 });
 
+test('saved-text review distinguishes fewer than two comparable documents from a clean scan', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a', ', saved=same1.txt'), P('b')], { sourcesDir: dir, reviewTextCopies: true });
+  assert.equal(r.claims[0].sharedPassageReview.status, 'no_comparable_pairs');
+  assert.equal(r.claims[0].sharedPassageReview.documentsCompared, 1);
+  assert.equal(r.claims[0].sharedPassageReview.pairsCompared, 0);
+});
+
 test('press-release echo: many secondaries citing one primary -> single_origin with exact missing item', () => {
   const r = run(['Claim [^pr] [^a] [^b] [^c] [^d]'], [P('pr'), S('a', ', cites=pr'), S('b', ', cites=a'), S('c', ', cites=b'), S('d', ', cites=pr')]);
   assert.equal(v(r), 'single_origin');
