@@ -1,5 +1,19 @@
 # ProofGap X — Benchmark
 
+## Phase 14: genuinely short boilerplate vs long shared passage — fresh synthetic cohort
+
+A follow-up cohort at seeds **1100001–1100150** (`shortTemplateHeldout`) separates a genuinely short public disclaimer from a long shared passage. The short disclaimer is fewer than 60 normalized whitespace-delimited tokens; each independent source then contains distinct substantive findings. The pre-existing `templateHeldout` cohort and its 54 long-template claims are kept byte-for-byte reproducible by preserving the original scenario order and weights. Historical splits remain isolated from both added scenarios.
+
+CI run [45469079808 (#807)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45469079808), benchmark job 138711862008, Node v22.23.5:
+
+- 150 notes, 685 claims, 232 truly corroborated claims.
+- Baseline cite_without_saved_files: TP 179, FP 121, TN 332, FN 53; precision 59.7%, recall 77.2%, FPR 26.7%.
+- Opt-in cite_with_saved_files: TP 140, FP 0, TN 453, FN 92; precision 100.0% (95% Wilson CI 97.3–100.0%), recall 60.3% (53.9–66.4%), FPR 0.0% (0.0–0.8%).
+- In the independent_short_template scenario, **36/36** truly corroborated claims were positively classified as independently corroborated.
+- The unchanged long-template scenario produced **54/54** abstentions as abstain_suspected_shared_origin; no positive assertion was made for those cases.
+
+**Interpretation:** the detector distinguishes this short-disclaimer fixture from a much longer exact shared passage without changing the 60-token rule. The short-template sub-scenario had no false positives and no abstentions in 36 synthetic cases. The long shared passage still triggers conservative abstention; this is a human-review warning, not proof of shared origin. Aggregate recall remains limited by abstentions and other unresolved-provenance cases. These author-built synthetic results are not estimates of real-world accuracy. Do not lower the shared-passage threshold or tune against this cohort solely to improve recall.
+
 ## Phase 13: independent sources sharing short boilerplate — fresh synthetic cohort
 
 This experiment isolates a conservative over-abstention risk: two genuinely independent primary sources share a short public boilerplate passage, while their substantive findings and source files are distinct. The reserved cohort uses seeds **900001–900150** (templateHeldout) and is disjoint from earlier cohorts. It is synthetic and author-generated; it is not field validation.
