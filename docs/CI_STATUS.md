@@ -5,7 +5,7 @@
 - PR [#43](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/43) is open against the recovery branch; it has not been merged or deployed.
 - Validated candidate: `74d7559796c987e892819edfe34b4f432725249f` on `audit/arabic-and-bounded-review-coverage-2026-11-24`.
 - Repository visibility: public; default branch: `main`. The audit candidate is not the default branch.
-- Reproducible validation gate [45381011237](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011237): PASS. It ran `npm ci --ignore-scripts`, `npm run validate:local`, all 348 tests, and all committed benchmark comparisons. Three benchmark outputs matched their committed references. Both showcase outputs rebuilt to temporary paths and matched committed files byte-for-byte.
+- Reproducible validation gate [45381011237](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011237): PASS. It ran `npm ci --ignore-scripts`, `npm run validate:local`, all 348 tests, and all committed benchmark comparisons. A source/license gate is now being added to subsequent runs; it checks required files, the Apache NOTICE inclusion, factual Kiro evidence, separation from proprietary projects, and the intentional npm publish lock. Three benchmark outputs matched their committed references. Both showcase outputs rebuilt to temporary paths and matched committed files byte-for-byte.
 - ProofGap Cite showcase regeneration [45381011424](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011424): PASS.
 - Application CI [45381011072](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381011072): Node 20, Node 22 and responsive Playwright all PASS.
 - Follow-up application CI [45381021664](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45381021664): Node 20, Node 22 and responsive Playwright all PASS.
@@ -30,5 +30,6 @@
 5. Verify all official Kiroween 2026 submission requirements and submit through Devpost.
 6. Decide package distribution. Root `package.json` is `private: true`, so this package is intentionally not npm-publishable in its current state.
 7. Define deployment, support, privacy and customer data-handling terms before commercial pilots.
+8. Decide whether to retain `private: true` (current safe default) or approve a deliberate package distribution plan; do not unlock npm publishing merely to label the prototype commercial.
 
 Do not describe this candidate as certified forensic software, enterprise-ready, independently validated, or commercially proven. No merge to `main` or release deployment has occurred.
