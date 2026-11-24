@@ -180,7 +180,8 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
       citations: cited.length, independentOrigins: sup.length, primaryRootedOrigins: primaryOrigins.length,
       sharedPassageReview: {
         mode: textReviewEnabled ? 'local_saved_text_opt_in' : 'not_requested',
-        status: !textReviewEnabled ? 'not_requested' : sharedPassageIncomplete ? 'incomplete' : sharedPassageCues.length ? 'review_required' : 'no_long_passage_detected',
+        status: !textReviewEnabled ? 'not_requested' : sharedPassageIncomplete ? 'incomplete' : sharedPassageCues.length ? 'review_required' : textRefs.length < 2 ? 'no_comparable_pairs' : 'no_long_passage_detected',
+        documentsCompared: textRefs.length,
         pairsCompared: sharedPassagePairs,
         cues: sharedPassageCues,
         caveat: 'A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.',
