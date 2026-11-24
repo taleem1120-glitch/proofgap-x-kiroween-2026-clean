@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { analyzeNote } from '../apps/proofgap-cite/src/index.js';
+import { analyzeNote, renderCiteHtml, serializeCiteReport } from '../apps/proofgap-cite/src/index.js';
 
 const common = Array.from({ length: 72 }, (_, i) => `shared-origin-token-${String(i).padStart(3, '0')}`).join(' ');
 const note = (a, b) => `# Synthetic adversarial note
@@ -45,6 +45,10 @@ test('re-encoded shared passage abstains without merging separately declared ori
   assert.ok(claim.sharedPassageReview.cues[0].coverage.a > 0 && claim.sharedPassageReview.cues[0].coverage.b > 0);
   assert.ok(claim.sharedPassageReview.cues[0].offsets.a.endExclusive > claim.sharedPassageReview.cues[0].offsets.a.start);
   assert.match(claim.sharedPassageReview.caveat, /does not prove copying/u);
+  const html = renderCiteHtml([serializeCiteReport(report)]);
+  assert.match(html, /Removing any one primary-rooted origin leaves/u);
+  assert.match(html, /passage coverage:/u);
+  assert.match(html, /review cue only/u);
   assert.equal(report.cite.textCopyReview.results.every((r) => r.status === 'READ'), true);
 });
 
