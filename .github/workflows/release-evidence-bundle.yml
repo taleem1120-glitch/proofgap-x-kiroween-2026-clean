@@ -1,6 +1,8 @@
 name: Build and verify release evidence bundle
 
 on:
+  push:
+    branches: ['release/**']
   workflow_dispatch:
 
 # Read-only checkout; the job does not publish a release or change repository refs.
