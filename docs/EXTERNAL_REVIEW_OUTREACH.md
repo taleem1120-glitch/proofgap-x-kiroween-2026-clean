@@ -268,3 +268,25 @@ No response, investment interest, acquisition interest, partnership, or acceptan
 ### Prior-contact exclusions preserved
 
 Do not duplicate outreach to previously contacted or submitted organizations, including (among others) ZainCash, Oxygen Forensics, FinTech Scotland, MassChallenge FinTech, Vestbee (application submitted 2026-11-23; await review), Maltego support, Global Ventures, EQIQ, KAPITA, Wamda, Flat6Labs, Shorooq, RAED, and other prior ATHARNEX investor targets. Check the contact ledger before every future send.
+
+
+## Additional investor and digital-forensics strategic outreach — 2026-11-24
+
+The founder authorized a further researched round of outreach, preserving prior-contact exclusions. Three new messages were sent from the founder's connected Gmail account:
+
+| Organization | Recipient | Status | Reason for selection / request |
+|---|---|---|---|
+| Forgepoint Capital | info@forgepointcap.com | Email sent | Tailored investment fit inquiry based on its published global early-stage focus on cybersecurity, AI, infrastructure software, securing AI and trust in software. Asked whether investor-backed incorporation/relocation could address founder's current Iraq base. |
+| Axeleo Capital | apply@axeleo.com | Email sent | Pre-seed/seed B2B software, cyber and infrastructure fit inquiry. Its published geographic mandate is France/Europe; email explicitly asks whether investor-funded European incorporation/relocation can make the opportunity eligible, without assuming eligibility. |
+| MSAB | info@msab.com | Email sent | Requested routing to partnerships/business development for potential digital-forensics product collaboration, integration, licensing, co-development or selected-asset acquisition discussion. |
+
+All three messages described the portfolio with maturity caveats and included the no-upfront-payment condition: no audit, consulting, due-diligence, accelerator, incorporation or other fee can be paid upfront; any later payment is conditional on an actual product sale or investment closing and receipt of funds, and requires a separate written agreement approved by the founder.
+
+### Researched organizations not contacted in this round
+
+- **Moonshots Capital:** its current submission page says it prefers an MVP close to or already generating MRR and rarely invests where less than USD 300,000 has previously been raised. Current portfolio maturity and fundraising history do not establish that fit; do not submit without a material change. Official page: https://moonshotscapital.com/contact/
+- **MiddleGame Ventures:** its pitch mandate centers on European founders building financial-services architecture; a general email is available for other inquiries, but no strong current fit was established for this portfolio-wide pitch. Official page: https://www.middlegamevc.com/contact/
+- **Glasswing Ventures:** strong AI/enterprise/cybersecurity thesis, but no verified official submission contact was confirmed in this research pass; do not guess an address or claim outreach. Official site: https://glasswing.vc/
+- **Axeleo:** contacted with an explicit geography eligibility question; its stated investment places are France and Europe. Do not represent the Iraqi founder as already eligible.
+
+No reply, funding, acquisition interest, partnership, eligibility approval or referral is implied by sending these emails.
