@@ -2,7 +2,7 @@ name: Cross-browser compatibility and security audit
 
 on:
   push:
-    branches: ['main', 'audit/**']
+    branches: ['main', 'audit/**', 'recovery/**', 'release/**']
     paths:
       - '.github/workflows/cross-browser-security.yml'
       - 'scripts/e2e-responsive.cjs'
