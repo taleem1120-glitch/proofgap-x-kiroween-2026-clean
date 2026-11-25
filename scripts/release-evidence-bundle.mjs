@@ -36,7 +36,19 @@ function verify(dir) {
 function build(outputArg) {
   if (git(['status', '--porcelain'])) fail('working tree is not clean');
   const commit = git(['rev-parse', 'HEAD']);
-  const branch = git(['branch', '--show-current']);
+  const branch = process.env.GITHUB_REF_NAME || git(['branch', '--show-current']);
+  let automatedEvidence = [];
+  if (process.env.PROOFGAP_AUTOMATED_EVIDENCE_JSON) {
+    try { automatedEvidence = JSON.parse(process.env.PROOFGAP_AUTOMATED_EVIDENCE_JSON); }
+    catch { fail('PROOFGAP_AUTOMATED_EVIDENCE_JSON is not valid JSON'); }
+    if (!Array.isArray(automatedEvidence) || automatedEvidence.some((item) => item.result !== 'success' || item.validatedCommit !== commit || typeof item.url !== 'string')) {
+      fail('automated evidence must contain successful runs validated against the exact source commit');
+    }
+    const names = new Set(automatedEvidence.map((item) => item.name));
+    for (const required of ['CI', 'Cross-browser compatibility and security audit', 'Regenerate ProofGap Cite showcase']) {
+      if (!names.has(required)) fail('missing successful exact-SHA workflow evidence: ' + required);
+    }
+  }
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   const output = resolve(outputArg || join(root, '..', 'proofgap-release-evidence-' + commit.slice(0, 12)));
   if (output === root || output.startsWith(root + '/')) fail('output must be outside the repository');
@@ -52,12 +64,10 @@ function build(outputArg) {
     source: { commit, branch, version: pkg.version, archive: 'source.tar' },
     sourceArchiveSha256: archiveHash,
     generatedAt: new Date().toISOString(),
-    evidenceBoundary: 'The listed workflow runs validate dff236fb0c92207ba648357331ae4a8ce06d721b, not necessarily this bundle source commit. Recheck exact-SHA workflow runs for the source commit before treating it as release-validated.',
-    automatedEvidence: [
-      { name: 'CI #875', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310960' },
-      { name: 'Cross-browser/security #226', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480310779' },
-      { name: 'Showcase regeneration', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45480296282' }
-    ],
+    evidenceBoundary: automatedEvidence.length
+      ? 'Every listed automated workflow run is required to have conclusion success and validatedCommit equal to this source commit. Automated checks are not independent assurance.'
+      : 'No automated workflow evidence was embedded. Obtain successful exact-SHA CI, cross-browser/security, and showcase runs before treating this bundle as validation evidence.',
+    automatedEvidence,
     independentAssurance: {
       securityAudit: 'OPEN_NOT_PERFORMED',
       humanAccessibilityReview: 'OPEN_NOT_PERFORMED',
