@@ -27,8 +27,25 @@ function verify(dir) {
   }
   const manifest = JSON.parse(readFileSync(join(folder, 'manifest.json'), 'utf8'));
   if (manifest.schema !== 'proofgap-release-evidence/v1') fail('unsupported manifest schema');
+  if (!manifest.source || !/^[a-f0-9]{40}$/.test(manifest.source.commit || '')) fail('manifest source commit is missing or invalid');
   const sourceLine = lines.find((line) => line.endsWith('  source.tar'));
   if (!sourceLine || manifest.sourceArchiveSha256 !== sourceLine.slice(0, 64)) fail('manifest/source archive checksum mismatch');
+  if (!Array.isArray(manifest.automatedEvidence)) fail('automatedEvidence must be an array');
+  const required = ['CI', 'Cross-browser compatibility and security audit', 'Regenerate ProofGap Cite showcase'];
+  const byName = new Map();
+  for (const item of manifest.automatedEvidence) {
+    if (!item || item.result !== 'success' || item.validatedCommit !== manifest.source.commit ||
+        typeof item.url !== 'string' || !item.url.startsWith('https://') ||
+        !Number.isInteger(item.runId) || item.runId <= 0) {
+      fail('automated evidence must be successful, linked, and bound to the exact source commit');
+    }
+    if (byName.has(item.name)) fail('duplicate automated evidence workflow: ' + item.name);
+    byName.set(item.name, item);
+  }
+  for (const name of required) {
+    if (!byName.has(name)) fail('missing required automated evidence: ' + name);
+  }
+  console.log('VERIFIED exact-SHA automated evidence: ' + required.join(', '));
   console.log('VERIFIED commit ' + manifest.source.commit);
   console.log('Checksum verification proves byte integrity only; it is not production approval.');
 }
