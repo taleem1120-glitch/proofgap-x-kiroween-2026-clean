@@ -2,7 +2,7 @@
 
 Date: 2026-11-25  
 Review branch: release/proofgap-final-gate-2026-11-24  
-Exact current candidate at refresh (2026-11-25): 0dbdc1b41398483670cd1bc9563f5020fb9c8e13  
+Exact candidate: read `source.commit` from the supplied `manifest.json`; this is the authoritative source SHA for this review bundle.
 PR #44: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 
 ## What this packet is
@@ -13,10 +13,10 @@ A navigation and reproducibility index for a future independent reviewer. It is 
 
 | Evidence | Run | Result | Scope |
 |---|---|---|---|
-| CI | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45543801826 | Success | Exact candidate 0dbdc1b41398483670cd1bc9563f5020fb9c8e13: Node 20/22, full validation, synthetic saved-text benchmark, responsive browser checks and showcase determinism |
-| Cross-browser/security | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45543801692 | Success | Exact candidate 0dbdc1b41398483670cd1bc9563f5020fb9c8e13: Chromium, Firefox, WebKit and automated dependency/security checks |
+| CI | See `manifest.json` → `automatedEvidence` | Must be success | `validatedCommit` must equal `source.commit`; confirm run URL and SHA before review |
+| Cross-browser/security | See `manifest.json` → `automatedEvidence` | Must be success | `validatedCommit` must equal `source.commit`; confirm run URL and SHA before review |
 
-These runs are associated with the exact candidate SHA above, as recorded in PR #44. They are automated project checks, not independent security review or human acceptance. The release-evidence artifact is a review bundle only; it is not a signed release or proof of provenance.
+The manifest is authoritative for the exact candidate SHA and its automated workflow records; confirm these against PR #44 immediately before review. They are automated project checks, not independent security review or human acceptance. The release-evidence artifact is a review bundle only; it is not a signed release or proof of provenance.
 
 ## Reviewer reading order
 

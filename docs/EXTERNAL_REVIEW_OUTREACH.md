@@ -2,7 +2,7 @@
 
 **Prepared:** 2026-11-25  
 **Review target:** PR #44, branch `release/proofgap-final-gate-2026-11-24`  
-**Exact candidate at preparation:** `0dbdc1b41398483670cd1bc9563f5020fb9c8e13` (PR #44 head; confirm again before review kickoff)  
+**Exact candidate at preparation:** read `source.commit` from the attached review bundle's `manifest.json`; confirm it against PR #44 immediately before review kickoff.  
 **Repository:** https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean  
 **PR:** https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 
@@ -48,7 +48,7 @@ Hello OSTIF team,
 
 I maintain ProofGap X / ProofGap Cite, an open-source evidence-independence and provenance project. We have completed candidate-specific automated CI, Node 20/22 validation, reproducible showcase checks, Chromium/Firefox/WebKit tests, automated axe-core scans, and dependency/security regression checks.
 
-We are seeking an independent professional security review rather than treating these automated checks as an audit. The current review candidate is commit `0dbdc1b41398483670cd1bc9563f5020fb9c8e13`:
+We are seeking an independent professional security review rather than treating these automated checks as an audit. The current review candidate is the source commit recorded in `manifest.json`:
 
 - Repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
 - Draft release-gate PR: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
