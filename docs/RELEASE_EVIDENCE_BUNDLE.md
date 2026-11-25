@@ -35,7 +35,7 @@ On the recipient's machine:
 
     node scripts/release-evidence-bundle.mjs --verify /path/to/proofgap-review-bundle
 
-Both files must report OK, followed by VERIFIED commit .... A checksum mismatch, missing file, malformed manifest, or unsupported schema fails closed.
+Both files must report OK, followed by exact-SHA automated evidence verification and VERIFIED commit .... The verifier also requires the three named workflow records (CI, cross-browser/security, and showcase) to be successful, linked to HTTPS run URLs, carry positive run IDs, and match the source commit. A checksum mismatch, missing file, malformed manifest, missing/duplicate evidence, or mismatched SHA fails closed.
 
 ## Independent reviewer procedure
 
@@ -48,6 +48,6 @@ Both files must report OK, followed by VERIFIED commit .... A checksum mismatch,
 
 ## Evidence boundary
 
-The GitHub Actions workflow is manual-dispatch only. It queries successful CI, cross-browser/security, and showcase runs for the exact checked-out SHA, requires all three workflow types to have succeeded on that same SHA, and passes those records to the builder. The builder rejects any evidence record with a different SHA or non-success result. In detached CI checkouts, the branch name is taken from `GITHUB_REF_NAME`. A locally generated bundle without `PROOFGAP_AUTOMATED_EVIDENCE_JSON` explicitly contains no automated workflow evidence. Never distribute a bundle with missing or mismatched exact-SHA evidence as a validated candidate.
+The GitHub Actions workflow runs on a push to the candidate branch when release-bundle source, tests, or documentation files change, and also supports manual dispatch. It waits for successful CI, cross-browser/security, and showcase runs for the exact checked-out SHA, requires all three workflow types to have succeeded on that same SHA, and passes those records to the builder. Both the builder and standalone verifier reject any evidence record with a different SHA or non-success result. The standalone verifier also rejects a manifest with missing or duplicate required evidence even if an attacker recomputes the manifest checksum. In detached CI checkouts, the branch name is taken from `GITHUB_REF_NAME`. A locally generated bundle without `PROOFGAP_AUTOMATED_EVIDENCE_JSON` explicitly contains no automated workflow evidence. Never distribute a bundle with missing or mismatched exact-SHA evidence as a validated candidate.
 
 The checksum proves byte integrity only. It does not prove authorship, authenticity, chain of custody, correctness, legal admissibility, reviewer independence or production readiness. The security audit, human assistive-technology review and deployment-specific privacy-owner approval remain open. The production decision therefore remains **NO-GO** until those gates are completed and retested.
