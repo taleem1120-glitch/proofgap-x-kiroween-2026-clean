@@ -6,8 +6,8 @@
 
 - Repository: `taleem1120-glitch/proofgap-x-kiroween-2026-clean`
 - Candidate branch: `release/proofgap-final-gate-2026-11-24`
-- Exact current PR head at packet refresh (2026-11-25): 0a497bbd533527d1adf47cd5c423259d3899782d. Reconfirm the PR head immediately before review kickoff; do not use a branch name alone as the review identifier.
-- The exact current PR head at this refresh, `0a497bbd533527d1adf47cd5c423259d3899782d`, passed candidate-specific automated validation: CI run `45484210610` and cross-browser/security run `45484210103`. These runs cover Node 20/22, application tests, clean-checkout validation, showcase determinism, responsive browser checks, Chromium/Firefox/WebKit, and dependency/security regression checks. Confirm the exact SHA shown by both run pages and the PR before starting review. Any code remediation requires a new exact-SHA review and retest.
+- Exact current PR head at packet refresh (2026-11-25): 0dbdc1b41398483670cd1bc9563f5020fb9c8e13. Reconfirm the PR head immediately before review kickoff; do not use a branch name alone as the review identifier.
+- The exact current PR head at this refresh, `0dbdc1b41398483670cd1bc9563f5020fb9c8e13`, passed candidate-specific automated validation: CI run `45484210610` and cross-browser/security run `45484210103`. These runs cover Node 20/22, application tests, clean-checkout validation, showcase determinism, responsive browser checks, Chromium/Firefox/WebKit, and dependency/security regression checks. Confirm the exact SHA shown by both run pages and the PR before starting review. Any code remediation requires a new exact-SHA review and retest.
 - Runtime: Node.js >=20; zero declared runtime dependencies; local/offline analysis model.
 
 ## Review scope requested
