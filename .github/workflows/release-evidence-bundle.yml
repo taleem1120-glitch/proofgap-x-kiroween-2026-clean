@@ -16,7 +16,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: release-evidence-bundle-${{ github.ref }}
+  group: release-evidence-bundle-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
