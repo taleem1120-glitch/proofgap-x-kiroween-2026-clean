@@ -9,8 +9,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const builder = join(root, 'scripts', 'release-evidence-bundle.mjs');
+const hasGitMetadata = spawnSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: root, encoding: 'utf8' }).status === 0;
+const gitRequiredSkip = hasGitMetadata ? false : 'requires a full Git checkout; source.tar intentionally omits .git';
 
-test('release evidence bundle binds source archive and manifest with verifiable checksums', (t) => {
+test('release evidence bundle binds source archive and manifest with verifiable checksums', { skip: gitRequiredSkip }, (t) => {
   const parent = mkdtempSync(join(tmpdir(), 'proofgap-release-evidence-'));
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
@@ -42,7 +44,7 @@ test('release evidence bundle binds source archive and manifest with verifiable 
   assert.match(rejected.stderr, /checksum mismatch/);
 });
 
-test('release bundle records only successful automated evidence for the exact source SHA', (t) => {
+test('release bundle records only successful automated evidence for the exact source SHA', { skip: gitRequiredSkip }, (t) => {
   const parent = mkdtempSync(join(tmpdir(), 'proofgap-release-evidence-bound-'));
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
@@ -65,7 +67,7 @@ test('release bundle records only successful automated evidence for the exact so
   assert.equal(verified.status, 0, verified.stderr || verified.stdout);
 });
 
-test('release bundle rejects automated evidence attributed to another commit', (t) => {
+test('release bundle rejects automated evidence attributed to another commit', { skip: gitRequiredSkip }, (t) => {
   const parent = mkdtempSync(join(tmpdir(), 'proofgap-release-evidence-wrong-sha-'));
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
@@ -82,7 +84,7 @@ test('release bundle rejects automated evidence attributed to another commit', (
   assert.match(built.stderr, /exact source commit/);
 });
 
-test('standalone verifier rejects altered evidence even when checksums are recomputed', (t) => {
+test('standalone verifier rejects altered evidence even when checksums are recomputed', { skip: gitRequiredSkip }, (t) => {
   const parent = mkdtempSync(join(tmpdir(), 'proofgap-release-evidence-altered-manifest-'));
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
