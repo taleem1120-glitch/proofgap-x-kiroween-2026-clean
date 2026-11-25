@@ -105,7 +105,7 @@ We are looking for an independent accessibility specialist and/or screen-reader 
 - Repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
 - Draft release-gate PR: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 - Accessibility protocol: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/release/proofgap-final-gate-2026-11-24/docs/ACCESSIBILITY_REVIEW_PROTOCOL.md
-- Exact candidate: `0dbdc1b41398483670cd1bc9563f5020fb9c8e13`
+- Exact candidate: read `source.commit` from the supplied review bundle's `manifest.json`; verify that it matches the current PR #44 head before beginning the human accessibility review. If the PR head changes, request a newly generated bundle.
 
 The requested scope includes NVDA with Firefox/Chrome, keyboard-only use, zoom/reflow, Arabic RTL and English LTR, and a review of the evidence graph's non-visual equivalent. We can provide a test build and reproducible tasks using synthetic data only.
 
