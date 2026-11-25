@@ -100,11 +100,11 @@ test('standalone verifier rejects altered evidence even when checksums are recom
   const manifestPath = join(bundle, 'manifest.json');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   manifest.automatedEvidence = [];
-  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\\n');
+  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\n');
   writeFileSync(manifestPath, manifestBytes);
   const sourceHash = createHash('sha256').update(readFileSync(join(bundle, 'source.tar'))).digest('hex');
   const manifestHash = createHash('sha256').update(manifestBytes).digest('hex');
-  writeFileSync(join(bundle, 'SHA256SUMS'), manifestHash + '  manifest.json\\n' + sourceHash + '  source.tar\\n');
+  writeFileSync(join(bundle, 'SHA256SUMS'), manifestHash + '  manifest.json\n' + sourceHash + '  source.tar\n');
   const rejected = spawnSync(process.execPath, [builder, '--verify', bundle], { cwd: root, encoding: 'utf8' });
   assert.notEqual(rejected.status, 0);
   assert.match(rejected.stderr, /missing required automated evidence/);
