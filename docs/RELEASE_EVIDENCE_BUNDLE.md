@@ -37,6 +37,10 @@ On the recipient's machine:
 
 Both files must report OK, followed by exact-SHA automated evidence verification and VERIFIED commit .... The verifier also requires the three named workflow records (CI, cross-browser/security, and showcase) to be successful, linked to HTTPS run URLs, carry positive run IDs, and match the source commit. A checksum mismatch, missing file, malformed manifest, missing/duplicate evidence, or mismatched SHA fails closed.
 
+## Running tests from a source archive
+
+The `source.tar` archive intentionally contains the committed source tree, not Git metadata. Run the ordinary source tests from the extracted directory with `npm test`. The four release-bundle builder integration tests are explicitly skipped when `.git` metadata is absent, because the builder must read the checked-out commit and create a Git archive. They run normally in GitHub Actions and in a full Git checkout. Do not initialize a new repository in the extracted archive and treat its new commit as the reviewed candidate; that would create a different source identity. The delivered bundle's `manifest.json` and `SHA256SUMS` remain independently verifiable without Git metadata using the standalone `--verify` command.
+
 ## Independent reviewer procedure
 
 1. Verify SHA256SUMS before extracting or reviewing.
