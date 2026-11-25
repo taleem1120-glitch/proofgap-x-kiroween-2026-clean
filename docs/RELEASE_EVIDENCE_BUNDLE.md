@@ -40,9 +40,25 @@ Both files must report OK, followed by exact-SHA automated evidence verification
 ## Independent reviewer procedure
 
 1. Verify SHA256SUMS before extracting or reviewing.
-2. Extract source.tar in an isolated directory.
-3. Confirm the source commit in manifest.json against the public repository and PR #44.
-4. Re-run the documented tests in docs/INDEPENDENT_SECURITY_REVIEW_PACKET.md using the exact source commit.
+2. Extract source.tar in an isolated directory for source inspection. The archive intentionally contains no `.git` directory.
+3. Read `source.commit` from manifest.json and compare it with the intended PR #44 head before starting.
+4. **For the full test suite, use a clean Git checkout of that exact commit.** The release-bundle tests invoke Git commands and therefore cannot run from the extracted `source.tar` directory alone. Example:
+
+       SHA="$(node -p "require('./bundle/manifest.json').source.commit")"
+       git clone --no-checkout https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean reviewer-checkout
+       git -C reviewer-checkout fetch origin "$SHA"
+       git -C reviewer-checkout checkout --detach "$SHA"
+       test -z "$(git -C reviewer-checkout status --porcelain)"
+       git -C reviewer-checkout archive --format=tar --prefix=source/ "$SHA" > source-from-checkout.tar
+       sha256sum source-from-checkout.tar
+
+   Compare the resulting archive digest with `sourceArchiveSha256` in the manifest. Then run:
+
+       cd reviewer-checkout
+       npm ci --ignore-scripts
+       npm test
+
+   If the repository is unavailable, the exact commit cannot be fetched, or the archive digest differs, stop and record the limitation rather than treating a partial archive-only test run as complete.
 5. Record reviewer identity, qualifications, independence/conflict disclosure, exact SHA, environment, scope, findings, severity, reproduction steps, limitations and retest results.
 6. Return an attributed or signed report. Do not edit the manifest to imply reviewer approval.
 
