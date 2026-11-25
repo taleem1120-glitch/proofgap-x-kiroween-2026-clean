@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -14,7 +15,16 @@ test('release evidence bundle binds source archive and manifest with verifiable 
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
 
-  const built = spawnSync(process.execPath, [builder, bundle], { cwd: root, encoding: 'utf8' });
+  const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const evidence = [
+    { name: 'CI', result: 'success', validatedCommit: sha, url: 'https://github.com/example/ci', runId: 101 },
+    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: sha, url: 'https://github.com/example/security', runId: 102 },
+    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: sha, url: 'https://github.com/example/showcase', runId: 103 }
+  ];
+  const built = spawnSync(process.execPath, [builder, bundle], {
+    cwd: root, encoding: 'utf8',
+    env: { ...process.env, PROOFGAP_AUTOMATED_EVIDENCE_JSON: JSON.stringify(evidence) }
+  });
   assert.equal(built.status, 0, built.stderr || built.stdout);
   const manifest = JSON.parse(readFileSync(join(bundle, 'manifest.json'), 'utf8'));
   assert.equal(manifest.schema, 'proofgap-release-evidence/v1');
@@ -38,9 +48,9 @@ test('release bundle records only successful automated evidence for the exact so
   t.after(() => rmSync(parent, { recursive: true, force: true }));
   const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
   const evidence = [
-    { name: 'CI', result: 'success', validatedCommit: sha, url: 'https://github.com/example/ci' },
-    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: sha, url: 'https://github.com/example/security' },
-    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: sha, url: 'https://github.com/example/showcase' }
+    { name: 'CI', result: 'success', validatedCommit: sha, url: 'https://github.com/example/ci', runId: 201 },
+    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: sha, url: 'https://github.com/example/security', runId: 202 },
+    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: sha, url: 'https://github.com/example/showcase', runId: 203 }
   ];
   const built = spawnSync(process.execPath, [builder, bundle], {
     cwd: root, encoding: 'utf8',
@@ -60,9 +70,9 @@ test('release bundle rejects automated evidence attributed to another commit', (
   const bundle = join(parent, 'bundle');
   t.after(() => rmSync(parent, { recursive: true, force: true }));
   const evidence = [
-    { name: 'CI', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/ci' },
-    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/security' },
-    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/showcase' }
+    { name: 'CI', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/ci', runId: 301 },
+    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/security', runId: 302 },
+    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: 'dff236fb0c92207ba648357331ae4a8ce06d721b', url: 'https://github.com/example/showcase', runId: 303 }
   ];
   const built = spawnSync(process.execPath, [builder, bundle], {
     cwd: root, encoding: 'utf8',
@@ -70,4 +80,32 @@ test('release bundle rejects automated evidence attributed to another commit', (
   });
   assert.notEqual(built.status, 0);
   assert.match(built.stderr, /exact source commit/);
+});
+
+test('standalone verifier rejects altered evidence even when checksums are recomputed', (t) => {
+  const parent = mkdtempSync(join(tmpdir(), 'proofgap-release-evidence-altered-manifest-'));
+  const bundle = join(parent, 'bundle');
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const evidence = [
+    { name: 'CI', result: 'success', validatedCommit: sha, url: 'https://github.com/example/ci', runId: 401 },
+    { name: 'Cross-browser compatibility and security audit', result: 'success', validatedCommit: sha, url: 'https://github.com/example/security', runId: 402 },
+    { name: 'Regenerate ProofGap Cite showcase', result: 'success', validatedCommit: sha, url: 'https://github.com/example/showcase', runId: 403 }
+  ];
+  const built = spawnSync(process.execPath, [builder, bundle], {
+    cwd: root, encoding: 'utf8',
+    env: { ...process.env, PROOFGAP_AUTOMATED_EVIDENCE_JSON: JSON.stringify(evidence) }
+  });
+  assert.equal(built.status, 0, built.stderr || built.stdout);
+  const manifestPath = join(bundle, 'manifest.json');
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  manifest.automatedEvidence = [];
+  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\\n');
+  writeFileSync(manifestPath, manifestBytes);
+  const sourceHash = createHash('sha256').update(readFileSync(join(bundle, 'source.tar'))).digest('hex');
+  const manifestHash = createHash('sha256').update(manifestBytes).digest('hex');
+  writeFileSync(join(bundle, 'SHA256SUMS'), manifestHash + '  manifest.json\\n' + sourceHash + '  source.tar\\n');
+  const rejected = spawnSync(process.execPath, [builder, '--verify', bundle], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(rejected.status, 0);
+  assert.match(rejected.stderr, /missing required automated evidence/);
 });
