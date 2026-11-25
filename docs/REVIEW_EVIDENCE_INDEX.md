@@ -1,8 +1,8 @@
 # Independent review evidence index — ProofGap X
 
-Date: 2026-11-24  
+Date: 2026-11-25  
 Review branch: release/proofgap-final-gate-2026-11-24  
-Exact current candidate at refresh (2026-11-25): 0a497bbd533527d1adf47cd5c423259d3899782d  
+Exact current candidate at refresh (2026-11-25): 0dbdc1b41398483670cd1bc9563f5020fb9c8e13  
 PR #44: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 
 ## What this packet is
@@ -13,8 +13,8 @@ A navigation and reproducibility index for a future independent reviewer. It is 
 
 | Evidence | Run | Result | Scope |
 |---|---|---|---|
-| CI | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45484210610 | Success | Exact candidate 0a497bbd533527d1adf47cd5c423259d3899782d: Node 20/22, full validation, synthetic saved-text benchmark, responsive browser checks and showcase determinism |
-| Cross-browser/security | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45484210103 | Success | Exact candidate 0a497bbd533527d1adf47cd5c423259d3899782d: Chromium, Firefox, WebKit and automated dependency/security checks |
+| CI | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45543801826 | Success | Exact candidate 0dbdc1b41398483670cd1bc9563f5020fb9c8e13: Node 20/22, full validation, synthetic saved-text benchmark, responsive browser checks and showcase determinism |
+| Cross-browser/security | https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45543801692 | Success | Exact candidate 0dbdc1b41398483670cd1bc9563f5020fb9c8e13: Chromium, Firefox, WebKit and automated dependency/security checks |
 
 These runs are associated with the exact candidate SHA above, as recorded in PR #44. They are automated project checks, not independent security review or human acceptance. The release-evidence artifact is a review bundle only; it is not a signed release or proof of provenance.
 
