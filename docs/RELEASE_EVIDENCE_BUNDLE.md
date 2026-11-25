@@ -48,6 +48,6 @@ Both files must report OK, followed by VERIFIED commit .... A checksum mismatch,
 
 ## Evidence boundary
 
-The manifest labels the available workflow runs as evidence for their own validated SHA (dff236fb0c92207ba648357331ae4a8ce06d721b). Those runs are historical evidence and do not validate a later source commit. The builder does not query GitHub dynamically. Re-check the run pages and obtain fresh successful exact-SHA runs for the source commit before treating it as release-validated.
+The GitHub Actions workflow is manual-dispatch only. It queries successful CI, cross-browser/security, and showcase runs for the exact checked-out SHA, requires all three workflow types to have succeeded on that same SHA, and passes those records to the builder. The builder rejects any evidence record with a different SHA or non-success result. In detached CI checkouts, the branch name is taken from `GITHUB_REF_NAME`. A locally generated bundle without `PROOFGAP_AUTOMATED_EVIDENCE_JSON` explicitly contains no automated workflow evidence. Never distribute a bundle with missing or mismatched exact-SHA evidence as a validated candidate.
 
 The checksum proves byte integrity only. It does not prove authorship, authenticity, chain of custody, correctness, legal admissibility, reviewer independence or production readiness. The security audit, human assistive-technology review and deployment-specific privacy-owner approval remain open. The production decision therefore remains **NO-GO** until those gates are completed and retested.
