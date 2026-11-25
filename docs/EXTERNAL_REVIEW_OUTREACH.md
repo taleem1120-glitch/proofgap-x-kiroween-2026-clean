@@ -1,8 +1,8 @@
 # External Review Outreach Pack — ProofGap X / ProofGap Cite
 
-**Prepared:** 2026-11-24  
+**Prepared:** 2026-11-25  
 **Review target:** PR #44, branch `release/proofgap-final-gate-2026-11-24`  
-**Exact candidate at preparation:** `d09ac993aeb232b79726eb482af077bdcd19a358`  
+**Exact candidate at preparation:** `0a497bbd533527d1adf47cd5c423259d3899782d` (PR #44 head; confirm again before review kickoff)  
 **Repository:** https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean  
 **PR:** https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 
@@ -48,7 +48,7 @@ Hello OSTIF team,
 
 I maintain ProofGap X / ProofGap Cite, an open-source evidence-independence and provenance project. We have completed candidate-specific automated CI, Node 20/22 validation, reproducible showcase checks, Chromium/Firefox/WebKit tests, automated axe-core scans, and dependency/security regression checks.
 
-We are seeking an independent professional security review rather than treating these automated checks as an audit. The current review candidate is commit `d09ac993aeb232b79726eb482af077bdcd19a358`:
+We are seeking an independent professional security review rather than treating these automated checks as an audit. The current review candidate is commit `0a497bbd533527d1adf47cd5c423259d3899782d`:
 
 - Repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
 - Draft release-gate PR: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
@@ -105,7 +105,7 @@ We are looking for an independent accessibility specialist and/or screen-reader 
 - Repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
 - Draft release-gate PR: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/44
 - Accessibility protocol: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/release/proofgap-final-gate-2026-11-24/docs/ACCESSIBILITY_REVIEW_PROTOCOL.md
-- Exact candidate: `d09ac993aeb232b79726eb482af077bdcd19a358`
+- Exact candidate: `0a497bbd533527d1adf47cd5c423259d3899782d`
 
 The requested scope includes NVDA with Firefox/Chrome, keyboard-only use, zoom/reflow, Arabic RTL and English LTR, and a review of the evidence graph's non-visual equivalent. We can provide a test build and reproducible tasks using synthetic data only.
 
