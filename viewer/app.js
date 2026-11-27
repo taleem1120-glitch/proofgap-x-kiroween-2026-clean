@@ -154,7 +154,7 @@
     var traceTitle = el('h4', {}, ['Select a source, evidence item or claim to inspect its direct provenance links']);
     var traceStatus = el('p', { class: 'note', role: 'status', 'aria-live': 'polite' }, ['No graph node selected']);
     var traceList = el('ul', { class: 'trace-list' });
-    var tracePanel = el('section', { class: 'trace-panel', 'aria-label': 'Selected provenance path' }, [traceTitle, traceStatus, traceList]);
+    var tracePanel = el('div', { class: 'trace-panel', role: 'group', 'aria-label': 'Selected provenance path' }, [traceTitle, traceStatus, traceList]);
     function selectNode(id) {
       var selected = nodeElements.find(function (x) { return x.id === id; });
       if (!selected) return;
@@ -193,7 +193,7 @@
         while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
       }
     });
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, tracePanel, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
+    return el('div', { class: 'card', role: 'group', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, tracePanel, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
   }
 
   // ---------- claims ----------

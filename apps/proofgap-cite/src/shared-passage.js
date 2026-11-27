@@ -46,13 +46,14 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
     throw new RangeError('invalid passage detection bounds');
   }
   const normalizedA = normalize(a), normalizedB = normalize(b);
-  // Overflow takes precedence over short/unsupported inputs: incomplete scanning
-  // must never be represented as a clean negative result.
   if (normalizedA?.overflow || normalizedB?.overflow) {
-    return { review: true, incomplete: true, longestRunTokens: 0, basis: 'token_limit_exceeded_manual_review', candidates: [] };
+    return { review: true, incomplete: true, longestRunTokens: 0, tokenCounts: { a: null, b: null }, coverage: { a: null, b: null }, basis: 'token_limit_exceeded_manual_review', candidates: [] };
   }
-  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, basis: 'unsupported_or_short', candidates: [] };
+  if (!normalizedA || !normalizedB) return { review: false, incomplete: false, longestRunTokens: 0, tokenCounts: { a: normalizedA?.tokens?.length ?? null, b: normalizedB?.tokens?.length ?? null }, coverage: { a: null, b: null }, basis: 'unsupported_or_short', candidates: [] };
   const A = normalizedA.tokens, B = normalizedB.tokens;
+  if (A.length < minRunTokens || B.length < minRunTokens) {
+    return { review: false, incomplete: false, longestRunTokens: 0, tokenCounts: { a: A.length, b: B.length }, coverage: { a: 0, b: 0 }, basis: 'no_long_shared_passage', candidates: [] };
+  }
   const width = Math.min(minRunTokens, 60), ids = new Map();
   const left = hashWindows(A, ids, width), right = hashWindows(B, ids, width);
   const index = new Map();
@@ -64,13 +65,15 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
   }
   let longest = 0, work = 0, truncated = false;
   const candidates = [];
-  let coveredUntil = 0;
+  // Coverage is tracked per alignment (A-index minus B-index), not globally.
+  // A global coveredUntil can hide a longer overlapping match on another alignment.
+  const coveredUntilByAlignment = new Map();
   outer: for (let j = 0; j < right.keys.length; j++) {
-    if (j < coveredUntil) continue;
     const positions = index.get(right.keys[j]);
     if (!positions) continue;
     for (const i of positions) {
-      // Hashes only shortlist candidates. Verify the entire window to rule out collisions.
+      const alignment = i - j;
+      if ((coveredUntilByAlignment.get(alignment) ?? 0) > j) continue;
       let equal = true;
       for (let k = 0; k < width; k++) {
         if (++work > maxComparisons) { truncated = true; break outer; }
@@ -90,18 +93,21 @@ export function detectSharedPassage(a, b, { minRunTokens = 60, maxCandidates = 2
       }
       const n = endA - startA;
       longest = Math.max(longest, n);
-      coveredUntil = Math.max(coveredUntil, endB - width + 1);
+      coveredUntilByAlignment.set(alignment, Math.max(coveredUntilByAlignment.get(alignment) ?? 0, endB - width + 1));
       if (n >= minRunTokens && candidates.length < maxCandidates &&
           !candidates.some(x => x.startA === startA && x.startB === startB)) {
-        candidates.push({ startA, startB, tokens: n });
+        candidates.push({ startA, startB, endA, endB, tokens: n, coverageA: n / A.length, coverageB: n / B.length });
       }
     }
   }
   const incomplete = truncated || indexTruncated;
+  const bestCandidate = candidates.reduce((best, item) => !best || item.tokens > best.tokens ? item : best, null);
   return {
     review: longest >= minRunTokens || incomplete,
     incomplete,
     longestRunTokens: longest,
+    tokenCounts: { a: A.length, b: B.length },
+    coverage: bestCandidate ? { a: bestCandidate.coverageA, b: bestCandidate.coverageB } : { a: 0, b: 0 },
     basis: truncated ? 'comparison_budget_exceeded_manual_review' :
       indexTruncated ? 'candidate_index_truncated_manual_review' :
       longest >= minRunTokens ? 'shared_passage_unverified_review_only' : 'no_long_shared_passage',

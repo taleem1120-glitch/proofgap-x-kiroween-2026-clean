@@ -26,7 +26,9 @@ test('reordered blocks still report only the contiguous shared block', () => {
   const b = `${blockB} ${blockA}`;
   const result = detectSharedPassage(a, b);
   assert.equal(result.review, true);
-  assert.ok(result.longestRunTokens >= 72);
+  // The 72-item beta block is 216 tokens; the separate alpha block is 105.
+  // The detector must report the longest contiguous run, not combine both blocks.
+  assert.equal(result.longestRunTokens, 216);
   assert.equal(result.incomplete, false);
 });
 
@@ -38,6 +40,22 @@ test('a single changed token breaks an exactly-minimum passage below threshold',
   assert.equal(result.incomplete, false);
   assert.equal(result.basis, 'no_long_shared_passage');
   assert.ok(result.longestRunTokens < 60);
+});
+
+test('repetitive windows fail closed when the candidate index is truncated', () => {
+  const repeated = Array.from({ length: 120 }, () => 'repeat').join(' ');
+  const result = detectSharedPassage(repeated, repeated, { maxComparisons: 100_000 });
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, true);
+  assert.equal(result.basis, 'candidate_index_truncated_manual_review');
+});
+
+test('comparison-budget exhaustion is reported as incomplete manual review', () => {
+  const repeated = Array.from({ length: 1200 }, () => 'repeat').join(' ');
+  const result = detectSharedPassage(repeated, repeated);
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, true);
+  assert.equal(result.basis, 'comparison_budget_exceeded_manual_review');
 });
 
 test('invalid candidate and comparison bounds are rejected before processing', () => {
@@ -65,4 +83,17 @@ test('tokenization overflow fails closed and requests manual review', () => {
   assert.equal(result.incomplete, true);
   assert.equal(result.basis, 'token_limit_exceeded_manual_review');
   assert.deepEqual(result.candidates, []);
+});
+
+test('overlapping passages on different alignments are both evaluated; longest run wins', () => {
+  const tokens = Array.from({ length: 150 }, (_, i) => `alignmentToken${i}`);
+  // The first occurrence gives a 110-token match. A second, offset occurrence
+  // overlaps it in B but extends to 120 tokens and must not be skipped.
+  const a = [...tokens.slice(0, 110), 'unrelated-gap', ...tokens.slice(30, 150)].join(' ');
+  const b = tokens.join(' ');
+  const result = detectSharedPassage(a, b, { maxComparisons: 100_000 });
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, false);
+  assert.equal(result.longestRunTokens, 120);
+  assert.ok(result.candidates.some(x => x.tokens === 120));
 });

@@ -32,6 +32,8 @@ const issues = (fn) => { try { fn(); } catch (e) { assert.ok(e instanceof CiteVa
 test('two independent primaries -> independently_corroborated; copies of them add no origin', () => {
   const r = run(['Claim [^a] [^b] [^c]'], [P('a'), P('b'), S('c', ', cites=a')]);
   assert.equal(v(r), 'independently_corroborated');
+  assert.equal(r.claims[0].sharedPassageReview.mode, 'not_requested');
+  assert.equal(r.claims[0].sharedPassageReview.status, 'not_requested');
   assert.deepEqual(r.claims[0].citeEvidence, {
     citations: 3, independentOrigins: 2, primaryRootedOrigins: 2,
     supportStress: {
@@ -46,6 +48,13 @@ test('two independent primaries -> independently_corroborated; copies of them ad
       caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
     },
   });
+});
+
+test('saved-text review distinguishes fewer than two comparable documents from a clean scan', () => {
+  const r = run(['Claim [^a] [^b]'], [P('a', ', saved=same1.txt'), P('b')], { sourcesDir: dir, reviewTextCopies: true });
+  assert.equal(r.claims[0].sharedPassageReview.status, 'no_comparable_pairs');
+  assert.equal(r.claims[0].sharedPassageReview.documentsCompared, 1);
+  assert.equal(r.claims[0].sharedPassageReview.pairsCompared, 0);
 });
 
 test('press-release echo: many secondaries citing one primary -> single_origin with exact missing item', () => {
@@ -219,6 +228,8 @@ test('lint output names file:line and verdict; control characters are neutralise
   const out = renderLint(run(['A claim [^a]'], ['[^a]: Outlet {kind=primary}']));
   assert.match(out, /^note:3: \[single_origin\] "A claim"/m);
   assert.match(out, /missing: A second primary source/);
+  assert.match(out, /support stress: removing one primary-rooted origin leaves 0/);
+  assert.match(out, /two-origin threshold does not survive/);
 });
 
 const cli = (...a) => spawnSync(process.execPath, [CLI, ...a], { encoding: 'utf8' });

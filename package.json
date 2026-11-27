@@ -20,7 +20,9 @@
     "validate:local": "node scripts/validate-local.js",
     "showcase": "node src/cli.js examples/showcase/deceptive.json --compare examples/showcase/independent.json --evidence-dir examples/showcase/evidence --format html --out viewer/showcase.html",
     "cite": "node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources",
-    "showcase:cite": "node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format html --out apps/proofgap-cite/showcase.html"
+    "showcase:cite": "node apps/proofgap-cite/cli.js apps/proofgap-cite/examples/water-note.md --sources apps/proofgap-cite/examples/sources --format html --out apps/proofgap-cite/showcase.html",
+    "release:evidence": "node scripts/release-evidence-bundle.mjs",
+    "release:evidence:verify": "node scripts/release-evidence-bundle.mjs --verify"
   },
   "files": [
     "src",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+yTmlNG4M0JMKzU5bxe+1A//5LjgDSgjlm4GpwtkaWY='; style-src 'sha256-hnGl/eA593wkFFyf5FDCi3RfBqY49P7QltuUZn0hPTU='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mYAYA8VtHmSNI1qsxaWlZKuD2WZmD13IW74GIFvC/f0='; style-src 'sha256-hnGl/eA593wkFFyf5FDCi3RfBqY49P7QltuUZn0hPTU='; img-src 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ProofGap Cite report viewer</title>
 <style>:root {
@@ -463,7 +463,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "single_origin",
       "explanation": [
-        "6 supporting citation(s) → 1 independent origin(s), 1 tracing to a declared primary source. Verdict: single origin (every citation traces to one origin).",
+        "6 supporting citation(s) → 1 independent origin(s), 1 tracing to a declared primary source. Removing any one primary-rooted origin leaves 0; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: single origin (every citation traces to one origin).",
         "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -619,6 +619,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether a second, separately declared origin also supports the claim."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "Riverton's water budget rose 40% in 2026.",
       "status": "insufficient_support",
       "supportScore": 0.5
@@ -702,7 +710,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "independently_corroborated",
       "explanation": [
-        "3 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Verdict: independently corroborated (two or more independent origins that each trace to a declared primary source).",
+        "3 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Removing any one primary-rooted origin leaves 1; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: independently corroborated (two or more independent origins that each trace to a declared primary source).",
         "Supported by 2 independent origins (combined score 0.75).",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -832,6 +840,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether the declared independence is credible."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "Reservoir levels fell below 30% in August.",
       "status": "supported_by_independent_origins",
       "supportScore": 0.75
@@ -892,7 +908,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "circular_reporting",
       "explanation": [
-        "2 supporting citation(s) → 1 independent origin(s), 0 tracing to a declared primary source. Verdict: circular reporting (support comes only from references that cite each other).",
+        "2 supporting citation(s) → 1 independent origin(s), 0 tracing to a declared primary source. Removing any one primary-rooted origin leaves 0; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: circular reporting (support comes only from references that cite each other).",
         "Support comes from 1 independent origin(s); at least 2 are needed. Derived copies and duplicates do not add independence.",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -1028,6 +1044,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether a second, separately declared origin also supports the claim."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "Officials knew about the shortfall in March.",
       "status": "insufficient_support",
       "supportScore": 0.5
@@ -1099,7 +1123,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "origin_unresolved",
       "explanation": [
-        "2 supporting citation(s) → 2 independent origin(s), 0 tracing to a declared primary source. Verdict: origin unresolved (separately declared origins, but fewer than two trace to a declared primary source).",
+        "2 supporting citation(s) → 2 independent origin(s), 0 tracing to a declared primary source. Removing any one primary-rooted origin leaves 0; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: origin unresolved (separately declared origins, but fewer than two trace to a declared primary source).",
         "Supported by 2 independent origins (combined score 0.75).",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -1221,6 +1245,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether the declared independence is credible."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "The new pipeline will cut water losses by half.",
       "status": "supported_by_independent_origins",
       "supportScore": 0.75
@@ -1301,7 +1333,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "abstain_suspected_shared_origin",
       "explanation": [
-        "2 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Verdict: abstain suspected shared origin (enough declared primary origins, but a cue (same URL/DOI, same title, shared saved file) suggests they may be one).",
+        "2 supporting citation(s) → 2 independent origin(s), 2 tracing to a declared primary source. Removing any one primary-rooted origin leaves 1; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: abstain suspected shared origin (enough declared primary origins, but a cue (same URL/DOI, same title, shared saved file) suggests they may be one).",
         "Supported by 2 independent origins (combined score 0.75).",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -1414,6 +1446,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether the declared independence is credible."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "Two outlets confirmed the utility director's resignation.",
       "status": "supported_by_independent_origins",
       "supportScore": 0.75
@@ -1451,7 +1491,7 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
       },
       "decision": "unsupported",
       "explanation": [
-        "0 supporting citation(s) → 0 independent origin(s), 0 tracing to a declared primary source. Verdict: unsupported (no citation).",
+        "0 supporting citation(s) → 0 independent origin(s), 0 tracing to a declared primary source. Removing any one primary-rooted origin leaves 0; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: unsupported (no citation).",
         "No effective evidence is linked to this claim.",
         "Citation counts and different URLs are not independence; only declared lineage and verified saved-file identity are used."
       ],
@@ -1523,6 +1563,14 @@ html[dir="rtl"] th, html[dir="rtl"] td, html[dir="rtl"] caption { text-align: st
           "wouldShow": "Whether any documented support exists and from how many declared origins."
         }
       ],
+      "sharedPassageReview": {
+        "caveat": "A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.",
+        "cues": [],
+        "documentsCompared": 0,
+        "mode": "not_requested",
+        "pairsCompared": 0,
+        "status": "not_requested"
+      },
       "statement": "Water rates will not change in 2027.",
       "status": "no_evidence",
       "supportScore": 0
@@ -2683,7 +2731,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
     var traceTitle = el('h4', {}, ['Select a source, evidence item or claim to inspect its direct provenance links']);
     var traceStatus = el('p', { class: 'note', role: 'status', 'aria-live': 'polite' }, ['No graph node selected']);
     var traceList = el('ul', { class: 'trace-list' });
-    var tracePanel = el('section', { class: 'trace-panel', 'aria-label': 'Selected provenance path' }, [traceTitle, traceStatus, traceList]);
+    var tracePanel = el('div', { class: 'trace-panel', role: 'group', 'aria-label': 'Selected provenance path' }, [traceTitle, traceStatus, traceList]);
     function selectNode(id) {
       var selected = nodeElements.find(function (x) { return x.id === id; });
       if (!selected) return;
@@ -2722,7 +2770,7 @@ return {t:t,set:set,detect:detect,get:function(){return active;},codes:Object.ke
         while (traceList.firstChild) traceList.removeChild(traceList.firstChild);
       }
     });
-    return el('section', { class: 'card', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, tracePanel, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
+    return el('div', { class: 'card', role: 'group', 'aria-label': 'Independence graph' }, [el('h3', {}, [L('graphHeading')]), graphControls, wrap, tracePanel, g.omittedUnknownEdges ? el('p', { class: 'note', role: 'note' }, [L('unknownEdgesOmitted',{n:g.omittedUnknownEdges})]) : '', det]);
   }
 
   // ---------- claims ----------

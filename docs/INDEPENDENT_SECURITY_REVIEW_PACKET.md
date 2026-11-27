@@ -6,8 +6,8 @@
 
 - Repository: `taleem1120-glitch/proofgap-x-kiroween-2026-clean`
 - Candidate branch: `release/proofgap-final-gate-2026-11-24`
-- Baseline candidate SHA before this packet: `90a69f3808d1911eb8e4c0bf1901a1b7af07ff51`
-- Review must be re-run against the final commit SHA after this packet and any remediation.
+- Exact candidate source commit: read `source.commit` from the supplied `manifest.json`; that field is authoritative. Confirm the manifest commit against the source archive and PR #44 immediately before review kickoff. Do not rely on a branch name or a hard-coded SHA in this packet.
+- Candidate-specific automated evidence is recorded in `manifest.json` under `automatedEvidence`. Each record must have `result: success` and `validatedCommit` equal to `source.commit`. Reconfirm the current PR head and all run pages before review kickoff. Any code change requires a new exact-SHA review bundle and retest.
 - Runtime: Node.js >=20; zero declared runtime dependencies; local/offline analysis model.
 
 ## Review scope requested

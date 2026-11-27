@@ -12,6 +12,12 @@ test('rolling-hash candidates are verified and locate a long contiguous shared p
   assert.ok(result.longestRunTokens >= 72);
   assert.equal(result.candidates[0].startA, 0);
   assert.equal(result.candidates[0].startB, 2);
+  assert.equal(result.tokenCounts.a, 288);
+  assert.equal(result.tokenCounts.b, 292);
+  assert.equal(result.coverage.a, 1);
+  assert.ok(result.coverage.b > 0.98 && result.coverage.b < 0.99);
+  assert.equal(result.candidates[0].endA, 288);
+  assert.equal(result.candidates[0].endB, 290);
 });
 
 test('Arabic combining marks remain part of token identity', () => {
@@ -42,4 +48,19 @@ test('comparison work budget counts verified window tokens and fails closed', ()
 
 test('invalid bounds are rejected', () => {
   assert.throws(() => detectSharedPassage(passage, passage, { maxComparisons: 999 }), RangeError);
+});
+test('shared-passage diagnostics distinguish absolute run length from document coverage', () => {
+  const shared = Array.from({ length: 60 }, (_, i) => `commonEvidenceToken${i}`).join(' ');
+  const left = `opening material ${shared} ${Array.from({ length: 940 }, (_, i) => `leftOnly${i}`).join(' ')}`;
+  const right = `different opening ${shared} ${Array.from({ length: 940 }, (_, i) => `rightOnly${i}`).join(' ')}`;
+  const result = detectSharedPassage(left, right);
+  assert.equal(result.review, true);
+  assert.equal(result.incomplete, false);
+  assert.equal(result.longestRunTokens, 60);
+  assert.equal(result.tokenCounts.a, 1002);
+  assert.equal(result.tokenCounts.b, 1002);
+  assert.ok(result.coverage.a > 0.059 && result.coverage.a < 0.061);
+  assert.ok(result.coverage.b > 0.059 && result.coverage.b < 0.061);
+  assert.equal(result.candidates[0].startA, 2);
+  assert.equal(result.candidates[0].startB, 2);
 });
