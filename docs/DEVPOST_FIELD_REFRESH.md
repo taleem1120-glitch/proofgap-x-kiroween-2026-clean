@@ -3,7 +3,7 @@
 Use these answers in the **existing** Devpost project page:
 https://devpost.com/software/proofgap-x-evidence-independence-provenance
 
-This is copy-ready text based on the public page and repository evidence reviewed on 24 November 2026. It does not claim that Devpost has been edited.
+This is copy-ready text based on the public page and repository evidence reviewed on 27 November 2026. It does not claim that Devpost has been edited.
 
 ## What it does
 
@@ -18,9 +18,11 @@ Both applications run locally/offline and produce deterministic reports. A hash 
 
 ## How we built it
 
-We developed the application iteratively in Kiro Web Vibe sessions using written phase briefs and a versioned shared core. The repository contains requirements, design, tasks, and acceptance documents as files in the `.kiro/specs/` directory. We used the Playwright Power for browser interaction, responsive, offline, and regression checks.
+The initial implementation was developed iteratively in Kiro Web Vibe sessions using written phase briefs and a versioned shared core. The repository contains requirements, design, tasks, and acceptance documents as files in the `.kiro/specs/` directory. We used the Playwright Power for browser interaction, responsive, offline, and regression checks.
 
 The project has two application folders that import only the shared `src/core.js` interface. Node.js tests cover validation, provenance relationships, integrity handling, deterministic reports, security regressions, and adversarial/metamorphic cases. Browser workflows cover both showcases, keyboard interaction, responsive layouts, locale/RTL switching, and report export.
+
+Later integration, publication and documentation work also used ChatGPT-assisted GitHub changes; these are not claimed as Kiro actions.
 
 **Kiro-use transparency:** we did not use Kiro's spec workflow UI, agent hooks, custom agents, Kiro Crew, or other MCP servers. The steering file was added in Phase 7 and was not loaded by earlier sessions. The Playwright Power was used in later phases. See `.kiro/KIRO_USAGE.md` for the factual record. Do not claim features that were not used.
 
@@ -40,6 +42,7 @@ A remaining limitation is that re-encoded, edited, translated, paraphrased, crop
 - The analysis distinguishes declared relationships, locally verified byte equality, heuristic review cues, and unknown relationships.
 - Ambiguous support can lead to abstention, with an explanation of what additional evidence could change the result.
 - The project includes deterministic reports, offline showcases, bounded input/file handling, and reproducible test workflows.
+- Exact deployed main CI and publication verification passed. Fifteen public files matched the source bytes, and four excluded-path probes passed. Both showcase reports were exported on a physical Android phone. [Release evidence](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/pull/45#issuecomment-7227417351).
 - Recorded candidate CI passed Node 20/22 tests, showcase reproducibility, Chromium/Firefox/WebKit browser checks, automated axe-core scans, and dependency/security regression checks. These are automated results, not an independent security audit or human accessibility certification.
 
 ## What we learned
@@ -57,14 +60,14 @@ The project remains a research prototype and is not approved for production use.
 - Working application: https://taleem1120-glitch.github.io/proofgap-x-kiroween-2026-clean/
 - GitHub repository: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean
 - Demonstration video: https://youtu.be/Amn78mLgUQ4
-- Judge brief: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/release/proofgap-final-gate-2026-11-24/docs/JUDGE_BRIEF.md
-- Benchmark: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/release/proofgap-final-gate-2026-11-24/docs/BENCHMARK.md
-- Kiro usage log: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/release/proofgap-final-gate-2026-11-24/.kiro/KIRO_USAGE.md
+- Judge brief: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/a8f98fe9f86f7053268d7fad28f249517c75aeec/docs/JUDGE_BRIEF.md
+- Benchmark: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/a8f98fe9f86f7053268d7fad28f249517c75aeec/docs/BENCHMARK.md
+- Kiro usage log: https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/blob/a8f98fe9f86f7053268d7fad28f249517c75aeec/.kiro/KIRO_USAGE.md
 
 ## Critical checks before publishing the update
 
 1. Confirm the GitHub Pages app still loads and demonstrates the exact features described.
-2. Confirm which commit the Pages site serves. The release-gate branch/PR is not the same thing as a deployed Pages build; do not imply otherwise.
+2. Verified deployed source: `a8f98fe9f86f7053268d7fad28f249517c75aeec`; [publication run](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/46061739240). Recheck access before saving.
 3. Keep the current public demo video only if it still accurately shows the current public build and remains under the hackathon's three-minute judging limit.
 4. Keep the factual Kiro usage disclosure above. Do not add claims about Hooks, Kiro spec workflow UI, Kiro Crew, custom agents, MCP, or property-based testing.
 5. Save changes to the existing Devpost entry and verify its update status. Do not create a duplicate entry.
