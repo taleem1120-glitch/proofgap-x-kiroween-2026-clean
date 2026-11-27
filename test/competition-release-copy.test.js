@@ -11,10 +11,14 @@ test('competition landing presents actual end-to-end mobile analysis with proven
  assert.match(page,/href="apps\/proofgap-cite\/showcase\.html"/);
  assert.doesNotMatch(page,/Core case analysis still requires its CLI/);
 });
-test('judges quickstart states release branch limitation and direct phone analysis',()=>{
+test('judges quickstart states verified deployment and direct phone analysis',()=>{
  const guide=read('docs/JUDGES_QUICKSTART_2026.md');
  assert.match(guide,/Analyze Locally/);
- assert.match(guide,/PR #6/);
+ assert.match(guide,/deployed source commit `[a-f0-9]{40}`/);
+ assert.match(guide,/15 public file hashes verified/);
+ assert.match(guide,/actions\/runs\/46061739240/);
+ assert.match(guide,/not a fresh independent CLI execution/);
+ assert.doesNotMatch(guide,/not yet verified/);
  assert.match(guide,/not verify real-world provenance/);
  assert.doesNotMatch(guide,/212-test suite/);
 });
