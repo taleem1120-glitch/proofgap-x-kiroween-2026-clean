@@ -1,0 +1,89 @@
+name: Build and verify release evidence bundle
+
+on:
+  push:
+    branches:
+      - release/proofgap-final-gate-2026-11-24
+    paths:
+      - '.github/workflows/release-evidence-bundle.yml'
+      - 'scripts/release-evidence-bundle.mjs'
+      - 'test/release-evidence-bundle.test.js'
+      - 'docs/RELEASE_EVIDENCE_BUNDLE.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: release-evidence-bundle-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    name: Build, verify and preserve exact-SHA review bundle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout the exact pushed candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install from lockfile without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Wait for successful exact-SHA validation workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REQUIRED='["CI","Cross-browser compatibility and security audit","Regenerate ProofGap Cite showcase"]'
+          for attempt in $(seq 1 40); do
+            RESPONSE="$(curl --fail --silent --show-error \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&per_page=100")"
+            SUMMARY="$(printf '%s' "$RESPONSE" | jq -c --arg sha "$GITHUB_SHA" '
+              [.workflow_runs[]
+               | select(.head_sha == $sha)
+               | select(.name == "CI"
+                     or .name == "Cross-browser compatibility and security audit"
+                     or .name == "Regenerate ProofGap Cite showcase")
+               ] | sort_by(.created_at) | group_by(.name)
+                 | map(.[-1] | {name, status, conclusion, validatedCommit: .head_sha, url: .html_url, runId: .id})')"
+            printf '%s' "$SUMMARY" | jq .
+            READY="$(printf '%s' "$SUMMARY" | jq -r --argjson required "$REQUIRED" '
+              (length == 3)
+              and ([.[] | select(.status == "completed" and .conclusion == "success")] | length == 3)
+              and ([.[].name] | sort == ($required | sort))')"
+            if [ "$READY" = "true" ]; then
+              EVIDENCE="$(printf '%s' "$SUMMARY" | jq -c '[.[] | {name, result: .conclusion, validatedCommit, url, runId}]')"
+              echo "PROOFGAP_AUTOMATED_EVIDENCE_JSON=$EVIDENCE" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Waiting for all required exact-SHA workflows (attempt $attempt/40)..."
+            sleep 20
+          done
+          echo "Required exact-SHA workflows did not all succeed before timeout."
+          exit 1
+      - name: Build review bundle from exact checked-out commit
+        run: node scripts/release-evidence-bundle.mjs /tmp/proofgap-release-evidence
+      - name: Verify checksums and exact source commit and evidence
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node scripts/release-evidence-bundle.mjs --verify /tmp/proofgap-release-evidence
+          node --input-type=module -e "import fs from 'node:fs'; const m=JSON.parse(fs.readFileSync('/tmp/proofgap-release-evidence/manifest.json','utf8')); const names=new Set(m.automatedEvidence.map(e=>e.name)); const required=['CI','Cross-browser compatibility and security audit','Regenerate ProofGap Cite showcase']; if(m.source.commit!==process.env.EXPECTED_SHA) throw Error('Bundle commit mismatch'); if(required.some(n=>!names.has(n))) throw Error('Missing required workflow evidence'); if(m.automatedEvidence.some(e=>e.validatedCommit!==m.source.commit || e.result!=='success')) throw Error('Evidence SHA/result mismatch'); console.log('Exact-SHA source and all three workflow records verified:',m.source.commit);"
+      - name: Upload verified review bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: proofgap-review-bundle-${{ github.sha }}
+          path: /tmp/proofgap-release-evidence/
+          if-no-files-found: error
+          retention-days: 30

@@ -58,6 +58,7 @@ export function analyzeNote(text, { sourcesDir, noteName = 'note', limits = CITE
     cl.line = v.line;
     cl.missing = v.missing;
     cl.citeEvidence = { citations: v.citations, independentOrigins: v.independentOrigins, primaryRootedOrigins: v.primaryRootedOrigins, supportStress: v.supportStress };
+    cl.sharedPassageReview = v.sharedPassageReview;
     cl.findings = [...v.findings, ...cl.findings];
     cl.explanation = [v.explanation, ...cl.explanation];
     counts[v.verdict] = (counts[v.verdict] ?? 0) + 1;
@@ -96,6 +97,11 @@ export function renderLint(report) {
   for (const cl of [...report.claims].sort((a, b) => a.line - b.line)) {
     const e = cl.citeEvidence;
     o.push(`${name}:${cl.line}: [${cl.decision}] "${clean(clip(cl.statement, 70))}": ${e.citations} citation(s) -> ${e.independentOrigins} independent origin(s), ${e.primaryRootedOrigins} primary-rooted${cl.corroboration.falseCorroboration ? `  (${cl.corroboration.apparentExcess} citation(s) add no independent support)` : ''}`);
+    const stress = e.supportStress;
+    o.push(`    support stress: removing one primary-rooted origin leaves ${stress.afterRemovingOnePrimaryOrigin}; ${stress.singleOriginRemovalKeepsTwoPrimaryOrigins ? 'the two-origin threshold survives' : 'the two-origin threshold does not survive'}. Structural declared-lineage counterfactual only.`);
+    const review = cl.sharedPassageReview;
+    if (review?.mode === 'local_saved_text_opt_in') o.push(`    saved-text review: ${review.status}; ${review.pairsCompared} pair(s) compared; ${review.cues.length} long shared-passage cue(s). ${clean(review.caveat)}`);
+    for (const cue of review?.cues ?? []) o.push(`      shared passage [^${cue.left}]/[^${cue.right}]: ${cue.tokens} tokens; coverage ${Number.isFinite(cue.coverage?.a) ? (cue.coverage.a * 100).toFixed(1) : 'n/a'}% / ${Number.isFinite(cue.coverage?.b) ? (cue.coverage.b * 100).toFixed(1) : 'n/a'}%; offsets ${cue.offsets ? `${cue.offsets.a.start}-${cue.offsets.a.endExclusive - 1} / ${cue.offsets.b.start}-${cue.offsets.b.endExclusive - 1}` : 'unavailable'}`);
     for (const f of cl.findings.filter((x) => x.code !== 'PROVENANCE_UNVERIFIED' && x.code !== 'NO_DECLARED_HASH')) o.push(`    ${f.basis === 'heuristic' ? 'suspect' : 'finding'} ${f.code}: ${clean(f.message)}`);
     for (const m of cl.missing) o.push(`    missing: ${clean(m)}`);
   }
