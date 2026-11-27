@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: node --expose-gc bench/cite/run.js <dev|heldout> [--out file.json]
+// Usage: node --expose-gc bench/cite/run.js <dev|heldout|textReviewHeldout> [--review-text-copies] [--out file.json]
 // Positive prediction = "independently corroborated". Accuracy is deterministic; latency/memory are machine dependent.
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -12,6 +12,7 @@ import { normalizeUrl } from '../../apps/proofgap-cite/src/parse.js';
 
 const split = process.argv[2];
 if (!CITE_SPLITS[split]) { console.error(`split must be one of ${Object.keys(CITE_SPLITS).join(', ')}`); process.exit(2); }
+const reviewTextCopies = process.argv.includes('--review-text-copies');
 const out = process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : null;
 
 const DETECTORS = {
@@ -29,7 +30,7 @@ for (const n of generateCiteSplit(split)) {
     for (const [f, bytes] of n.files) writeFileSync(join(dir, f), bytes);
     const noFiles = analyzeNote(n.text, { noteName: n.name });
     const t0 = performance.now();
-    const withFiles = analyzeNote(n.text, { noteName: n.name, sourcesDir: dir });
+    const withFiles = analyzeNote(n.text, { noteName: n.name, sourcesDir: dir, reviewTextCopies });
     ms.push(performance.now() - t0);
     for (const [cid, t] of Object.entries(n.truth)) {
       const a = noFiles.claims.find((c) => c.claimId === cid), b = withFiles.claims.find((c) => c.claimId === cid);
@@ -57,7 +58,7 @@ const h0 = process.memoryUsage().heapUsed, t0 = performance.now();
 analyzeNote(big, { noteName: 'large.md' });
 const largeMs = performance.now() - t0, heapMB = (process.memoryUsage().heapUsed - h0) / 1048576;
 
-const result = { split, seeds: CITE_SPLITS[split], notes: CITE_SPLITS[split].count, claims: rows.cite_with_saved_files.length,
+const result = { split, savedTextReviewEnabled: reviewTextCopies, seeds: CITE_SPLITS[split], notes: CITE_SPLITS[split].count, claims: rows.cite_with_saved_files.length,
   positives: rows.cite_with_saved_files.filter((x) => x.truth).length, node: process.version,
   detectors: Object.fromEntries(Object.entries(rows).map(([k, v]) => [k, summarize(confusion(v))])), byScenario,
   latency: { medianMsPerNoteWithFiles: [...ms].sort((a, b) => a - b)[Math.floor(ms.length / 2)], largeNote: { claims: 200, references: 500, ms: largeMs, heapUsedDeltaMB: heapMB, gcExposed: typeof globalThis.gc === 'function' } } };

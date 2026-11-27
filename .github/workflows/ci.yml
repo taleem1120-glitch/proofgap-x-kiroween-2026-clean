@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'feature/**', 'audit/**']
+    branches: [main, 'feature/**', 'audit/**', 'recovery/**', 'release/**']
   pull_request:
   workflow_dispatch:
 
@@ -27,6 +27,7 @@ jobs:
       # Third-party actions are pinned to full commit SHAs (tags: actions/checkout v7.0.1, actions/setup-node v7.1.0).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
@@ -64,6 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
@@ -77,3 +79,50 @@ jobs:
         env:
           NODE_PATH: /tmp/proofgap-playwright/node_modules
         run: node scripts/e2e-responsive.cjs
+  clean-checkout-validation-and-showcase:
+    name: Clean-checkout full validation and showcase determinism
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Clean install
+        run: npm ci --ignore-scripts
+      - name: Run full local validation and deterministic benchmark comparisons
+        run: npm run validate:local
+      - name: Remove generated showcase outputs in disposable CI checkout
+        run: rm viewer/showcase.html apps/proofgap-cite/showcase.html
+      - name: Rebuild ProofGap X showcase
+        run: npm run showcase
+      - name: Rebuild ProofGap Cite showcase
+        run: npm run showcase:cite
+      - name: Verify whitespace and byte-for-byte showcase reproducibility
+        run: |
+          git diff --check
+          git diff --exit-code -- viewer/showcase.html apps/proofgap-cite/showcase.html
+  cite-saved-text-review-benchmark:
+    name: Cite saved-text review benchmark (fresh synthetic split)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Evaluate opt-in saved-text review on reserved synthetic split
+        run: node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
+      - name: Evaluate independent sources with shared short boilerplate (fresh held-out split)
+        run: node --expose-gc bench/cite/run.js templateHeldout --review-text-copies
+      - name: Evaluate genuinely short boilerplate separately (fresh held-out split)
+        run: node --expose-gc bench/cite/run.js shortTemplateHeldout --review-text-copies

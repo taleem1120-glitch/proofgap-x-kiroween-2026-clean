@@ -67,14 +67,14 @@ const summary = {
   benchmark: { command: 'node --expose-gc bench/run.js all --out <dir>/bench.json', exitCode: b.status, referenceFile: reference, accuracyIdenticalToReference: accuracyIdentical, note: 'accuracy compared; latency/memory are machine dependent and are not compared' },
   benchmarkFiles: { command: 'node bench/run-files.js heldout3 --out <dir>/bench-files-heldout3.json', exitCode: fb.status, referenceFile: filesRef, accuracyIdenticalToReference: filesIdentical },
   benchmarkCite: { command: 'node --expose-gc bench/cite/run.js heldout --out <dir>/bench-cite-heldout.json', exitCode: cb.status, referenceFile: citeRef, accuracyIdenticalToReference: citeIdentical },
-  ci: { status: 'BLOCKED_BY_BILLING', note: 'GitHub Actions jobs were never started (account billing/spending limit). No remote CI result exists; nothing here is a CI result.' },
+  ci: { status: 'NOT_QUERIED', note: 'This local runner does not query GitHub Actions. Check the linked workflow runs separately; local results are not remote CI results.' },
   notTested: ['Node 20', 'Windows', 'macOS', 'case-insensitive filesystems', 'real-world case data', 'browsers other than headless Chromium (viewer)', 'screen readers (viewer)'],
 };
 summary.allGreen = steps.every((s) => s.exitCode === 0 && s.fail === 0 && s.tests > 0) && accuracyIdentical && filesIdentical && citeIdentical;
 writeFileSync(`${dir}/summary.json`, JSON.stringify(summary, null, 2) + '\n');
 const md = [`# Local validation ${id}`, '', `Node ${summary.node}, npm ${summary.npm}, ${summary.os}, ${summary.cpuCount}× ${summary.cpu}, ${summary.totalMemMB} MB`, `Commit ${summary.git.commit} (${summary.git.branch}); uncommitted files at run time: ${summary.git.dirtyFiles.length}`, '',
   '| Group | Command | Tests | Pass | Fail | Exit |', '|---|---|---|---|---|---|', ...steps.map((s) => `| ${s.name} | \`${s.command}\` | ${s.tests} | ${s.pass} | ${s.fail} | ${s.exitCode} |`), '',
-  `Benchmark accuracy identical to \`${reference}\`: **${accuracyIdentical}** (exit ${b.status}).`, `File-backed benchmark identical to \`${filesRef}\`: **${filesIdentical}** (exit ${fb.status}).`, `Cite benchmark identical to \`${citeRef}\`: **${citeIdentical}** (exit ${cb.status}).`, '', `GitHub Actions CI: **BLOCKED_BY_BILLING** (not PASSED, not CODE_FAILED).`, '', `Overall local result: **${summary.allGreen ? 'ALL LOCAL CHECKS PASSED' : 'FAILURES PRESENT'}**`, `NOT TESTED: ${summary.notTested.join(', ')}`, ''].join('\n');
+  `Benchmark accuracy identical to \`${reference}\`: **${accuracyIdentical}** (exit ${b.status}).`, `File-backed benchmark identical to \`${filesRef}\`: **${filesIdentical}** (exit ${fb.status}).`, `Cite benchmark identical to \`${citeRef}\`: **${citeIdentical}** (exit ${cb.status}).`, '', `GitHub Actions CI: **NOT QUERIED BY THIS LOCAL RUNNER**. Check GitHub Actions separately; this local report makes no claim about remote CI.`, '', `Overall local result: **${summary.allGreen ? 'ALL LOCAL CHECKS PASSED' : 'FAILURES PRESENT'}**`, `NOT TESTED: ${summary.notTested.join(', ')}`, ''].join('\n');
 writeFileSync(`${dir}/summary.md`, md);
 console.log(md);
 process.exit(summary.allGreen ? 0 : 1);

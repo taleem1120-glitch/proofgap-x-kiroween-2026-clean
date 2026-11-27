@@ -88,10 +88,18 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         const left = textRefs[i].id, right = textRefs[j].id;
         const cue = detectSharedPassage(textById.get(left), textById.get(right), { maxComparisons: 1000 });
         if (cue.longestRunTokens >= 60) {
-          sharedPassageCues.push({ left, right, tokens: cue.longestRunTokens });
-          const locations = cue.candidates.slice(0, 2).map((x) => `tokens ${x.startA}-${x.startA + x.tokens - 1} in [^${left}] / ${x.startB}-${x.startB + x.tokens - 1} in [^${right}]`).join('; ');
+          const longestCandidate = cue.candidates.reduce((best, item) => !best || item.tokens > best.tokens ? item : best, null);
+          const coverageA = cue.coverage?.a;
+          const coverageB = cue.coverage?.b;
+          sharedPassageCues.push({ left, right, tokens: cue.longestRunTokens, tokenCounts: cue.tokenCounts, coverage: cue.coverage, offsets: longestCandidate ? { a: { start: longestCandidate.startA, endExclusive: longestCandidate.endA }, b: { start: longestCandidate.startB, endExclusive: longestCandidate.endB } } : null });
+          const locations = longestCandidate
+            ? `normalized token offsets ${longestCandidate.startA}-${longestCandidate.endA - 1} in [^${left}] / ${longestCandidate.startB}-${longestCandidate.endB - 1} in [^${right}]`
+            : 'locations unavailable';
+          const coverage = Number.isFinite(coverageA) && Number.isFinite(coverageB)
+            ? `; passage coverage: ${(coverageA * 100).toFixed(1)}% of [^${left}] (${cue.tokenCounts.a} tokens), ${(coverageB * 100).toFixed(1)}% of [^${right}] (${cue.tokenCounts.b} tokens)`
+            : '';
           F('SHARED_PASSAGE_TEXT_OVERLAP', 'heuristic', 'medium',
-            `A contiguous shared passage of ${cue.longestRunTokens} normalized tokens was found between [^${left}] and [^${right}] (${locations || 'locations unavailable'}). This is a review cue only; quotations, templates and syndication can explain overlap.`, [left, right]);
+            `A contiguous shared passage of ${cue.longestRunTokens} normalized tokens was found between [^${left}] and [^${right}] (${locations}${coverage}). This is a review cue only; quotations, templates and syndication can explain overlap. Coverage is descriptive, not evidence of copying or common origin.`, [left, right]);
         }
         if (cue.incomplete) { sharedPassageIncomplete = true; F('SHARED_PASSAGE_SCAN_INCOMPLETE', 'heuristic', 'low',
           `The shared-passage scan for [^${left}] and [^${right}] was incomplete (${cue.basis}); absence of a detected passage is not informative.`, [left, right]);
@@ -108,7 +116,20 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     for (const p of nearTextCues) F('NEAR_DUPLICATE_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
       `[^${p.left}] and [^${p.right}] have highly similar normalized reference text (shingle similarity ${p.similarity}); review publication history, but similarity does not prove a shared origin.`, [p.left, p.right]);
     if (nearText.truncated) F('NEAR_DUPLICATE_SCAN_BOUNDED', 'heuristic', 'low',
-      'Near-duplicate text review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
+      'Near-duplicate reference-label review reached its deterministic comparison/result budget; some citation pairs may not have been compared.');
+
+    // Compare extracted saved-document text as a separate, opt-in review signal.
+    // This catches long re-encoded/reposted copies with small edits that exact shared-passage
+    // matching can miss. It never merges roots, verifies authorship, or establishes copying.
+    const nearSavedText = findNearDuplicatePairs(textRefs.map((ct) => ({ id: ct.id, text: textById.get(ct.id) })), {
+      minSimilarity: 0.84, maxComparisons: 435, maxResults: 100,
+    });
+    const nearSavedTextCues = nearSavedText.pairs.filter((p) =>
+      originOfRef.has(p.left) && originOfRef.has(p.right) && originOfRef.get(p.left) !== originOfRef.get(p.right));
+    for (const p of nearSavedTextCues) F('NEAR_DUPLICATE_SAVED_TEXT_DIFFERENT_LINEAGE', 'heuristic', 'medium',
+      `Saved text for [^${p.left}] and [^${p.right}] has highly similar normalized character shingles (similarity ${p.similarity}). Review the original documents and publication history; similarity alone does not establish copying or common origin.`, [p.left, p.right]);
+    if (nearSavedText.truncated) F('NEAR_DUPLICATE_SAVED_TEXT_SCAN_BOUNDED', 'heuristic', 'low',
+      'Saved-text near-duplicate review reached its deterministic resource/result budget; some extracted document pairs may not have been compared.');
     for (const g of idCues) F('SAME_IDENTIFIER_DIFFERENT_LINEAGE', 'heuristic', 'medium', `${q(g.refs)} share ${g.identifier.replace(':', ' ')} but are declared as separate lineages; they may be the same piece (syndication or reposting).`, g.refs);
 
     let verdict;
@@ -133,16 +154,18 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         : `A primary source behind ${roots.length ? q(roots) : `origin ${o.origin}`}, plus a second, independent primary source.`);
     } else if (primaryOrigins.length >= 2) {
       const coreCues = cl.abstentionCues ?? [];
-      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated || sharedPassageCues.length || sharedPassageIncomplete) {
+      if (idCues.length || coreCues.length || nearTextCues.length || nearText.truncated || nearSavedTextCues.length || nearSavedText.truncated || sharedPassageCues.length || sharedPassageIncomplete) {
         verdict = 'abstain_suspected_shared_origin';
         const reviewRefs = [
           ...idCues.flatMap((g) => g.refs),
           ...nearTextCues.flatMap((p) => [p.left, p.right]),
+          ...nearSavedTextCues.flatMap((p) => [p.left, p.right]),
         ].map((r) => `[^${r}]`);
         const reasons = [...new Set([...reviewRefs, ...coreCues])];
         if (sharedPassageCues.length) reasons.push(...sharedPassageCues.map((x) => `shared passage (${x.tokens} tokens) between [^${x.left}] and [^${x.right}]`));
         if (sharedPassageIncomplete) reasons.push('one or more shared-passage scans were incomplete');
-        if (nearText.truncated) reasons.push('the near-duplicate scan reached its comparison/result budget');
+        if (nearText.truncated) reasons.push('the reference-label near-duplicate scan reached its comparison/result budget');
+        if (nearSavedText.truncated) reasons.push('the saved-text near-duplicate scan reached its resource/result budget');
         missing.push(`Resolve ${reasons.join(', ')} and confirm the cited pieces are genuinely separate (check bylines, syndication notes, publication history); the bounded text scan was ${nearText.truncated ? 'incomplete' : 'complete'}.`);
       } else verdict = 'independently_corroborated';
     } else {
@@ -155,6 +178,14 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
     out.set(cl.claimId, {
       verdict, line: lineOf.get(cl.claimId), findings, missing,
       citations: cited.length, independentOrigins: sup.length, primaryRootedOrigins: primaryOrigins.length,
+      sharedPassageReview: {
+        mode: textReviewEnabled ? 'local_saved_text_opt_in' : 'not_requested',
+        status: !textReviewEnabled ? 'not_requested' : sharedPassageIncomplete ? 'incomplete' : sharedPassageCues.length ? 'review_required' : textRefs.length < 2 ? 'no_comparable_pairs' : 'no_long_passage_detected',
+        documentsCompared: textRefs.length,
+        pairsCompared: sharedPassagePairs,
+        cues: sharedPassageCues,
+        caveat: 'A shared passage is a review cue only. It does not prove copying, common origin or authorship; no detected passage is not proof of independence.',
+      },
       supportStress: {
         metric: 'declared_primary_origin_leave_one_out',
         baselinePrimaryOrigins: primaryOrigins.length,
@@ -163,7 +194,7 @@ export function citeVerdicts({ report, note, cycles, identifierGroups, textDocum
         scenarios: primaryOrigins.map((o) => ({ removedOrigin: o.origin, remainingPrimaryOrigins: Math.max(0, primaryOrigins.length - 1) })),
         caveat: 'Structural counterfactual based on declared lineage only; it does not re-evaluate claim truth or source reliability.',
       },
-      explanation: `${cited.filter((c) => c.stance === 'supports').length} supporting citation(s) → ${sup.length} independent origin(s), ${primaryOrigins.length} tracing to a declared primary source. Verdict: ${verdict.replace(/_/g, ' ')} (${CITE_VERDICTS[verdict]}).`,
+      explanation: `${cited.filter((c) => c.stance === 'supports').length} supporting citation(s) → ${sup.length} independent origin(s), ${primaryOrigins.length} tracing to a declared primary source. Removing any one primary-rooted origin leaves ${Math.max(0, primaryOrigins.length - 1)}; this is a structural lineage counterfactual, not a truth or reliability test. Verdict: ${verdict.replace(/_/g, ' ')} (${CITE_VERDICTS[verdict]}).`,
     });
   }
   return out;

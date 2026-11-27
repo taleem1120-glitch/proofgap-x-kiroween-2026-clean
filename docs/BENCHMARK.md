@@ -1,5 +1,72 @@
 # ProofGap X — Benchmark
 
+## Phase 14: genuinely short boilerplate vs long shared passage — fresh synthetic cohort
+
+A follow-up cohort at seeds **1100001–1100150** (`shortTemplateHeldout`) separates a genuinely short public disclaimer from a long shared passage. The short disclaimer is fewer than 60 normalized whitespace-delimited tokens; each independent source then contains distinct substantive findings. The pre-existing `templateHeldout` cohort keeps its stable scenario order and weights; under the corrected generator it contains 54 long-template claims. Historical splits remain isolated from both added scenarios.
+
+CI run [45469079808 (#807)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45469079808), benchmark job 138711862008, Node v22.23.5:
+
+- 150 notes, 685 claims, 232 truly corroborated claims.
+- Baseline cite_without_saved_files: TP 179, FP 121, TN 332, FN 53; precision 59.7%, recall 77.2%, FPR 26.7%.
+- Opt-in cite_with_saved_files: TP 140, FP 0, TN 453, FN 92; precision 100.0% (95% Wilson CI 97.3–100.0%), recall 60.3% (53.9–66.4%), FPR 0.0% (0.0–0.8%).
+- In the independent_short_template scenario, **36/36** truly corroborated claims were positively classified as independently corroborated.
+- The long-template scenario produced **39/39** abstentions as abstain_suspected_shared_origin in this short-template cohort; no positive assertion was made for those cases. (The separate `templateHeldout` cohort contains 54 such cases.)
+
+**Interpretation:** the detector distinguishes this short-disclaimer fixture from a much longer exact shared passage without changing the 60-token rule. The short-template sub-scenario had no false positives and no abstentions in 36 synthetic cases. The long shared passage still triggers conservative abstention; this is a human-review warning, not proof of shared origin. Aggregate recall remains limited by abstentions and other unresolved-provenance cases. These author-built synthetic results are not estimates of real-world accuracy. Do not lower the shared-passage threshold or tune against this cohort solely to improve recall.
+
+## Phase 13: independent sources sharing a long boilerplate passage — fresh synthetic cohort
+
+This experiment isolates a conservative over-abstention risk: two genuinely independent primary sources share a long public boilerplate passage, while their substantive findings and source files are distinct. The reserved cohort uses seeds **900001–900150** (templateHeldout) and is disjoint from earlier cohorts. It is synthetic and author-generated; it is not field validation.
+
+Reproduce:
+
+```sh
+node --expose-gc bench/cite/run.js templateHeldout --review-text-copies
+```
+
+CI run [45466498604 (#790)](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45466498604), benchmark job 138702683637, Node v22.23.5:
+
+- 150 notes, 673 claims, 214 truly corroborated claims.
+- Baseline cite_without_saved_files: TP 158, FP 120, TN 339, FN 56; precision 56.8%, recall 73.8%, FPR 26.1%.
+- Opt-in cite_with_saved_files: TP 104, FP 0, TN 459, FN 110; precision 100.0% (95% Wilson CI 96.4–100.0%), recall 48.6% (42.0–55.3%), FPR 0.0% (0.0–0.8%).
+- The independent_shared_template scenario contains **54 truly corroborated claims**. All 54 abstained as abstain_suspected_shared_origin; none was positively asserted.
+- Re-encoded reposts and same-URL syndication also abstained in this cohort (49 each).
+
+**Interpretation:** the saved-text review path avoided false-positive assertions in this synthetic cohort, but it did so conservatively and missed/abstained on many genuinely independent claims. In particular, the shared-passage cue can treat independent sources that share generic boilerplate as suspected shared origin. This is a recall/availability cost, not evidence that the sources were actually dependent. Keep the alert as a human-review cue; do not describe it as proof of copying or common origin. Do not tune thresholds against this held-out cohort and then call it untouched validation.
+
+## Phase 12: opt-in saved-text review — fresh cohort, measurement pending
+
+Phase 11's file-backed Cite benchmark did **not** enable `reviewTextCopies`; its 66 false positives on `reencoded_repost` therefore remain valid for that exact configuration. They must not be presented as a measured result for the newer opt-in saved-text review path.
+
+A separate synthetic cohort is reserved at seeds **700001–700150** (`textReviewHeldout`), disjoint from the Phase 11 development and held-out seed ranges. In this cohort, `reencoded_repost` cases contain long UTF-8 documents with a small textual edit and formatting/encoding changes, so the opt-in shared-passage and near-duplicate saved-text cues are actually exercised. Historical Phase 11 cases retain their original generator and are unchanged.
+
+Reproduce the new diagnostic with:
+
+```sh
+node --expose-gc bench/cite/run.js textReviewHeldout --review-text-copies
+```
+
+The CI job runs this diagnostic on Node 22. This is an author-generated synthetic test, not an independent or real-world accuracy evaluation. Keep false positives, false negatives, abstentions, per-scenario results, and limitations visible; do not tune thresholds against this cohort and then describe it as untouched validation.
+
+### Phase 12 result — candidate head `4d35b24a78d8505c89ff2ce66408b77e4cdd436c`
+
+CI run [45399669922](https://github.com/taleem1120-glitch/proofgap-x-kiroween-2026-clean/actions/runs/45399669922), benchmark job `138464738153`, Node v22.23.5:
+
+| Detector | TP | FP | TN | FN | Precision | Recall | FPR |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Cite without saved-text review | 111 | 121 | 392 | 54 | 47.8% | 67.3% | 23.6% |
+| Cite with opt-in saved-text review | 111 | 0 | 513 | 54 | 100.0% | 67.3% | 0.0% |
+
+- Total: 150 synthetic notes, 678 claims, 165 truly corroborated claims.
+- All **43** `reencoded_repost` cases abstained; none were asserted as independently corroborated.
+- The **54** false negatives are all `undeclared_independent`: their notes do not disclose the primary origins, so the tool cannot distinguish them from the 56 `undeclared_echo` cases.
+- Wilson 95% intervals: precision 96.7–100.0%; recall 59.8–74.0%; FPR 0.0–0.7%.
+- Median 2.44 ms/note with saved files; representative large note 52.6 ms and heap delta +15.9 MB on this runner.
+
+**Interpretation:** within this synthetic cohort, the opt-in saved-text review reduced false positives from 121 to 0 without changing recall. This is a strong implementation-level result, not a real-world accuracy estimate, independent validation, or a guarantee against paraphrase, translation, OCR, cropped passages, common templates, or undisclosed provenance. Keep the feature opt-in and retain human review.
+
+
+
 ## Phase 11: ProofGap Cite (application 2)
 **Read first.** The benchmark is synthetic and author-built (`bench/cite/dataset.js`), and its scenarios encode the rules Cite implements. The numbers show the implementation follows its specification and expose its designed blind spots. They are **not** evidence of real-world accuracy, and there is no external comparison.
 

@@ -2,9 +2,12 @@ name: Cross-browser compatibility and security audit
 
 on:
   push:
-    branches: ['main', 'audit/**']
+    branches: ['main', 'audit/**', 'recovery/**', 'release/**']
     paths:
       - '.github/workflows/cross-browser-security.yml'
+      - '.github/workflows/ci.yml'
+      - 'docs/**'
+      - 'scripts/e2e-accessibility.cjs'
       - 'scripts/e2e-responsive.cjs'
       - 'src/**'
       - 'viewer/**'
@@ -16,9 +19,12 @@ on:
       - 'test/security.test.js'
       - 'docs/THREAT_MODEL.md'
   pull_request:
-    branches: ['main']
+    branches: ['main', 'recovery/**', 'release/**']
     paths:
       - '.github/workflows/cross-browser-security.yml'
+      - '.github/workflows/ci.yml'
+      - 'docs/**'
+      - 'scripts/e2e-accessibility.cjs'
       - 'scripts/e2e-responsive.cjs'
       - 'src/**'
       - 'viewer/**'
@@ -42,7 +48,9 @@ jobs:
   browser-matrix:
     name: ${{ matrix.browser }} compatibility
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # WebKit's OS dependency installation is substantially slower than Chromium/Firefox on hosted runners.
+    # Keep the checks unchanged; provide a realistic budget and separate install phases for diagnosis.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -50,20 +58,28 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '22'
           package-manager-cache: false
       - name: Install isolated pinned Playwright tooling
-        run: npm install --prefix /tmp/proofgap-playwright --no-save --ignore-scripts playwright@1.56.1
-      - name: Install browser and operating-system dependencies
-        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
+        run: npm install --prefix /tmp/proofgap-playwright --no-save --ignore-scripts playwright@1.56.1 @axe-core/playwright@4.10.2
+      - name: Install operating-system dependencies
+        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install-deps ${{ matrix.browser }}
+      - name: Install pinned browser binary
+        run: /tmp/proofgap-playwright/node_modules/.bin/playwright install ${{ matrix.browser }}
       - name: Run responsive layout, keyboard, RTL and case-authoring checks
         env:
           NODE_PATH: /tmp/proofgap-playwright/node_modules
           PW_BROWSER: ${{ matrix.browser }}
         run: node scripts/e2e-responsive.cjs
+      - name: Run automated WCAG 2.1 A/AA and accessibility smoke checks
+        env:
+          NODE_PATH: /tmp/proofgap-playwright/node_modules
+          PW_BROWSER: ${{ matrix.browser }}
+        run: node scripts/e2e-accessibility.cjs
 
   security-audit:
     name: Dependency and security regression audit
@@ -72,6 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
